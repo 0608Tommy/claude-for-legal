@@ -1,0 +1,869 @@
+{
+  "schemaVersion": 1,
+  "sourceInventory": "source-inventory.json",
+  "logicalTargetIds": {
+    "direct": "ja-jp.cowork.<plugin>.<skill>",
+    "powerPlatform": "ja-jp.power.<plugin>.<skill>",
+    "admin": "ja-jp.admin.<plugin>.<skill>",
+    "internalReference": "ja-jp.ref.<plugin>.<skill>",
+    "unsupported": null
+  },
+  "rules": [
+    "The deployed skill name remains the source folder's ASCII kebab-case ID.",
+    "Logical target IDs are metadata and must not replace the deployed skill name.",
+    "Internal references are flattened into every caller that depends on them.",
+    "Power Platform and admin dispositions may keep a Cowork front end, but the state-changing operation runs through an audited flow.",
+    "Unsupported items are excluded from deployable packages."
+  ],
+  "pluginAncillaryArtifacts": {
+    ".claude-plugin/plugin.json": "generate Microsoft 365 manifest metadata",
+    "README.md": "translate into the package and tenant deployment guide",
+    "CLAUDE.md": "translate into a SharePoint-backed practice profile template",
+    ".mcp.json": "map through the connector compatibility and auth matrix",
+    "agents/*.md": "map through agentMappings into separate Power Platform solutions",
+    "hooks/hooks.json": "omit empty source hooks and document that no behavior was lost",
+    ".gitignore": "do not copy into the Cowork package"
+  },
+  "rootArtifacts": [
+    {
+      "source": "README.md",
+      "target": "m365-cowork-ja/docs/README.md",
+      "disposition": "translate-and-rewrite-installation"
+    },
+    {
+      "source": "QUICKSTART.md",
+      "target": "m365-cowork-ja/docs/QUICKSTART.md",
+      "disposition": "translate-and-rewrite-installation"
+    },
+    {
+      "source": "CONNECTORS.md",
+      "target": "m365-cowork-ja/docs/CONNECTORS.md",
+      "disposition": "translate-and-rewrite-connectors"
+    },
+    {
+      "source": "CONTRIBUTING.md",
+      "target": "m365-cowork-ja/docs/CONTRIBUTING.md",
+      "disposition": "translate-and-add-target-validation"
+    },
+    {
+      "source": "CODE_OF_CONDUCT.md",
+      "target": "m365-cowork-ja/docs/CODE_OF_CONDUCT.md",
+      "disposition": "faithful-translation"
+    },
+    {
+      "source": "CLAUDE.md",
+      "target": "m365-cowork-ja/docs/SOURCE-MAINTENANCE.md",
+      "disposition": "translate-and-rewrite-target-conventions"
+    },
+    {
+      "source": "CLA.md",
+      "target": "m365-cowork-ja/docs/CLA.md",
+      "disposition": "faithful-translation"
+    },
+    {
+      "source": "LICENSE",
+      "target": "each package LICENSE plus docs/LICENSE.ja.md",
+      "disposition": "retain-authoritative-original-and-add-reference-translation"
+    },
+    {
+      "source": "references/company-profile-template.md",
+      "target": "m365-cowork-ja/shared/company-profile-template.md",
+      "disposition": "translate-and-adapt-to-sharepoint"
+    },
+    {
+      "source": "references/dashboard-template.md",
+      "target": "m365-cowork-ja/shared/dashboard-template.md",
+      "disposition": "translate-and-adapt-to-m365-artifacts"
+    },
+    {
+      "source": "scripts/deploy-managed-agent.sh",
+      "target": "m365-cowork-ja/power-platform-solutions deployment tooling",
+      "disposition": "replace-not-translate"
+    },
+    {
+      "source": "scripts/lint-tool-scope.py",
+      "target": "Power Platform identity and connection scope lint",
+      "disposition": "replace-not-translate"
+    },
+    {
+      "source": "scripts/orchestrate.py",
+      "target": "Power Platform handoff and schema contract",
+      "disposition": "replace-not-translate"
+    },
+    {
+      "source": "scripts/test-cookbooks.sh",
+      "target": "Power Platform solution validation tests",
+      "disposition": "replace-not-translate"
+    },
+    {
+      "source": "scripts/validate.py",
+      "target": "runtime flow payload validation",
+      "disposition": "adapt"
+    }
+  ],
+  "cookbookArtifacts": {
+    "agent.yaml": "Power Platform parent flow or Copilot Studio orchestration source",
+    "subagents/*.yaml": "least-privilege child flows with separate connections",
+    "steering-examples.json": "Japanese trigger and payload regression fixtures",
+    "README.md": "Japanese security, import, and operations guide"
+  },
+  "plugins": {
+    "ai-governance-legal": {
+      "direct": [
+        "aia-generation",
+        "policy-starter",
+        "reg-gap-analysis",
+        "use-case-triage",
+        "vendor-ai-review"
+      ],
+      "powerPlatform": [
+        "ai-inventory",
+        "matter-workspace",
+        "policy-monitor"
+      ],
+      "admin": [
+        "cold-start-interview",
+        "customize"
+      ],
+      "internalReference": [],
+      "unsupported": []
+    },
+    "commercial-legal": {
+      "direct": [
+        "amendment-history",
+        "escalation-flagger",
+        "review",
+        "stakeholder-summary"
+      ],
+      "powerPlatform": [
+        "matter-workspace",
+        "renewal-tracker",
+        "review-proposals"
+      ],
+      "admin": [
+        "cold-start-interview",
+        "customize"
+      ],
+      "internalReference": [
+        "nda-review",
+        "saas-msa-review",
+        "vendor-agreement-review"
+      ],
+      "unsupported": []
+    },
+    "corporate-legal": {
+      "direct": [
+        "ai-tool-handoff",
+        "board-minutes",
+        "deal-team-summary",
+        "diligence-issue-extraction",
+        "material-contract-schedule",
+        "tabular-review",
+        "written-consent"
+      ],
+      "powerPlatform": [
+        "closing-checklist",
+        "entity-compliance",
+        "integration-management",
+        "matter-workspace"
+      ],
+      "admin": [
+        "cold-start-interview",
+        "customize"
+      ],
+      "internalReference": [],
+      "unsupported": []
+    },
+    "employment-legal": {
+      "direct": [
+        "expansion-kickoff",
+        "handbook-updates",
+        "hiring-review",
+        "investigation-memo",
+        "investigation-query",
+        "investigation-summary",
+        "policy-drafting",
+        "termination-review",
+        "wage-hour-qa",
+        "worker-classification"
+      ],
+      "powerPlatform": [
+        "expansion-update",
+        "investigation-add",
+        "investigation-open",
+        "leave-tracker",
+        "log-leave",
+        "matter-workspace"
+      ],
+      "admin": [
+        "cold-start-interview",
+        "customize"
+      ],
+      "internalReference": [
+        "internal-investigation",
+        "international-expansion"
+      ],
+      "unsupported": []
+    },
+    "ip-legal": {
+      "direct": [
+        "cease-desist",
+        "clearance",
+        "fto-triage",
+        "infringement-triage",
+        "invention-intake",
+        "ip-clause-review",
+        "oss-review",
+        "takedown"
+      ],
+      "powerPlatform": [
+        "matter-workspace",
+        "portfolio"
+      ],
+      "admin": [
+        "cold-start-interview",
+        "customize"
+      ],
+      "internalReference": [],
+      "unsupported": []
+    },
+    "law-student": {
+      "direct": [
+        "bar-prep-questions",
+        "case-brief",
+        "cold-call-prep",
+        "exam-forecast",
+        "irac-practice",
+        "legal-writing",
+        "outline-builder",
+        "session",
+        "socratic-drill"
+      ],
+      "powerPlatform": [
+        "flashcards",
+        "study-plan"
+      ],
+      "admin": [
+        "cold-start-interview",
+        "customize"
+      ],
+      "internalReference": [],
+      "unsupported": []
+    },
+    "legal-builder-hub": {
+      "direct": [],
+      "powerPlatform": [],
+      "admin": [
+        "auto-updater",
+        "cold-start-interview",
+        "customize",
+        "disable",
+        "registry-browser",
+        "related-skills-surfacer",
+        "skill-installer",
+        "skills-qa",
+        "uninstall"
+      ],
+      "internalReference": [
+        "skill-manager"
+      ],
+      "unsupported": []
+    },
+    "legal-clinic": {
+      "direct": [
+        "client-intake",
+        "client-letter",
+        "draft",
+        "memo",
+        "ramp",
+        "research-start",
+        "status"
+      ],
+      "powerPlatform": [
+        "client-comms-log",
+        "deadlines",
+        "semester-handoff",
+        "supervisor-review-queue"
+      ],
+      "admin": [
+        "build-guide",
+        "cold-start-interview",
+        "customize"
+      ],
+      "internalReference": [
+        "form-generation",
+        "plain-language-letters"
+      ],
+      "unsupported": []
+    },
+    "litigation-legal": {
+      "direct": [
+        "brief-section-drafter",
+        "chronology",
+        "claim-chart",
+        "demand-draft",
+        "demand-intake",
+        "demand-received",
+        "deposition-prep",
+        "matter-briefing",
+        "privilege-log-review",
+        "subpoena-triage"
+      ],
+      "powerPlatform": [
+        "legal-hold",
+        "matter-close",
+        "matter-intake",
+        "matter-update",
+        "matter-workspace",
+        "oc-status",
+        "portfolio-status"
+      ],
+      "admin": [
+        "cold-start-interview",
+        "customize"
+      ],
+      "internalReference": [],
+      "unsupported": []
+    },
+    "privacy-legal": {
+      "direct": [
+        "dpa-review",
+        "dsar-response",
+        "pia-generation",
+        "reg-gap-analysis",
+        "use-case-triage"
+      ],
+      "powerPlatform": [
+        "matter-workspace",
+        "policy-monitor"
+      ],
+      "admin": [
+        "cold-start-interview",
+        "customize"
+      ],
+      "internalReference": [],
+      "unsupported": []
+    },
+    "product-legal": {
+      "direct": [
+        "feature-risk-assessment",
+        "is-this-a-problem",
+        "launch-review",
+        "marketing-claims-review"
+      ],
+      "powerPlatform": [
+        "matter-workspace"
+      ],
+      "admin": [
+        "cold-start-interview",
+        "customize"
+      ],
+      "internalReference": [],
+      "unsupported": []
+    },
+    "regulatory-legal": {
+      "direct": [
+        "policy-diff",
+        "policy-redraft"
+      ],
+      "powerPlatform": [
+        "comments",
+        "gaps",
+        "matter-workspace",
+        "reg-feed-watcher"
+      ],
+      "admin": [
+        "cold-start-interview",
+        "customize"
+      ],
+      "internalReference": [
+        "gap-surfacer"
+      ],
+      "unsupported": []
+    },
+    "cocounsel-legal": {
+      "direct": [],
+      "powerPlatform": [],
+      "admin": [],
+      "internalReference": [],
+      "unsupported": [
+        "deep-research"
+      ]
+    }
+  },
+  "helperFlattening": [
+    {
+      "source": "commercial-legal/vendor-agreement-review",
+      "callers": [
+        "commercial-legal/review",
+        "commercial-legal/saas-msa-review"
+      ],
+      "target": "commercial-legal/review",
+      "mandatoryCarryover": [
+        "vendor clause checks",
+        "DPA handoff",
+        "signing and confidentiality gates"
+      ]
+    },
+    {
+      "source": "commercial-legal/nda-review",
+      "callers": [
+        "commercial-legal/review"
+      ],
+      "target": "commercial-legal/review",
+      "mandatoryCarryover": [
+        "GREEN/YELLOW/RED routing",
+        "approval and escalation gates"
+      ]
+    },
+    {
+      "source": "commercial-legal/saas-msa-review",
+      "callers": [
+        "commercial-legal/review"
+      ],
+      "target": "commercial-legal/review",
+      "mandatoryCarryover": [
+        "SaaS overlay",
+        "renewal and SLA checks",
+        "single integrated memo"
+      ]
+    },
+    {
+      "source": "employment-legal/internal-investigation",
+      "callers": [
+        "employment-legal/investigation-open",
+        "employment-legal/investigation-add",
+        "employment-legal/investigation-query",
+        "employment-legal/investigation-memo",
+        "employment-legal/investigation-summary"
+      ],
+      "target": "all callers",
+      "mandatoryCarryover": [
+        "privilege formation",
+        "matter isolation",
+        "audience stripping",
+        "five-mode state schema"
+      ]
+    },
+    {
+      "source": "employment-legal/international-expansion",
+      "callers": [
+        "employment-legal/expansion-kickoff",
+        "employment-legal/expansion-update"
+      ],
+      "target": "all callers",
+      "mandatoryCarryover": [
+        "EOR versus entity framework",
+        "dependency tracker",
+        "outside-counsel routing"
+      ]
+    },
+    {
+      "source": "regulatory-legal/gap-surfacer",
+      "callers": [
+        "regulatory-legal/gaps",
+        "regulatory-legal/comments",
+        "regulatory-legal/policy-diff",
+        "agent/reg-change-monitor"
+      ],
+      "target": "all callers",
+      "mandatoryCarryover": [
+        "gap schema",
+        "per-send confirmation",
+        "close and risk-accept gates",
+        "compliance certification"
+      ]
+    },
+    {
+      "source": "legal-builder-hub/skill-manager",
+      "callers": [
+        "legal-builder-hub/disable",
+        "legal-builder-hub/uninstall"
+      ],
+      "target": "admin deployment flows",
+      "mandatoryCarryover": [
+        "first-party path refusal",
+        "install-log check",
+        "fresh typed approval",
+        "audit log"
+      ]
+    },
+    {
+      "source": "legal-clinic/form-generation",
+      "callers": [],
+      "target": "legal-clinic/draft",
+      "mandatoryCarryover": [
+        "legacy utterance alias only"
+      ]
+    },
+    {
+      "source": "legal-clinic/plain-language-letters",
+      "callers": [],
+      "target": "legal-clinic/client-letter or legal-clinic/status",
+      "mandatoryCarryover": [
+        "route by routine versus substantive intent"
+      ]
+    }
+  ],
+  "callGraph": [
+    {
+      "from": "ai-governance-legal/use-case-triage",
+      "to": [
+        "ai-governance-legal/aia-generation",
+        "privacy-legal/pia-generation",
+        "product-legal/launch-review"
+      ],
+      "type": "conditional-handoff"
+    },
+    {
+      "from": "ai-governance-legal/aia-generation",
+      "to": [
+        "privacy-legal/pia-generation",
+        "ai-governance-legal/vendor-ai-review"
+      ],
+      "type": "conditional-handoff"
+    },
+    {
+      "from": "commercial-legal/review",
+      "to": [
+        "commercial-legal/nda-review",
+        "commercial-legal/vendor-agreement-review",
+        "commercial-legal/saas-msa-review",
+        "commercial-legal/escalation-flagger",
+        "commercial-legal/stakeholder-summary",
+        "commercial-legal/renewal-tracker"
+      ],
+      "type": "compiled-routing"
+    },
+    {
+      "from": "corporate-legal/diligence-issue-extraction",
+      "to": [
+        "corporate-legal/deal-team-summary",
+        "corporate-legal/material-contract-schedule",
+        "corporate-legal/closing-checklist"
+      ],
+      "type": "conditional-handoff"
+    },
+    {
+      "from": "corporate-legal/closing-checklist",
+      "to": [
+        "corporate-legal/integration-management"
+      ],
+      "type": "conditional-handoff"
+    },
+    {
+      "from": "employment-legal/investigation-*",
+      "to": [
+        "employment-legal/internal-investigation"
+      ],
+      "type": "compiled-reference"
+    },
+    {
+      "from": "employment-legal/expansion-*",
+      "to": [
+        "employment-legal/international-expansion"
+      ],
+      "type": "compiled-reference"
+    },
+    {
+      "from": "employment-legal/leave-tracker",
+      "to": [
+        "agent/leave-tracker"
+      ],
+      "type": "merged-skill-and-automation"
+    },
+    {
+      "from": "ip-legal/infringement-triage",
+      "to": [
+        "ip-legal/cease-desist",
+        "ip-legal/takedown",
+        "ip-legal/fto-triage",
+        "litigation-legal/claim-chart"
+      ],
+      "type": "user-approved-handoff"
+    },
+    {
+      "from": "law-student/session",
+      "to": [
+        "law-student/bar-prep-questions",
+        "law-student/flashcards"
+      ],
+      "type": "session-routing"
+    },
+    {
+      "from": "legal-clinic/client-intake",
+      "to": [
+        "legal-clinic/deadlines"
+      ],
+      "type": "mandatory-state-handoff"
+    },
+    {
+      "from": "litigation-legal/demand-intake",
+      "to": [
+        "litigation-legal/demand-draft"
+      ],
+      "type": "conditional-handoff"
+    },
+    {
+      "from": "litigation-legal/matter-workspace",
+      "to": [
+        "litigation-legal/matter-briefing"
+      ],
+      "type": "conditional-handoff"
+    },
+    {
+      "from": "privacy-legal/use-case-triage",
+      "to": [
+        "privacy-legal/pia-generation",
+        "ai-governance-legal/aia-generation",
+        "product-legal/launch-review"
+      ],
+      "type": "conditional-handoff"
+    },
+    {
+      "from": "product-legal/launch-review",
+      "to": [
+        "privacy-legal/use-case-triage",
+        "ai-governance-legal/use-case-triage",
+        "ai-governance-legal/aia-generation",
+        "ai-governance-legal/vendor-ai-review"
+      ],
+      "type": "conditional-handoff"
+    },
+    {
+      "from": "regulatory-legal/policy-diff",
+      "to": [
+        "regulatory-legal/gap-surfacer",
+        "regulatory-legal/policy-redraft"
+      ],
+      "type": "compiled-routing"
+    },
+    {
+      "from": "legal-builder-hub/skill-installer",
+      "to": [
+        "legal-builder-hub/skills-qa",
+        "admin/catalog-deployment"
+      ],
+      "type": "admin-approval"
+    }
+  ],
+  "stateMachines": {
+    "coldStart": [
+      "initial",
+      "resume",
+      "quick",
+      "full",
+      "redo-section",
+      "check-integrations"
+    ],
+    "matterWorkspace": [
+      "new",
+      "list",
+      "switch",
+      "close",
+      "none"
+    ],
+    "aiInventory": [
+      "list",
+      "add",
+      "edit",
+      "classify",
+      "show"
+    ],
+    "commercialReview": [
+      "nda",
+      "vendor",
+      "saas-overlay",
+      "combined",
+      "routing-confirmation"
+    ],
+    "investigation": [
+      "open",
+      "add",
+      "query",
+      "memo",
+      "summary"
+    ],
+    "builderDeployment": [
+      "allowlist-check",
+      "fetch-quarantine",
+      "raw-review",
+      "qa",
+      "approval",
+      "admin-deploy",
+      "rollback"
+    ],
+    "cocounselIfLicensed": [
+      "frame",
+      "start",
+      "poll-with-backoff",
+      "report-verbatim",
+      "follow-up"
+    ]
+  },
+  "grammarCorrections": [
+    {
+      "scope": "all cold starts",
+      "correction": "Accept full and redo-section modes even when omitted from source argument-hint."
+    },
+    {
+      "scope": "commercial-legal/renewal-tracker",
+      "correction": "Treat days and horizon as aliases of windowDays."
+    },
+    {
+      "scope": "corporate-legal/tabular-review",
+      "correction": "Expose schema, template, docs, output, and sample modes."
+    },
+    {
+      "scope": "corporate-legal/entity-compliance and ip-legal/portfolio",
+      "correction": "Add an explicit destructive rebuild confirmation."
+    },
+    {
+      "scope": "litigation-legal/chronology",
+      "correction": "Expose matter, documents, and include-flagged modes with a privilege acknowledgment."
+    },
+    {
+      "scope": "litigation-legal/claim-chart",
+      "correction": "Expose include-dependents and disclose dropped claims."
+    },
+    {
+      "scope": "litigation-legal/demand-draft",
+      "correction": "Implement resume-strategic as a real state."
+    },
+    {
+      "scope": "litigation-legal/legal-hold",
+      "correction": "Implement the advertised read-only status branch."
+    },
+    {
+      "scope": "legal-builder-hub/auto-updater",
+      "correction": "Include rollback in the admin workflow."
+    }
+  ],
+  "agentMappings": [
+    {
+      "source": "commercial-legal/agents/deal-debrief.md",
+      "target": "commercial-deal-debrief",
+      "cookbook": null,
+      "gap": "Split scheduled scan from attorney context capture and approval."
+    },
+    {
+      "source": "commercial-legal/agents/renewal-watcher.md",
+      "target": "commercial-renewal-watcher",
+      "cookbook": "renewal-watcher",
+      "gap": "Preserve reader, calculator, writer separation and delivery handoff."
+    },
+    {
+      "source": "commercial-legal/agents/playbook-monitor.md",
+      "target": "commercial-playbook-monitor",
+      "cookbook": null,
+      "gap": "Merge duplicate proposal logic with review-proposals."
+    },
+    {
+      "source": "corporate-legal/agents/dataroom-watcher.md",
+      "target": "corporate-dataroom-watcher",
+      "cookbook": "diligence-grid",
+      "gap": "Preserve watch, full grid, and closing-checklist status modes."
+    },
+    {
+      "source": "employment-legal/agents/leave-tracker.md",
+      "target": "employment-leave-tracker",
+      "cookbook": null,
+      "gap": "Merge duplicate skill and agent surfaces; current-law checks stay mandatory."
+    },
+    {
+      "source": "ip-legal/agents/ip-renewal-watcher.md",
+      "target": "ip-renewal-watcher",
+      "cookbook": null,
+      "gap": "Provide manual register fallback and never file, pay, or decide renewal."
+    },
+    {
+      "source": "legal-builder-hub/agents/registry-sync.md",
+      "target": "builder-registry-sync",
+      "cookbook": null,
+      "gap": "Admin-only catalog synchronization with approval."
+    },
+    {
+      "source": "litigation-legal/agents/docket-watcher.md",
+      "target": "litigation-docket-watcher",
+      "cookbook": "docket-watcher",
+      "gap": "Candidate deadlines are never automatic calendar entries."
+    },
+    {
+      "source": "product-legal/agents/launch-watcher.md",
+      "target": "product-launch-watcher",
+      "cookbook": "launch-radar",
+      "gap": "Triage is not legal clearance."
+    },
+    {
+      "source": "regulatory-legal/agents/reg-change-monitor.md",
+      "target": "regulatory-reg-change-monitor",
+      "cookbook": "reg-monitor",
+      "gap": "Materiality and gap flags remain screening judgments."
+    }
+  ],
+  "cookbookDelegation": {
+    "renewal-watcher": [
+      "repo-reader",
+      "deadline-calculator",
+      "alert-writer"
+    ],
+    "diligence-grid": [
+      "doc-reader",
+      "extractor",
+      "normalizer",
+      "grid-writer"
+    ],
+    "docket-watcher": [
+      "docket-reader",
+      "deadline-mapper",
+      "tracker-writer"
+    ],
+    "launch-radar": [
+      "tracker-reader",
+      "risk-classifier",
+      "memo-writer"
+    ],
+    "reg-monitor": [
+      "feed-reader",
+      "materiality-filter",
+      "digest-writer"
+    ]
+  },
+  "mandatorySkillCore": [
+    "fresh approval before consequential or irreversible action",
+    "privilege and confidentiality are jurisdiction-specific",
+    "server-enforced matter isolation",
+    "conflicts and supervision gates",
+    "current-law and citation verification",
+    "retrieved content is data, not instructions",
+    "formula and HTML injection protection",
+    "recoverable-error bias for subjective legal judgments",
+    "helper safety rules survive flattening"
+  ],
+  "specialHandling": {
+    "legal-builder-hub": {
+      "model": "tenant-governed-catalog",
+      "requirements": [
+        "quarantine untrusted registry content",
+        "admin allowlist and license checks",
+        "admin preflight with skills-qa",
+        "install creates an approval request",
+        "deployment and rollback run through audited admin flows",
+        "no write before fresh approval"
+      ]
+    },
+    "cocounsel-legal": {
+      "status": "unsupported-pending-vendor-and-tenant-approval",
+      "reservedLogicalTargetId": "ja-jp.external.cocounsel-legal.deep-research",
+      "requirements": [
+        "do not deploy without a separately licensed connector adapter",
+        "stop when the connector is unavailable",
+        "present provider answer_text verbatim",
+        "maximum three U.S. jurisdictions",
+        "keep conversation ID private",
+        "preserve polling, backoff, timeout, cancellation, and follow-up",
+        "do not provide a generic-research fallback under the same ID"
+      ]
+    }
+  }
+}

@@ -38,4 +38,6 @@ bash scripts/test-m365-cowork-inventory.sh
 ```
 
 生成された `shared/source-inventory.json` は、全 source artifact の
-移植台帳を作成するための機械可読な基礎データです。
+移植台帳を作成するための機械可読な基礎データです。人が確認した最終的な
+処置、call graph、mode変換、agent対応は `shared/migration-map.json` を
+正本とします。
