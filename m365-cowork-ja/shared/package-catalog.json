@@ -23,7 +23,7 @@
       "displayNameShort": "商事契約法務",
       "displayNameFull": "商事契約法務 — 日本語版 Microsoft 365 Copilot Cowork",
       "descriptionShort": "契約レビュー、NDA、SaaS、更新期限、エスカレーションを支援します。",
-      "status": "in-development"
+      "status": "draft-legal-review"
     },
     "corporate-legal": {
       "appId": "c181a980-a0af-5508-8997-8c5ab0a7413a",

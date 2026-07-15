@@ -526,6 +526,12 @@ def _package_errors(
         if JAPANESE_CHARACTER_RE.search(text) is None:
             relative = _relative(markdown_path, target_root)
             errors.append(f"{relative}: Japanese content is required")
+        errors.extend(
+            f"{_relative(markdown_path, target_root)}: "
+            f"unsupported source runtime marker {marker}"
+            for marker in FORBIDDEN_RUNTIME_MARKERS
+            if marker in text
+        )
     return errors
 
 

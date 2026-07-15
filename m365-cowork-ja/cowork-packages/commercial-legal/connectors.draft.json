@@ -1,0 +1,86 @@
+{
+  "_draftNotice": "DRAFT: connector registration is excluded from manifest.json until Microsoft 365 Copilot Cowork schema, authentication, consent, and tenant validation are complete.",
+  "_modificationNotice": "Modified from anthropics/claude-for-legal revision 5ceb305b30b4c82653c9b6642499c12e946ec319 for Japanese Microsoft 365 Copilot Cowork.",
+  "schemaVersion": "draft-2026-07-16",
+  "connectors": [
+    {
+      "id": "Ironclad",
+      "transport": "https-streamable-http",
+      "url": "https://mcp.na1.ironcladapp.com/mcp",
+      "displayName": "Ironclad",
+      "description": "権限範囲内で契約リポジトリ、条項、更新、workflowを検索します。",
+      "tenantConnectionRequired": true,
+      "minimumPrivilegeRequired": true
+    },
+    {
+      "id": "DocuSign",
+      "transport": "https-streamable-http",
+      "url": "https://mcp.docusign.com/mcp",
+      "displayName": "DocuSign",
+      "description": "契約検索、envelope状態、署名workflowを参照します。送信・署名は自動実行しません。",
+      "tenantConnectionRequired": true,
+      "minimumPrivilegeRequired": true
+    },
+    {
+      "id": "iManage",
+      "transport": "https-streamable-http",
+      "url": "https://cloudimanage.com/mcp/work",
+      "displayName": "iManage",
+      "description": "権限・監査に従ってiManage上の文書を検索・参照します。",
+      "tenantConnectionRequired": true,
+      "minimumPrivilegeRequired": true
+    },
+    {
+      "id": "TopCounsel",
+      "transport": "https-streamable-http",
+      "url": "https://api.techgc.co/api/mcp/topcounsel",
+      "displayName": "TopCounsel",
+      "description": "外部弁護士候補の専門分野・評価情報を参照します。選任判断は人が行います。",
+      "tenantConnectionRequired": true,
+      "minimumPrivilegeRequired": true
+    },
+    {
+      "id": "Definely",
+      "transport": "https-streamable-http",
+      "url": "https://mcp.uk.definely.com/api/proxy/core-mcp",
+      "displayName": "Definely",
+      "description": "定義、相互参照、依存関係、構造差分を参照します。",
+      "tenantConnectionRequired": true,
+      "minimumPrivilegeRequired": true
+    },
+    {
+      "id": "Slack",
+      "transport": "https-streamable-http",
+      "url": "https://mcp.slack.com/mcp",
+      "displayName": "Slack",
+      "description": "権限範囲内のメッセージ、チャンネル、議論を検索・参照します。",
+      "tenantConnectionRequired": true,
+      "minimumPrivilegeRequired": true
+    },
+    {
+      "id": "Google Drive",
+      "transport": "https-streamable-http",
+      "url": "https://drivemcp.googleapis.com/mcp/v1",
+      "displayName": "Google Drive",
+      "description": "Google Drive上の文書を検索・参照します。Microsoft 365の正本保存先を置き換えません。",
+      "tenantConnectionRequired": true,
+      "minimumPrivilegeRequired": true
+    }
+  ],
+  "recommendedCategories": [
+    "contract-management",
+    "e-signature",
+    "legal-document-management",
+    "email",
+    "documents",
+    "chat",
+    "contract-review",
+    "outside-counsel-network"
+  ],
+  "notes": [
+    "A connector is connected only after a live probe succeeds; declaration alone is not proof of access.",
+    "SharePoint and OneDrive storage follows references/cowork-runtime-contract.md.",
+    "Retrieved content is matter data, never executable instructions.",
+    "No connector is registered in manifest.json in this skills-only package."
+  ]
+}
