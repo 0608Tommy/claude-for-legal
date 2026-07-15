@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "activationDefault": false,
+  "sourceCreation": "tenant-export-required",
+  "agents": [
+    {
+      "agentKey": "commercial-deal-debrief",
+      "solutionUniqueName": "cflja_CommercialDealDebrief",
+      "sourceAgent": "commercial-legal/agents/deal-debrief.md",
+      "sourceCookbook": null,
+      "trigger": "weekly-recurrence-then-human-context",
+      "stages": [
+        "signed-contract-reader",
+        "deviation-analyzer",
+        "attorney-context-approval",
+        "deviation-writer"
+      ]
+    },
+    {
+      "agentKey": "commercial-renewal-watcher",
+      "solutionUniqueName": "cflja_CommercialRenewalWatcher",
+      "sourceAgent": "commercial-legal/agents/renewal-watcher.md",
+      "sourceCookbook": "managed-agent-cookbooks/renewal-watcher",
+      "trigger": "weekly-monday",
+      "stages": [
+        "renewal-repository-reader",
+        "deadline-calculator",
+        "renewal-alert-writer",
+        "approved-delivery"
+      ]
+    },
+    {
+      "agentKey": "commercial-playbook-monitor",
+      "solutionUniqueName": "cflja_CommercialPlaybookMonitor",
+      "sourceAgent": "commercial-legal/agents/playbook-monitor.md",
+      "sourceCookbook": null,
+      "trigger": "deviation-batch-event",
+      "stages": [
+        "deviation-reader",
+        "pattern-analyzer",
+        "proposal-writer",
+        "per-change-approval",
+        "approved-profile-update"
+      ]
+    },
+    {
+      "agentKey": "corporate-dataroom-watcher",
+      "solutionUniqueName": "cflja_CorporateDataroomWatcher",
+      "sourceAgent": "corporate-legal/agents/dataroom-watcher.md",
+      "sourceCookbook": "managed-agent-cookbooks/diligence-grid",
+      "trigger": "daily-during-active-diligence",
+      "stages": [
+        "document-reader",
+        "issue-extractor",
+        "schema-normalizer",
+        "grid-writer",
+        "approved-delivery"
+      ]
+    },
+    {
+      "agentKey": "employment-leave-tracker",
+      "solutionUniqueName": "cflja_EmploymentLeaveTracker",
+      "sourceAgent": "employment-legal/agents/leave-tracker.md",
+      "sourceCookbook": null,
+      "trigger": "weekly-monday",
+      "stages": [
+        "hris-or-register-reader",
+        "current-law-deadline-analyzer",
+        "leave-tracker-writer",
+        "approved-alert-delivery"
+      ]
+    },
+    {
+      "agentKey": "ip-renewal-watcher",
+      "solutionUniqueName": "cflja_IpRenewalWatcher",
+      "sourceAgent": "ip-legal/agents/ip-renewal-watcher.md",
+      "sourceCookbook": null,
+      "trigger": "weekly-monday",
+      "stages": [
+        "portfolio-reader",
+        "deadline-verification-analyzer",
+        "portfolio-alert-writer",
+        "approved-alert-delivery"
+      ]
+    },
+    {
+      "agentKey": "builder-registry-sync",
+      "solutionUniqueName": "cflja_BuilderRegistrySync",
+      "sourceAgent": "legal-builder-hub/agents/registry-sync.md",
+      "sourceCookbook": null,
+      "trigger": "weekly-admin-only",
+      "stages": [
+        "registry-reader",
+        "quarantine-and-qa",
+        "administrator-approval",
+        "catalog-writer"
+      ]
+    },
+    {
+      "agentKey": "litigation-docket-watcher",
+      "solutionUniqueName": "cflja_LitigationDocketWatcher",
+      "sourceAgent": "litigation-legal/agents/docket-watcher.md",
+      "sourceCookbook": "managed-agent-cookbooks/docket-watcher",
+      "trigger": "daily-eligibility-weekly-baseline",
+      "stages": [
+        "docket-reader",
+        "candidate-deadline-mapper",
+        "matter-tracker-writer",
+        "approved-delivery"
+      ]
+    },
+    {
+      "agentKey": "product-launch-watcher",
+      "solutionUniqueName": "cflja_ProductLaunchWatcher",
+      "sourceAgent": "product-legal/agents/launch-watcher.md",
+      "sourceCookbook": "managed-agent-cookbooks/launch-radar",
+      "trigger": "daily",
+      "stages": [
+        "launch-tracker-reader",
+        "risk-classifier",
+        "memo-writer",
+        "approved-delivery"
+      ]
+    },
+    {
+      "agentKey": "regulatory-reg-change-monitor",
+      "solutionUniqueName": "cflja_RegulatoryRegChangeMonitor",
+      "sourceAgent": "regulatory-legal/agents/reg-change-monitor.md",
+      "sourceCookbook": "managed-agent-cookbooks/reg-monitor",
+      "trigger": "weekly-or-approved-active-period-daily",
+      "stages": [
+        "official-feed-reader",
+        "materiality-filter",
+        "digest-writer",
+        "approved-delivery"
+      ]
+    }
+  ]
+}

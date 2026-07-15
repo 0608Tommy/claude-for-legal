@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "freshApprovalRequiredFor": [
+    "external send or post",
+    "shared output promotion",
+    "playbook or policy modification",
+    "calendar entry",
+    "registry install, update, disable, or uninstall",
+    "filing, payment, signature, deletion, or matter close"
+  ],
+  "approvalBinding": [
+    "artifact item ID",
+    "artifact version or hash",
+    "diff",
+    "destination",
+    "matter ID",
+    "requested operation"
+  ],
+  "rules": [
+    "Recompute the artifact hash immediately before the approved action.",
+    "Use Everyone must approve when every named reviewer is mandatory.",
+    "One rejection terminates the approval.",
+    "Use durable Dataverse state when approval may exceed 28 days.",
+    "Do not interpret approval to draft as approval to send."
+  ]
+}

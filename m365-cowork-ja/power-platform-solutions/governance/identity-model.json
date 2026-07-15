@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "identities": {
+    "spn-legal-deployer": {
+      "purpose": "PAC import only",
+      "runtimeOwner": false
+    },
+    "spn-legal-runtime": {
+      "purpose": "Parent and child flow ownership and run ledger",
+      "rawSourceAccess": false,
+      "externalDelivery": false
+    },
+    "spn-legal-reader": {
+      "purpose": "Read approved source systems and create restricted ingest rows",
+      "sourceWrite": false,
+      "outputAccess": false
+    },
+    "spn-legal-analyzer": {
+      "purpose": "Read ingest rows and create bounded analysis records",
+      "rawSourceAccess": false,
+      "outputAccess": false
+    },
+    "spn-legal-writer": {
+      "purpose": "Create drafts, outputs, state, and audit from approved analysis",
+      "rawSourceAccess": false,
+      "deleteAccess": false,
+      "externalDelivery": false
+    },
+    "spn-legal-delivery": {
+      "purpose": "Deliver an exact approved artifact to an approved destination",
+      "rawSourceAccess": false,
+      "stateMutation": false
+    }
+  },
+  "rules": [
+    "Separate connection references are not isolation when they bind to the same credential.",
+    "Flow ownership reassignment is a post-import tenant operation.",
+    "Connector support for service principals must be verified individually.",
+    "Co-owners and environment administrators remain privileged; managed solutions are defense in depth."
+  ]
+}

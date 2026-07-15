@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "environment": "dedicated-legal-automation",
+  "businessConnectors": [
+    "Dataverse",
+    "SharePoint",
+    "Approvals",
+    "approved notification connectors",
+    "approved fixed-host custom connectors"
+  ],
+  "blockedConnectors": [
+    "consumer storage",
+    "consumer social",
+    "unapproved generative AI",
+    "unapproved HTTP hosts"
+  ],
+  "requirements": [
+    "Use advanced connector policies as a default-deny allowlist.",
+    "Retain classic DLP mixed mode for HTTP and custom connectors.",
+    "Allow fixed approved HTTP host/path patterns, then deny all others.",
+    "Do not rely on endpoint filtering for dynamically supplied endpoints.",
+    "Enforce reader/writer separation in target-system ACLs because DLP does not distinguish two references to the same connector.",
+    "Power Platform DLP does not extend into Cowork prompts."
+  ]
+}

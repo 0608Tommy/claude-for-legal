@@ -119,6 +119,10 @@ reference・別identityへ分離し、schema validation、approval、idempotency
 retry、dead-letter、auditを実装します。
 
 Cowork packageが自律scheduleまたはsubagentを提供すると表示しません。
+offline automation contractは
+[`../power-platform-solutions/README.md`](../power-platform-solutions/README.md)
+にあります。実際のmodern flow sourceは承認済みdevelopment tenantから
+clone/exportするまで未生成です。
 
 ## 導入
 

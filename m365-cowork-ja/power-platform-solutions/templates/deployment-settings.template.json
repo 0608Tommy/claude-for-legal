@@ -1,0 +1,33 @@
+{
+  "EnvironmentVariables": [
+    {
+      "SchemaName": "cflja_AutomationEnabled",
+      "Value": "false"
+    },
+    {
+      "SchemaName": "cflja_ApproverGroupObjectId",
+      "Value": "${APPROVER_GROUP_OBJECT_ID}"
+    },
+    {
+      "SchemaName": "cflja_DeadLetterRetentionDays",
+      "Value": "90"
+    }
+  ],
+  "ConnectionReferences": [
+    {
+      "LogicalName": "cflja_cr_reader",
+      "ConnectionId": "${READER_CONNECTION_ID}",
+      "ConnectorId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+    },
+    {
+      "LogicalName": "cflja_cr_writer",
+      "ConnectionId": "${WRITER_CONNECTION_ID}",
+      "ConnectorId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+    },
+    {
+      "LogicalName": "cflja_cr_dataverse",
+      "ConnectionId": "${DATAVERSE_CONNECTION_ID}",
+      "ConnectorId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+    }
+  ]
+}
