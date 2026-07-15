@@ -11,10 +11,12 @@ VALID="$TMP/valid"
 INVALID="$TMP/invalid"
 TOO_LONG="$TMP/too-long"
 TOO_MANY="$TMP/too-many"
+BACKTICK_ONLY="$TMP/backtick-only"
 mkdir -p "$VALID/example/skills/example/references"
 mkdir -p "$INVALID/example/skills/example"
 mkdir -p "$TOO_LONG/example/skills/too-long"
 mkdir -p "$TOO_MANY/example/skills"
+mkdir -p "$BACKTICK_ONLY/example/skills/example"
 
 cat >"$VALID/example/skills/example/SKILL.md" <<'EOF'
 ---
@@ -27,16 +29,25 @@ metadata:
   locale: ja-JP
 ---
 
+> **変更通知:** 検証用の派生ファイルです。
+
 # 検証用スキル
 
 [参照](references/details.md)を必要な場合だけ読みます。
 EOF
 
 cat >"$VALID/example/skills/example/references/details.md" <<'EOF'
+> **変更通知:** 検証用の派生ファイルです。
+
 # 詳細
 
 検証用の参照ファイルです。
 EOF
+
+printf 'Apache License 2.0\n' >"$VALID/example/LICENSE"
+printf 'Modified package\n' >"$VALID/example/NOTICE"
+cp "$VALID/example/LICENSE" "$VALID/example/skills/example/LICENSE"
+cp "$VALID/example/NOTICE" "$VALID/example/skills/example/NOTICE"
 
 cat >"$INVALID/example/skills/example/SKILL.md" <<'EOF'
 ---
@@ -46,6 +57,12 @@ argument-hint: "[unsupported]"
 ---
 
 # 無効なスキル
+
+[outside](../../README.md)
+
+[absolute](/etc/passwd)
+
+`../../references/outside.md`
 EOF
 
 python3 - "$TOO_LONG/example/skills/too-long/SKILL.md" <<'PY'
@@ -77,8 +94,24 @@ description: パッケージ上限を検証するスキルです。
 EOF
 done
 
+cat >"$BACKTICK_ONLY/example/skills/example/SKILL.md" <<'EOF'
+---
+name: example
+description: backtick path containmentを検証します。
+---
+
+> **変更通知:** 検証用の派生ファイルです。
+
+# Backtick path containment
+
+`../../README.md`
+
+`/etc/passwd`
+EOF
+
 PYTHONPATH="$ROOT/scripts" python3 - \
-  "$VALID" "$INVALID" "$TOO_LONG" "$TOO_MANY" <<'PY'
+  "$VALID" "$INVALID" "$TOO_LONG" "$TOO_MANY" \
+  "$BACKTICK_ONLY" <<'PY'
 import pathlib
 import sys
 
@@ -93,6 +126,8 @@ invalid_errors, _ = validate_target(pathlib.Path(sys.argv[2]), limits)
 required_fragments = (
     "unexpected frontmatter fields",
     "name must match folder",
+    "reference escapes skill root",
+    "absolute local reference is forbidden",
 )
 for fragment in required_fragments:
     if not any(fragment in error for error in invalid_errors):
@@ -111,6 +146,18 @@ if not any("skills exceeds" in error for error in many_errors):
     raise SystemExit(
         f"package skill limit was not enforced: {many_errors}"
     )
+
+backtick_errors, _ = validate_target(pathlib.Path(sys.argv[5]), limits)
+backtick_fragments = (
+    "reference escapes skill root",
+    "absolute local reference is forbidden",
+)
+for fragment in backtick_fragments:
+    if not any(fragment in error for error in backtick_errors):
+        raise SystemExit(
+            f"backtick fixture did not report {fragment}: "
+            f"{backtick_errors}"
+        )
 
 print("m365 Cowork target validator: OK")
 PY

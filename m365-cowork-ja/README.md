@@ -35,6 +35,7 @@ Microsoft 公式制約の共通基準です。
 ```bash
 python3 scripts/build_m365_cowork_inventory.py
 bash scripts/test-m365-cowork-inventory.sh
+bash scripts/build-m365-cowork-packages.sh
 ```
 
 生成された `shared/source-inventory.json` は、全 source artifact の

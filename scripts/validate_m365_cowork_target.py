@@ -25,9 +25,14 @@ CONTRACT_PATH: Final = (
     ROOT / "m365-cowork-ja" / "shared" / "target-contract.json"
 )
 TARGET_ID_RE: Final = re.compile(r"^[a-z0-9][a-z0-9-]{1,63}$")
-LOCAL_LINK_RE: Final = re.compile(
-    r"\[[^\]]*\]\((?!https?://|mailto:|#)([^)]+)\)",
+MARKDOWN_LINK_RE: Final = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
+BACKTICK_PATH_RE: Final = re.compile(
+    r"`((?:(?:/|\./|\.\./)[^`\n]+|references/[A-Za-z0-9_./-]+))`",
 )
+SLASH_COMMAND_RE: Final = re.compile(
+    r"^/[a-z0-9-]+:[a-z0-9-]+(?:\s.*)?$",
+)
+CHANGE_NOTICE_MARKER: Final = "> **変更通知:**"
 
 
 class Limits(NamedTuple):
@@ -232,19 +237,16 @@ def _companion_files(skill_path: Path) -> tuple[Path, ...]:
     )
 
 
-def _validate_local_links(
+def _validate_local_references(
     skill_path: Path,
-    text: str,
     target_root: Path,
 ) -> list[str]:
-    """Validate local Markdown links in a skill.
+    """Validate local references without allowing skill-root escapes.
 
     Parameters
     ----------
     skill_path:
         Path to ``SKILL.md``.
-    text:
-        Skill Markdown text.
     target_root:
         Target package root.
 
@@ -255,15 +257,69 @@ def _validate_local_links(
 
     """
     errors: list[str] = []
-    for raw_target in LOCAL_LINK_RE.findall(text):
-        target = raw_target.split("#", maxsplit=1)[0]
-        if not target:
-            continue
-        resolved = skill_path.parent / target
-        if not resolved.exists():
-            relative = _relative(skill_path, target_root)
-            errors.append(f"{relative}: missing local link target {target}")
+    skill_root = skill_path.parent.resolve()
+    for markdown_path in skill_path.parent.rglob("*.md"):
+        text = markdown_path.read_text(encoding="utf-8")
+        raw_targets = [
+            *MARKDOWN_LINK_RE.findall(text),
+            *BACKTICK_PATH_RE.findall(text),
+        ]
+        for raw_target in raw_targets:
+            errors.extend(
+                _reference_errors(
+                    markdown_path,
+                    raw_target,
+                    skill_root,
+                    target_root,
+                ),
+            )
     return errors
+
+
+def _reference_errors(
+    markdown_path: Path,
+    raw_target: str,
+    skill_root: Path,
+    target_root: Path,
+) -> list[str]:
+    """Return validation errors for one local reference.
+
+    Parameters
+    ----------
+    markdown_path:
+        Markdown file containing the reference.
+    raw_target:
+        Link or backticked reference target.
+    skill_root:
+        Resolved skill directory.
+    target_root:
+        Target package root.
+
+    Returns
+    -------
+    list[str]
+        Reference errors.
+
+    """
+    target = raw_target.strip().strip("<>")
+    if (
+        target.startswith(("http://", "https://", "mailto:", "#"))
+        or SLASH_COMMAND_RE.fullmatch(target) is not None
+    ):
+        return []
+    relative = _relative(markdown_path, target_root)
+    error: str | None = None
+    if target.startswith("/"):
+        error = f"{relative}: absolute local reference is forbidden: {target}"
+    else:
+        path_without_anchor = target.split("#", maxsplit=1)[0]
+        if path_without_anchor:
+            resolved = (markdown_path.parent / path_without_anchor).resolve()
+            if not resolved.is_relative_to(skill_root):
+                error = f"{relative}: reference escapes skill root: {target}"
+            elif not resolved.exists():
+                error = f"{relative}: missing local reference target {target}"
+    return [error] if error is not None else []
 
 
 def _validate_skill(
@@ -392,6 +448,21 @@ def _content_errors(
 
     """
     errors: list[str] = []
+    if CHANGE_NOTICE_MARKER not in text:
+        errors.append(f"{relative}: Apache change notice is required")
+    runtime_contract = (
+        skill_path.parent
+        / "references"
+        / "common"
+        / "cowork-runtime-contract.md"
+    )
+    if (
+        "storage contract required" in text
+        and not runtime_contract.is_file()
+    ):
+        errors.append(
+            f"{relative}: storage contract companion is required",
+        )
     if len(text) > limits.character_limit:
         errors.append(
             f"{relative}: {len(text)} characters exceeds "
@@ -407,7 +478,40 @@ def _content_errors(
         errors.append(f"{relative}: missing final newline")
     if any(line.rstrip() != line for line in text.splitlines()):
         errors.append(f"{relative}: trailing whitespace")
-    errors.extend(_validate_local_links(skill_path, text, target_root))
+    errors.extend(_validate_local_references(skill_path, target_root))
+    return errors
+
+
+def _package_errors(
+    package_path: Path,
+    target_root: Path,
+) -> list[str]:
+    """Return package-level license and notice errors.
+
+    Parameters
+    ----------
+    package_path:
+        Cowork package source directory.
+    target_root:
+        Target package root.
+
+    Returns
+    -------
+    list[str]
+        Package-level errors.
+
+    """
+    errors: list[str] = []
+    for required_name in ("LICENSE", "NOTICE"):
+        required_path = package_path / required_name
+        if not required_path.is_file():
+            relative = _relative(package_path, target_root)
+            errors.append(f"{relative}: missing {required_name}")
+    for markdown_path in package_path.rglob("*.md"):
+        text = markdown_path.read_text(encoding="utf-8")
+        if CHANGE_NOTICE_MARKER not in text:
+            relative = _relative(markdown_path, target_root)
+            errors.append(f"{relative}: Apache change notice is required")
     return errors
 
 
@@ -470,6 +574,7 @@ def validate_target(
     if not package_paths:
         return [f"{target_root.as_posix()}: no packages found"], warnings
     for package_path in package_paths:
+        errors.extend(_package_errors(package_path, target_root))
         skill_paths = tuple(
             sorted(package_path.glob("skills/*/SKILL.md")),
         )
@@ -479,6 +584,13 @@ def validate_target(
                 f"{active_limits.maximum_skills}",
             )
         for skill_path in skill_paths:
+            for required_name in ("LICENSE", "NOTICE"):
+                required_path = skill_path.parent / required_name
+                if not required_path.is_file():
+                    relative = _relative(skill_path, target_root)
+                    errors.append(
+                        f"{relative}: missing companion {required_name}",
+                    )
             skill_errors, skill_warnings = _validate_skill(
                 skill_path,
                 active_limits,

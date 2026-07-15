@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-07-16",
+  "environment": {
+    "tenantOperationsPerformed": false,
+    "externalPackageValidationPerformed": false,
+    "reason": "No Microsoft 365 test-tenant credentials or disclosure approval were available."
+  },
+  "localResults": [
+    {
+      "check": "source inventory and complete migration-map coverage",
+      "status": "passed",
+      "evidence": "scripts/test-m365-cowork-inventory.sh"
+    },
+    {
+      "check": "strict frontmatter, 20000-character, 20-skill, companion, link, Unicode, whitespace, and Apache notice validation",
+      "status": "passed",
+      "evidence": "scripts/test-m365-cowork-target.sh"
+    },
+    {
+      "check": "Agent Skills reference validation",
+      "status": "passed",
+      "evidence": "skills-ref 0.1.1 validated all 10 AI Governance skills"
+    },
+    {
+      "check": "Unified App Manifest 1.28",
+      "status": "passed",
+      "evidence": "Agents Toolkit 1.1.12 local manifest validation"
+    },
+    {
+      "check": "Agents Toolkit package build",
+      "status": "passed",
+      "evidence": "AI Governance skills-only ZIP built below 10 MiB"
+    },
+    {
+      "check": "employment 20-skill boundary",
+      "status": "passed-locally",
+      "evidence": "validator rejects a 21-skill fixture; helper flattening yields 18 registered target skills"
+    }
+  ],
+  "deferredTenantChecks": [
+    "Cowork ingestion and activation of all packages together",
+    "Japanese positive and negative routing prompts",
+    "SharePoint and OneDrive authentication and concurrent state updates",
+    "Power Platform managed solution import",
+    "remote MCP OAuth and transport",
+    "per-user consent",
+    "admin deployment and group assignment"
+  ],
+  "knownBlockers": [
+    "Cowork DLP and data classification are unsupported in Microsoft's 2026-06-22 Purview matrix.",
+    "Remote MCP schema and authentication guidance conflicts between manifest 1.28, 1.29, and Cowork examples.",
+    "CoCounsel requires written Thomson Reuters approval.",
+    "Power Platform CLI requires .NET 10, which is not installed in the current environment."
+  ],
+  "releaseRule": "Local results permit continued implementation, but no package is production-approved until deferred tenant checks and legal review gates pass."
+}

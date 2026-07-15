@@ -7,3 +7,4 @@ __pycache__/
 *.pyc
 /m365-cowork-ja/dist/
 /m365-cowork-ja/.cache/
+/m365-cowork-ja/cowork-packages/*/build/

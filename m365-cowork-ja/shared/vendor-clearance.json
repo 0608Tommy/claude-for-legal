@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-07-16",
+  "vendor": "Thomson Reuters",
+  "sourcePlugin": "external_plugins/cocounsel-legal",
+  "status": "blocked-pending-written-approval",
+  "apacheLicense": {
+    "workflowTranslationPermitted": true,
+    "englishLicenseRequired": true,
+    "perModifiedFileNoticeRequired": true,
+    "trademarkRightsGranted": false
+  },
+  "notAuthorizedByPublicEvidence": [
+    "CoCounsel-branded Microsoft 365 Copilot Cowork package",
+    "reuse of the Claude OAuth client registration",
+    "Cowork-specific OAuth scopes and redirect registration",
+    "translation or redistribution of Westlaw, Practical Law, or connector reports",
+    "Japanese-law coverage claims",
+    "identifying Thomson Reuters as the developer of this derivative app"
+  ],
+  "requiredWrittenApproval": [
+    "package name, text branding, and any logo use",
+    "publisher and support identity",
+    "Cowork host authorization",
+    "new OAuth registration, redirect URI, scopes, and token-store setup",
+    "report display, translation, retention, and redistribution",
+    "Japanese marketing statements",
+    "cross-tenant distribution"
+  ],
+  "productionAction": "Exclude CoCounsel from every package and deployment bundle until approval is recorded.",
+  "sources": [
+    "https://www.thomsonreuters.com/en/policies/trademark-notice",
+    "https://legal-mcp.thomsonreuters.com/docs/connector-guide",
+    "https://www.thomsonreuters.com/en/press-releases/2026/may/thomson-reuters-and-anthropic-expand-partnership-to-connect-claude-with-cocounsel-legal"
+  ]
+}

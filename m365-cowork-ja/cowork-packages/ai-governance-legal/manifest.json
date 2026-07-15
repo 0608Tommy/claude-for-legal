@@ -1,0 +1,60 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.28/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.28",
+  "version": "1.0.0",
+  "id": "65abba18-6361-5077-96c3-b75e0fe4b49d",
+  "developer": {
+    "name": "0608Tommy",
+    "websiteUrl": "https://github.com/0608Tommy/claude-for-legal",
+    "privacyUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/PRIVACY.md",
+    "termsOfUseUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/TERMS.md"
+  },
+  "name": {
+    "short": "AIガバナンス法務",
+    "full": "AIガバナンス法務 — 日本語版 Microsoft 365 Copilot Cowork"
+  },
+  "description": {
+    "short": "AI台帳、影響評価、規制・ポリシー、ベンダーAIレビューを支援します。",
+    "full": "anthropics/claude-for-legalを日本語化・Microsoft 365向けに変更した派生版です。AIユースケース、台帳、影響評価、ベンダー条項、規制・ポリシー管理を支援します。すべての出力は有資格者によるレビュー前提のドラフトです。"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#243B53",
+  "localizationInfo": {
+    "defaultLanguageTag": "ja"
+  },
+  "agentSkills": [
+    {
+      "folder": "./skills/ai-inventory"
+    },
+    {
+      "folder": "./skills/aia-generation"
+    },
+    {
+      "folder": "./skills/cold-start-interview"
+    },
+    {
+      "folder": "./skills/customize"
+    },
+    {
+      "folder": "./skills/matter-workspace"
+    },
+    {
+      "folder": "./skills/policy-monitor"
+    },
+    {
+      "folder": "./skills/policy-starter"
+    },
+    {
+      "folder": "./skills/reg-gap-analysis"
+    },
+    {
+      "folder": "./skills/use-case-triage"
+    },
+    {
+      "folder": "./skills/vendor-ai-review"
+    }
+  ]
+}

@@ -36,7 +36,9 @@
     "minimumPrivilege": true,
     "destinationCheck": true,
     "retentionPolicyRequired": true,
-    "dlpPolicyRequired": true,
+    "storageAndFlowDlpPolicyRequired": true,
+    "coworkPromptDlpSupportedAsOf2026-07-16": false,
+    "blockProductionWhenCoworkDlpIsMandatory": true,
     "immutableAuditRequired": true
   }
 }

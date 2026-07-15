@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-07-16",
+  "sourceRevision": "5ceb305b30b4c82653c9b6642499c12e946ec319",
+  "cowork": {
+    "availability": "GA",
+    "manifestVersion": "1.28",
+    "manifestSchema": "https://developer.microsoft.com/json-schemas/teams/v1.28/MicrosoftTeams.schema.json",
+    "initialPackageScope": "skills-only"
+  },
+  "tools": {
+    "m365AgentsToolkitCli": {
+      "package": "@microsoft/m365agentstoolkit-cli",
+      "version": "1.1.12",
+      "localManifestValidation": true,
+      "packageValidationUploadsToMicrosoft": true
+    },
+    "agentSkillsReference": {
+      "package": "skills-ref",
+      "version": "0.1.1",
+      "productionAuthority": false
+    },
+    "powerPlatformCli": {
+      "package": "Microsoft.PowerApps.CLI.Tool",
+      "version": "2.9.3",
+      "requiredRuntime": ".NET 10"
+    },
+    "officialClaudeConverter": {
+      "url": "https://download.microsoft.com/download/20e5d05b-0bfd-419b-bdde-06c14b8fcf5b/Convert-ClaudePluginToMOS3.ps1",
+      "versioned": false,
+      "checksumPublished": false,
+      "productionAuthority": false
+    }
+  },
+  "decisions": [
+    "Build one skills-only Cowork package per practice-area plugin.",
+    "Keep Power Platform managed solutions separate from Cowork app ZIPs.",
+    "Defer remote MCP registration until schema and authentication contradictions pass tenant validation.",
+    "Do not deploy CoCounsel without written Thomson Reuters approval.",
+    "Do not use Cowork for production legal workloads when in-service DLP is mandatory."
+  ],
+  "limits": {
+    "skillsPerPackage": 20,
+    "connectorsPerPackage": 10,
+    "companionsPerSkill": 20,
+    "companionFileBytes": 5242880,
+    "companionTotalBytes": 10485760,
+    "toolkitPackageBytes": 10485760,
+    "skillDescriptionCharacters": 1024,
+    "skillFolderPathCharacters": 256
+  }
+}
