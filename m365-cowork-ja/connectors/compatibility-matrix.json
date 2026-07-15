@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-07-16",
+  "initialManifestPolicy": "skills-only-no-agentConnectors",
+  "connectors": [
+    {
+      "sourceName": "Asana",
+      "url": "https://mcp.asana.com/sse",
+      "sourcePlugins": [
+        "product-legal"
+      ],
+      "disposition": "adapter-required",
+      "reason": "Source URL is SSE-only; Cowork requires Streamable HTTP."
+    },
+    {
+      "sourceName": "Atlassian",
+      "url": "https://mcp.atlassian.com/v1/sse",
+      "sourcePlugins": [
+        "product-legal"
+      ],
+      "disposition": "adapter-required",
+      "reason": "Source URL is SSE-only; Cowork requires Streamable HTTP."
+    },
+    {
+      "sourceName": "Aurora",
+      "url": "https://mcp.ai.consilio.com",
+      "sourcePlugins": [
+        "litigation-legal"
+      ],
+      "disposition": "tenant-validation-required",
+      "reason": "Transport, OAuth, tools, and product description require live vendor verification."
+    },
+    {
+      "sourceName": "Box",
+      "url": "https://mcp.box.com/mcp",
+      "sourcePlugins": [
+        "corporate-legal"
+      ],
+      "disposition": "optional-after-validation",
+      "reason": "Prefer SharePoint for M365 storage; retain Box only when the tenant uses it."
+    },
+    {
+      "sourceName": "cocounsel-legal",
+      "url": "https://legal-mcp.thomsonreuters.com/mcp",
+      "sourcePlugins": [
+        "cocounsel-legal"
+      ],
+      "disposition": "blocked-vendor-approval",
+      "reason": "Brand, OAuth, entitlement, report handling, and Cowork host authorization are unapproved."
+    },
+    {
+      "sourceName": "CourtListener",
+      "url": "https://mcp.courtlistener.com/",
+      "sourcePlugins": [
+        "ip-legal",
+        "law-student",
+        "legal-clinic",
+        "litigation-legal"
+      ],
+      "disposition": "tenant-validation-required",
+      "reason": "Live transport, auth, tool annotations, and timeout behavior must be verified."
+    },
+    {
+      "sourceName": "Courtroom5",
+      "url": "https://mcp.courtroom5.com",
+      "sourcePlugins": [
+        "legal-clinic"
+      ],
+      "disposition": "tenant-validation-required",
+      "reason": "Live transport, auth, scope, and product entitlement must be verified."
+    },
+    {
+      "sourceName": "Definely",
+      "url": "https://mcp.uk.definely.com/api/proxy/core-mcp",
+      "sourcePlugins": [
+        "commercial-legal",
+        "corporate-legal"
+      ],
+      "disposition": "tenant-validation-required",
+      "reason": "Live transport, OAuth, tool safety, and document scope must be verified."
+    },
+    {
+      "sourceName": "Descrybe",
+      "url": "https://mcp.descrybe.com/mcp",
+      "sourcePlugins": [
+        "ip-legal",
+        "law-student",
+        "legal-clinic"
+      ],
+      "disposition": "tenant-validation-required",
+      "reason": "Live transport, auth, provenance fields, and legal coverage must be verified."
+    },
+    {
+      "sourceName": "DocuSign",
+      "url": "https://mcp.docusign.com/mcp",
+      "sourcePlugins": [
+        "commercial-legal"
+      ],
+      "disposition": "tenant-validation-required",
+      "reason": "Search may be read-only, but signature/write tools require separate approval and identity controls."
+    },
+    {
+      "sourceName": "Everlaw",
+      "url": "https://api.everlaw.com/v1/mcp",
+      "sourcePlugins": [
+        "litigation-legal"
+      ],
+      "disposition": "tenant-validation-required",
+      "reason": "Matter scope, eDiscovery entitlement, retention, and tool annotations require verification."
+    },
+    {
+      "sourceName": "Google Drive",
+      "url": "https://drivemcp.googleapis.com/mcp/v1",
+      "sourcePlugins": [
+        "ai-governance-legal",
+        "commercial-legal",
+        "corporate-legal",
+        "employment-legal",
+        "ip-legal",
+        "law-student",
+        "legal-builder-hub",
+        "legal-clinic",
+        "litigation-legal",
+        "privacy-legal",
+        "product-legal",
+        "regulatory-legal"
+      ],
+      "disposition": "m365-replacement-preferred",
+      "reason": "Use SharePoint/OneDrive by default; retain only for tenants that require Google Drive."
+    },
+    {
+      "sourceName": "iManage",
+      "url": "https://cloudimanage.com/mcp/work",
+      "sourcePlugins": [
+        "commercial-legal",
+        "corporate-legal"
+      ],
+      "disposition": "tenant-validation-required",
+      "reason": "Permission-bound DMS access, OAuth, and tool annotations require live verification."
+    },
+    {
+      "sourceName": "Ironclad",
+      "url": "https://mcp.na1.ironcladapp.com/mcp",
+      "sourcePlugins": [
+        "commercial-legal"
+      ],
+      "disposition": "tenant-validation-required",
+      "reason": "CLM read/write tools, OAuth, source versioning, and destructive annotations require verification."
+    },
+    {
+      "sourceName": "Lawve AI",
+      "url": "https://mcp.lawve.ai/mcp",
+      "sourcePlugins": [
+        "legal-builder-hub"
+      ],
+      "disposition": "admin-only-validation-required",
+      "reason": "Registry content is untrusted and must pass quarantine, QA, license, and administrator approval."
+    },
+    {
+      "sourceName": "Linear",
+      "url": "https://mcp.linear.app/mcp",
+      "sourcePlugins": [
+        "product-legal"
+      ],
+      "disposition": "tenant-validation-required",
+      "reason": "Transport appears compatible but OAuth, issue scope, and write tools require live verification."
+    },
+    {
+      "sourceName": "Slack",
+      "url": "https://mcp.slack.com/mcp",
+      "sourcePlugins": [
+        "ai-governance-legal",
+        "commercial-legal",
+        "corporate-legal",
+        "employment-legal",
+        "ip-legal",
+        "law-student",
+        "legal-builder-hub",
+        "legal-clinic",
+        "litigation-legal",
+        "privacy-legal",
+        "product-legal",
+        "regulatory-legal"
+      ],
+      "disposition": "m365-replacement-preferred",
+      "reason": "Use Teams/Outlook/approved delivery flows by default; broad channel posting remains a privilege risk."
+    },
+    {
+      "sourceName": "Solve Intelligence",
+      "url": "https://api.solveintelligence.com/mcp/",
+      "sourcePlugins": [
+        "corporate-legal",
+        "ip-legal"
+      ],
+      "disposition": "tenant-validation-required",
+      "reason": "Product entitlement, transport, auth, source coverage, and tool annotations require verification."
+    },
+    {
+      "sourceName": "TopCounsel",
+      "url": "https://api.techgc.co/api/mcp/topcounsel",
+      "sourcePlugins": [
+        "commercial-legal",
+        "corporate-legal",
+        "litigation-legal"
+      ],
+      "disposition": "tenant-validation-required",
+      "reason": "Community data provenance, auth, permitted use, and tool annotations require verification."
+    },
+    {
+      "sourceName": "Trellis",
+      "url": "https://mcp.trellis.law/anthropic",
+      "sourcePlugins": [
+        "litigation-legal"
+      ],
+      "disposition": "adapter-and-vendor-validation-required",
+      "reason": "The Anthropic-specific endpoint cannot be assumed reusable by Microsoft Cowork."
+    }
+  ]
+}

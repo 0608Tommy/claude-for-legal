@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "oauth": {
+    "authorizationType": "OAuthPluginVault",
+    "flow": "authorization-code",
+    "redirectUri": "https://teams.microsoft.com/api/platform/v1.0/oAuthRedirect",
+    "pkceOptional": true,
+    "offlineAccessRequiredForRefresh": true,
+    "tokenEndpoint307Supported": false,
+    "secretsInManifest": false,
+    "perUserAuthorization": true
+  },
+  "registration": {
+    "referenceIdSource": "Microsoft token-store registration",
+    "reuseSourceClaudeClientId": false,
+    "crossTenant": "Any Microsoft 365 Organization only after vendor approval"
+  },
+  "toolSafety": {
+    "readOnlyHintRequired": true,
+    "destructiveHintRequired": true,
+    "titleRequired": true,
+    "unannotatedToolDisposition": "destructive-until-proven-otherwise"
+  }
+}
