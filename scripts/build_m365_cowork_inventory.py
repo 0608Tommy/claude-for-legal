@@ -12,6 +12,12 @@ from itertools import chain
 from pathlib import Path
 from typing import Final, cast
 
+from m365_cowork_frontmatter import (
+    extract_frontmatter,
+    frontmatter_fields,
+    frontmatter_scalar,
+)
+
 ROOT: Final = Path(__file__).resolve().parent.parent
 TARGET_ROOT: Final = ROOT / "m365-cowork-ja"
 OUTPUT_PATH: Final = TARGET_ROOT / "shared" / "source-inventory.json"
@@ -26,9 +32,6 @@ ADMIN_FLOW_SKILLS: Final = frozenset(
         ("legal-builder-hub", "skill-installer"),
         ("legal-builder-hub", "uninstall"),
     },
-)
-FRONTMATTER_FIELD_RE: Final = re.compile(
-    r"^([A-Za-z][A-Za-z0-9_-]*):",
 )
 TARGET_ID_RE: Final = re.compile(r"^[a-z0-9][a-z0-9-]{1,63}$")
 
@@ -50,88 +53,6 @@ def _relative(path: Path) -> str:
     return path.relative_to(ROOT).as_posix()
 
 
-def _frontmatter_lines(text: str, path: Path) -> tuple[str, ...]:
-    """Extract frontmatter lines from a Markdown document.
-
-    Parameters
-    ----------
-    text:
-        Full Markdown text.
-    path:
-        Source path used in error messages.
-
-    Returns
-    -------
-    tuple[str, ...]
-        Lines between the opening and closing frontmatter boundaries.
-
-    Raises
-    ------
-    ValueError
-        If the document does not contain closed frontmatter.
-
-    """
-    lines = text.splitlines()
-    if not lines or lines[0] != "---":
-        message = f"{_relative(path)} has no opening frontmatter boundary"
-        raise ValueError(message)
-    try:
-        closing_index = lines.index("---", 1)
-    except ValueError as error:
-        message = f"{_relative(path)} has no closing frontmatter boundary"
-        raise ValueError(message) from error
-    return tuple(lines[1:closing_index])
-
-
-def _frontmatter_fields(lines: tuple[str, ...]) -> tuple[str, ...]:
-    """Return unique top-level frontmatter field names.
-
-    Parameters
-    ----------
-    lines:
-        Frontmatter lines.
-
-    Returns
-    -------
-    tuple[str, ...]
-        Sorted field names.
-
-    """
-    fields = {
-        match.group(1)
-        for line in lines
-        if (match := FRONTMATTER_FIELD_RE.match(line)) is not None
-    }
-    return tuple(sorted(fields))
-
-
-def _frontmatter_value(
-    lines: tuple[str, ...],
-    field: str,
-) -> str | None:
-    """Return a scalar frontmatter value when present.
-
-    Parameters
-    ----------
-    lines:
-        Frontmatter lines.
-    field:
-        Field to locate.
-
-    Returns
-    -------
-    str | None
-        Trimmed scalar value, or ``None`` when absent.
-
-    """
-    prefix = f"{field}:"
-    for line in lines:
-        if line.startswith(prefix):
-            value = line.removeprefix(prefix).strip()
-            return value.strip("\"'")
-    return None
-
-
 def _is_internal_helper(lines: tuple[str, ...]) -> bool:
     """Return whether source frontmatter hides the skill from users.
 
@@ -146,7 +67,7 @@ def _is_internal_helper(lines: tuple[str, ...]) -> bool:
         ``True`` for ``user-invocable: false``.
 
     """
-    value = _frontmatter_value(lines, "user-invocable")
+    value = frontmatter_scalar(lines, "user-invocable")
     return value == "false"
 
 
@@ -197,9 +118,9 @@ def _skill_record(plugin_id: str, skill_path: Path) -> dict[str, object]:
 
     """
     text = skill_path.read_text(encoding="utf-8")
-    frontmatter = _frontmatter_lines(text, skill_path)
-    fields = _frontmatter_fields(frontmatter)
-    source_id = _frontmatter_value(frontmatter, "name")
+    frontmatter = extract_frontmatter(text, skill_path)
+    fields = frontmatter_fields(frontmatter)
+    source_id = frontmatter_scalar(frontmatter, "name")
     target_id = skill_path.parent.name
     internal_helper = _is_internal_helper(frontmatter)
     unsupported_fields = tuple(
@@ -240,8 +161,8 @@ def _agent_record(agent_path: Path) -> dict[str, object]:
 
     """
     text = agent_path.read_text(encoding="utf-8")
-    frontmatter = _frontmatter_lines(text, agent_path)
-    source_id = _frontmatter_value(frontmatter, "name")
+    frontmatter = extract_frontmatter(text, agent_path)
+    source_id = frontmatter_scalar(frontmatter, "name")
     return {
         "sourceId": source_id or agent_path.stem,
         "sourcePath": _relative(agent_path),
