@@ -47,6 +47,7 @@ bash scripts/build-m365-cowork-packages.sh
 
 ## 文書
 
+- [`docs/README.md`](docs/README.md)
 - [`docs/QUICKSTART.md`](docs/QUICKSTART.md)
 - [`docs/TOOLCHAIN.md`](docs/TOOLCHAIN.md)
 - [`docs/CONNECTORS.md`](docs/CONNECTORS.md)
