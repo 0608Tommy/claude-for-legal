@@ -45,7 +45,7 @@ private practice等で、ある依頼者・案件の資料、判断、出力が�
 | `close <slug>` | 保持したまま`archived`へ状態変更 |
 | `none` | bindingを解除しpractice-level contextへ戻す |
 
-意図がない場合は5状態を提示する。`$ARGUMENTS` やローカルファイルを参照しない。
+意図がない場合は5状態を提示する。旧ランタイムの引数変数やローカルファイルを参照しない。
 
 ## `new <slug>`
 

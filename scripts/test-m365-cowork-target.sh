@@ -63,6 +63,8 @@ argument-hint: "[unsupported]"
 [absolute](/etc/passwd)
 
 `../../references/outside.md`
+
+$ARGUMENTS
 EOF
 
 python3 - "$TOO_LONG/example/skills/too-long/SKILL.md" <<'PY'
@@ -128,6 +130,7 @@ required_fragments = (
     "name must match folder",
     "reference escapes skill root",
     "absolute local reference is forbidden",
+    "unsupported source runtime marker",
 )
 for fragment in required_fragments:
     if not any(fragment in error for error in invalid_errors):

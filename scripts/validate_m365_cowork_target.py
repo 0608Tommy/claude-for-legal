@@ -32,7 +32,11 @@ BACKTICK_PATH_RE: Final = re.compile(
 SLASH_COMMAND_RE: Final = re.compile(
     r"^/[a-z0-9-]+:[a-z0-9-]+(?:\s.*)?$",
 )
+JAPANESE_CHARACTER_RE: Final = re.compile(
+    r"[\u3040-\u30ff\u3400-\u9fff]",
+)
 CHANGE_NOTICE_MARKER: Final = "> **変更通知:**"
+FORBIDDEN_RUNTIME_MARKERS: Final = ("~/.claude/", "$ARGUMENTS")
 
 
 class Limits(NamedTuple):
@@ -410,6 +414,8 @@ def _frontmatter_errors(
         errors.append(
             f"{relative}: description has {len(description)} characters",
         )
+    elif JAPANESE_CHARACTER_RE.search(description) is None:
+        errors.append(f"{relative}: description must contain Japanese text")
     if name is not None and _contains_format_controls(name):
         errors.append(f"{relative}: name contains hidden Unicode controls")
     if description is not None and _contains_format_controls(description):
@@ -450,6 +456,11 @@ def _content_errors(
     errors: list[str] = []
     if CHANGE_NOTICE_MARKER not in text:
         errors.append(f"{relative}: Apache change notice is required")
+    errors.extend(
+        f"{relative}: unsupported source runtime marker {marker}"
+        for marker in FORBIDDEN_RUNTIME_MARKERS
+        if marker in text
+    )
     runtime_contract = (
         skill_path.parent
         / "references"
@@ -512,6 +523,9 @@ def _package_errors(
         if CHANGE_NOTICE_MARKER not in text:
             relative = _relative(markdown_path, target_root)
             errors.append(f"{relative}: Apache change notice is required")
+        if JAPANESE_CHARACTER_RE.search(text) is None:
+            relative = _relative(markdown_path, target_root)
+            errors.append(f"{relative}: Japanese content is required")
     return errors
 
 
