@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "manifestVersion": "1.28",
+  "defaultLanguageTag": "ja",
+  "developer": {
+    "name": "0608Tommy",
+    "websiteUrl": "https://github.com/0608Tommy/claude-for-legal",
+    "privacyUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/PRIVACY.md",
+    "termsOfUseUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/TERMS.md"
+  },
+  "packages": {
+    "ai-governance-legal": {
+      "appId": "65abba18-6361-5077-96c3-b75e0fe4b49d",
+      "sourceVersion": "1.0.2",
+      "displayNameShort": "AIガバナンス法務",
+      "displayNameFull": "AIガバナンス法務 — 日本語版 Microsoft 365 Copilot Cowork",
+      "descriptionShort": "AI台帳、影響評価、規制・ポリシー、ベンダーAIレビューを支援します。",
+      "status": "draft-legal-review"
+    },
+    "commercial-legal": {
+      "appId": "8c061e7a-baca-5e83-bc56-6e615320bf32",
+      "sourceVersion": "1.0.2",
+      "displayNameShort": "商事契約法務",
+      "displayNameFull": "商事契約法務 — 日本語版 Microsoft 365 Copilot Cowork",
+      "descriptionShort": "契約レビュー、NDA、SaaS、更新期限、エスカレーションを支援します。",
+      "status": "in-development"
+    },
+    "corporate-legal": {
+      "appId": "c181a980-a0af-5508-8997-8c5ab0a7413a",
+      "sourceVersion": "1.0.2",
+      "displayNameShort": "コーポレート法務",
+      "displayNameFull": "コーポレート法務 — 日本語版 Microsoft 365 Copilot Cowork",
+      "descriptionShort": "M&A、取締役会、開示、クロージング、法人管理を支援します。",
+      "status": "planned"
+    },
+    "employment-legal": {
+      "appId": "c00c3d4a-7701-580c-9ee7-ae9bc91633e9",
+      "sourceVersion": "1.0.2",
+      "displayNameShort": "雇用労務法務",
+      "displayNameFull": "雇用労務法務 — 日本語版 Microsoft 365 Copilot Cowork",
+      "descriptionShort": "採用、退職、労働者区分、休暇、調査、就業規程を支援します。",
+      "status": "planned"
+    },
+    "ip-legal": {
+      "appId": "6061ceab-f42f-55b9-a3cd-e1bc4f896abb",
+      "sourceVersion": "1.0.2",
+      "displayNameShort": "知的財産法務",
+      "displayNameFull": "知的財産法務 — 日本語版 Microsoft 365 Copilot Cowork",
+      "descriptionShort": "商標、特許、侵害、DMCA、OSS、知財条項、台帳を支援します。",
+      "status": "planned"
+    },
+    "law-student": {
+      "appId": "33511356-5b43-570f-a0da-d007fc2d98e2",
+      "sourceVersion": "1.0.2",
+      "displayNameShort": "法学学習支援",
+      "displayNameFull": "法学学習支援 — 日本語版 Microsoft 365 Copilot Cowork",
+      "descriptionShort": "ソクラテス式演習、判例、IRAC、試験、司法試験学習を支援します。",
+      "status": "planned"
+    },
+    "legal-builder-hub": {
+      "appId": "c46832ff-f835-5909-92db-81fc3c0fec0f",
+      "sourceVersion": "1.0.2",
+      "displayNameShort": "法務スキル管理",
+      "displayNameFull": "法務スキル管理 — 日本語版 Microsoft 365 Copilot Cowork",
+      "descriptionShort": "法務スキルの検索、審査、管理者承認、配布キューを支援します。",
+      "status": "planned-admin-redesign"
+    },
+    "legal-clinic": {
+      "appId": "452af8e2-0fe5-527f-a4ca-614d73a92f94",
+      "sourceVersion": "1.0.2",
+      "displayNameShort": "リーガルクリニック",
+      "displayNameFull": "リーガルクリニック — 日本語版 Microsoft 365 Copilot Cowork",
+      "descriptionShort": "相談受付、期限、メモ、依頼者文書、監督、引継ぎを支援します。",
+      "status": "planned"
+    },
+    "litigation-legal": {
+      "appId": "c990db39-4091-5356-a20a-6ba61118e7d8",
+      "sourceVersion": "1.0.2",
+      "displayNameShort": "訴訟紛争法務",
+      "displayNameFull": "訴訟紛争法務 — 日本語版 Microsoft 365 Copilot Cowork",
+      "descriptionShort": "案件、証拠保全、主張表、時系列、証言準備、書面を支援します。",
+      "status": "planned"
+    },
+    "privacy-legal": {
+      "appId": "57b6a3bb-4bfe-5d6d-b58a-25b759cbb1c4",
+      "sourceVersion": "1.0.2",
+      "displayNameShort": "プライバシー法務",
+      "displayNameFull": "プライバシー法務 — 日本語版 Microsoft 365 Copilot Cowork",
+      "descriptionShort": "PIA、DPA、DSAR、処理トリアージ、規制ギャップを支援します。",
+      "status": "planned"
+    },
+    "product-legal": {
+      "appId": "c0382b19-9a18-5a3d-bcdd-81fdbba6b12a",
+      "sourceVersion": "1.0.2",
+      "displayNameShort": "プロダクト法務",
+      "displayNameFull": "プロダクト法務 — 日本語版 Microsoft 365 Copilot Cowork",
+      "descriptionShort": "製品リリース、機能リスク、広告表示、法務トリアージを支援します。",
+      "status": "planned"
+    },
+    "regulatory-legal": {
+      "appId": "df610cb5-1b09-5376-a657-d6dc1da5a292",
+      "sourceVersion": "1.0.2",
+      "displayNameShort": "規制対応法務",
+      "displayNameFull": "規制対応法務 — 日本語版 Microsoft 365 Copilot Cowork",
+      "descriptionShort": "規制監視、ポリシー差分、ギャップ、意見募集対応を支援します。",
+      "status": "planned"
+    },
+    "cocounsel-legal": {
+      "appId": "af6da462-c6e2-5a05-850e-558a133eb045",
+      "sourceVersion": "0.1.0",
+      "displayNameShort": "CoCounsel Legal",
+      "displayNameFull": "CoCounsel Legal — Microsoft 365移植予約",
+      "descriptionShort": "書面によるベンダー承認が得られるまで配布しません。",
+      "status": "blocked-vendor-approval"
+    }
+  }
+}

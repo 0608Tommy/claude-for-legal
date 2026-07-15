@@ -28,5 +28,23 @@
     "effectiveDateRecorded": false,
     "qualifiedReviewerRecorded": false
   },
+  "reviews": {
+    "ai-governance-legal": {
+      "originalJurisdictionTranslation": "pending",
+      "japanLawLocalization": "pending",
+      "primarySourcesRecorded": true,
+      "effectiveDateRecorded": true,
+      "qualifiedReviewerRecorded": false,
+      "checkedThrough": "2026-07-16"
+    },
+    "cocounsel-legal": {
+      "originalJurisdictionTranslation": "blocked",
+      "japanLawLocalization": "blocked",
+      "primarySourcesRecorded": false,
+      "effectiveDateRecorded": false,
+      "qualifiedReviewerRecorded": false,
+      "blocker": "Written Thomson Reuters approval is required."
+    }
+  },
   "productionRule": "Every included module must be approved."
 }

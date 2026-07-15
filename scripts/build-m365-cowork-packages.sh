@@ -7,6 +7,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TARGET="$ROOT/m365-cowork-ja/cowork-packages"
 DIST="$ROOT/m365-cowork-ja/dist"
+CATALOG="$ROOT/m365-cowork-ja/shared/package-catalog.json"
+MIGRATION_MAP="$ROOT/m365-cowork-ja/shared/migration-map.json"
 ATK_VERSION="1.1.12"
 MAX_PACKAGE_BYTES=$((10 * 1024 * 1024))
 SKILLS_REF_PYTHON="${SKILLS_REF_PYTHON:-$ROOT/m365-cowork-ja/.cache/skills-ref-venv/bin/python}"
@@ -44,6 +46,50 @@ for package in "$TARGET"/*; do
   slug="$(basename "$package")"
   package_dist="$DIST/$slug"
   package_zip="$package_dist/$slug-ja.zip"
+
+  expected_app_id="$(
+    jq -er --arg slug "$slug" '.packages[$slug].appId' "$CATALOG"
+  )"
+  actual_app_id="$(jq -er '.id' "$package/manifest.json")"
+  [[ "$actual_app_id" == "$expected_app_id" ]] || {
+    echo "$slug: manifest app ID does not match package catalog" >&2
+    exit 1
+  }
+
+  expected_manifest_version="$(jq -er '.manifestVersion' "$CATALOG")"
+  actual_manifest_version="$(
+    jq -er '.manifestVersion' "$package/manifest.json"
+  )"
+  [[ "$actual_manifest_version" == "$expected_manifest_version" ]] || {
+    echo "$slug: manifestVersion must be $expected_manifest_version" >&2
+    exit 1
+  }
+
+  actual_language="$(
+    jq -er '.localizationInfo.defaultLanguageTag' "$package/manifest.json"
+  )"
+  [[ "$actual_language" == "ja" ]] || {
+    echo "$slug: defaultLanguageTag must be ja" >&2
+    exit 1
+  }
+
+  skill_diff="$(
+    LC_ALL=C comm -3 \
+      <(
+        jq -r --arg slug "$slug" \
+          '.plugins[$slug] | [.direct[], .powerPlatform[], .admin[]] | .[]' \
+          "$MIGRATION_MAP" | LC_ALL=C sort
+      ) \
+      <(
+        jq -r '.agentSkills[].folder | sub("^./skills/"; "")' \
+          "$package/manifest.json" | LC_ALL=C sort
+      )
+  )"
+  [[ -z "$skill_diff" ]] || {
+    echo "$slug: manifest skill set differs from migration map:" >&2
+    echo "$skill_diff" >&2
+    exit 1
+  }
 
   jq -e 'has("agentConnectors") | not' "$package/manifest.json" >/dev/null || {
     echo "$slug: connector packaging is deferred; remove agentConnectors" >&2

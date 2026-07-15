@@ -1,3 +1,5 @@
+> **変更通知:** `anthropics/claude-for-legal` (source revision `5ceb305b30b4c82653c9b6642499c12e946ec319`) を日本語化し、Microsoft 365 Copilot Cowork向けに変更した派生文書です。
+
 # Microsoft 365 Copilot Cowork 日本語版
 
 このディレクトリは、既存の Claude Code / Claude Cowork 向けプラグインを
