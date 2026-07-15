@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "preserveExactly": [
+    "plugin IDs",
+    "skill IDs",
+    "agent IDs",
+    "file and directory paths",
+    "slash command labels",
+    "command flags",
+    "JSON, YAML, and frontmatter keys",
+    "enum values",
+    "regular expressions",
+    "MCP server and tool names",
+    "URLs and API endpoints",
+    "environment variable names",
+    "case names and reporter citations",
+    "statute and regulation identifiers",
+    "product and company names"
+  ],
+  "translate": [
+    "display names",
+    "descriptions",
+    "headings",
+    "instructions",
+    "warnings",
+    "examples",
+    "user-facing errors",
+    "output templates",
+    "documentation prose"
+  ],
+  "rules": [
+    "Do not translate a canonical token inside code spans or code blocks.",
+    "Add a Japanese gloss after an official legal term instead of replacing it.",
+    "Keep placeholders structurally identical between source and target.",
+    "Treat the Japanese Apache-2.0 text as a non-authoritative reference only."
+  ]
+}

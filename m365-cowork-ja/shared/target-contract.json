@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "target": "Microsoft 365 Copilot Cowork",
+  "distribution": "tenant",
+  "frontmatter": {
+    "allowedFields": [
+      "name",
+      "description",
+      "license",
+      "metadata",
+      "compatibility"
+    ],
+    "strictCharacterLimit": 20000,
+    "descriptionCharacterLimit": 1024
+  },
+  "skill": {
+    "maximumPerPackage": 20,
+    "maximumCompanionFiles": 20,
+    "recommendedMaximumLines": 500,
+    "recommendedMaximumActivatedTokens": 5000
+  },
+  "connector": {
+    "maximumPerPackage": 10,
+    "requiredTransport": "https-streamable-http",
+    "localStdioSupported": false
+  },
+  "jurisdictionResolution": [
+    "request",
+    "matter",
+    "practice-profile",
+    "tenant-default"
+  ],
+  "artifacts": {
+    "coworkAppPackage": "separate-zip",
+    "powerPlatformSolution": "separate-zip"
+  },
+  "productionGates": {
+    "strictHostValidation": true,
+    "officialMicrosoftValidation": true,
+    "tenantSmokeTest": true,
+    "originalJurisdictionReview": true,
+    "japanLawyerReview": true
+  }
+}

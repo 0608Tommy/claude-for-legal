@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "backend": "sharepoint-onedrive",
+  "tenantParameters": {
+    "siteId": "${M365_SITE_ID}",
+    "profilesLibraryId": "${M365_PROFILES_LIBRARY_ID}",
+    "mattersLibraryId": "${M365_MATTERS_LIBRARY_ID}",
+    "outputsLibraryId": "${M365_OUTPUTS_LIBRARY_ID}",
+    "stateListId": "${M365_STATE_LIST_ID}",
+    "auditListId": "${M365_AUDIT_LIST_ID}"
+  },
+  "documentLibraries": {
+    "profiles": "shared company and practice profiles",
+    "matters": "matter-scoped source documents and templates",
+    "outputs": "reviewed shared deliverables"
+  },
+  "lists": {
+    "state": "registries, trackers, session-to-matter binding, and versions",
+    "audit": "append-only verification and automation events"
+  },
+  "oneDrive": {
+    "purpose": "personal drafts and temporary outputs before explicit sharing"
+  },
+  "concurrency": {
+    "requireExactItemId": true,
+    "requireETag": true,
+    "requireIdempotencyKey": true,
+    "rejectStaleWrites": true
+  },
+  "matterIsolation": {
+    "binding": "server-side session and matter IDs",
+    "defaultCrossMatterAccess": false,
+    "failClosedOnAmbiguity": true
+  },
+  "security": {
+    "minimumPrivilege": true,
+    "destinationCheck": true,
+    "retentionPolicyRequired": true,
+    "dlpPolicyRequired": true,
+    "immutableAuditRequired": true
+  }
+}

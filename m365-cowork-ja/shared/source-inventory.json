@@ -1,0 +1,3111 @@
+{
+  "schemaVersion": 1,
+  "sourceRoot": ".",
+  "summary": {
+    "pluginCount": 13,
+    "firstPartyPluginCount": 12,
+    "vendorPluginCount": 1,
+    "skillCount": 151,
+    "agentCount": 10,
+    "cookbookCount": 5,
+    "connectorDeclarationCount": 52,
+    "skillsWithUnsupportedFrontmatter": 143,
+    "unsupportedFrontmatterOccurrences": 144,
+    "skillsOverStrictCharacterLimit": 36
+  },
+  "plugins": [
+    {
+      "sourcePlugin": "ai-governance-legal",
+      "sourceKind": "first-party",
+      "sourcePath": "ai-governance-legal",
+      "skillCount": 10,
+      "registeredSkillCount": 10,
+      "agentCount": 0,
+      "connectorCount": 2,
+      "skills": [
+        {
+          "sourceId": "ai-inventory",
+          "targetId": "ai-inventory",
+          "sourcePath": "ai-governance-legal/skills/ai-inventory/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 11236,
+          "lines": 253,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "aia-generation",
+          "targetId": "aia-generation",
+          "sourcePath": "ai-governance-legal/skills/aia-generation/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 26262,
+          "lines": 399,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "cold-start-interview",
+          "targetId": "cold-start-interview",
+          "sourcePath": "ai-governance-legal/skills/cold-start-interview/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 47158,
+          "lines": 688,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "customize",
+          "targetId": "customize",
+          "sourcePath": "ai-governance-legal/skills/customize/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 5518,
+          "lines": 114,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "matter-workspace",
+          "targetId": "matter-workspace",
+          "sourcePath": "ai-governance-legal/skills/matter-workspace/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 9801,
+          "lines": 185,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "policy-monitor",
+          "targetId": "policy-monitor",
+          "sourcePath": "ai-governance-legal/skills/policy-monitor/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 14972,
+          "lines": 354,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "policy-starter",
+          "targetId": "policy-starter",
+          "sourcePath": "ai-governance-legal/skills/policy-starter/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 15686,
+          "lines": 262,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "reg-gap-analysis",
+          "targetId": "reg-gap-analysis",
+          "sourcePath": "ai-governance-legal/skills/reg-gap-analysis/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 14645,
+          "lines": 241,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "use-case-triage",
+          "targetId": "use-case-triage",
+          "sourcePath": "ai-governance-legal/skills/use-case-triage/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 19150,
+          "lines": 320,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "vendor-ai-review",
+          "targetId": "vendor-ai-review",
+          "sourcePath": "ai-governance-legal/skills/vendor-ai-review/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 20687,
+          "lines": 323,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        }
+      ],
+      "agents": []
+    },
+    {
+      "sourcePlugin": "commercial-legal",
+      "sourceKind": "first-party",
+      "sourcePath": "commercial-legal",
+      "skillCount": 12,
+      "registeredSkillCount": 9,
+      "agentCount": 3,
+      "connectorCount": 7,
+      "skills": [
+        {
+          "sourceId": "amendment-history",
+          "targetId": "amendment-history",
+          "sourcePath": "commercial-legal/skills/amendment-history/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 10936,
+          "lines": 298,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "cold-start-interview",
+          "targetId": "cold-start-interview",
+          "sourcePath": "commercial-legal/skills/cold-start-interview/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 49113,
+          "lines": 643,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "customize",
+          "targetId": "customize",
+          "sourcePath": "commercial-legal/skills/customize/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 4686,
+          "lines": 101,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "escalation-flagger",
+          "targetId": "escalation-flagger",
+          "sourcePath": "commercial-legal/skills/escalation-flagger/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 8659,
+          "lines": 159,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "matter-workspace",
+          "targetId": "matter-workspace",
+          "sourcePath": "commercial-legal/skills/matter-workspace/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 9675,
+          "lines": 184,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "nda-review",
+          "targetId": "nda-review",
+          "sourcePath": "commercial-legal/skills/nda-review/SKILL.md",
+          "disposition": "internal-reference",
+          "registeredInCowork": false,
+          "frontmatterFields": [
+            "description",
+            "name",
+            "user-invocable"
+          ],
+          "unsupportedFrontmatterFields": [
+            "user-invocable"
+          ],
+          "characters": 20139,
+          "lines": 312,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "renewal-tracker",
+          "targetId": "renewal-tracker",
+          "sourcePath": "commercial-legal/skills/renewal-tracker/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 12465,
+          "lines": 199,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "review",
+          "targetId": "review",
+          "sourcePath": "commercial-legal/skills/review/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 5413,
+          "lines": 110,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "review-proposals",
+          "targetId": "review-proposals",
+          "sourcePath": "commercial-legal/skills/review-proposals/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 1640,
+          "lines": 39,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "saas-msa-review",
+          "targetId": "saas-msa-review",
+          "sourcePath": "commercial-legal/skills/saas-msa-review/SKILL.md",
+          "disposition": "internal-reference",
+          "registeredInCowork": false,
+          "frontmatterFields": [
+            "description",
+            "name",
+            "user-invocable"
+          ],
+          "unsupportedFrontmatterFields": [
+            "user-invocable"
+          ],
+          "characters": 21168,
+          "lines": 245,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "stakeholder-summary",
+          "targetId": "stakeholder-summary",
+          "sourcePath": "commercial-legal/skills/stakeholder-summary/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [],
+          "characters": 13096,
+          "lines": 192,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "vendor-agreement-review",
+          "targetId": "vendor-agreement-review",
+          "sourcePath": "commercial-legal/skills/vendor-agreement-review/SKILL.md",
+          "disposition": "internal-reference",
+          "registeredInCowork": false,
+          "frontmatterFields": [
+            "description",
+            "name",
+            "user-invocable"
+          ],
+          "unsupportedFrontmatterFields": [
+            "user-invocable"
+          ],
+          "characters": 23637,
+          "lines": 343,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        }
+      ],
+      "agents": [
+        {
+          "sourceId": "deal-debrief",
+          "sourcePath": "commercial-legal/agents/deal-debrief.md",
+          "disposition": "power-platform-automation"
+        },
+        {
+          "sourceId": "playbook-monitor",
+          "sourcePath": "commercial-legal/agents/playbook-monitor.md",
+          "disposition": "power-platform-automation"
+        },
+        {
+          "sourceId": "renewal-watcher",
+          "sourcePath": "commercial-legal/agents/renewal-watcher.md",
+          "disposition": "power-platform-automation"
+        }
+      ]
+    },
+    {
+      "sourcePlugin": "corporate-legal",
+      "sourceKind": "first-party",
+      "sourcePath": "corporate-legal",
+      "skillCount": 13,
+      "registeredSkillCount": 13,
+      "agentCount": 1,
+      "connectorCount": 7,
+      "skills": [
+        {
+          "sourceId": "ai-tool-handoff",
+          "targetId": "ai-tool-handoff",
+          "sourcePath": "corporate-legal/skills/ai-tool-handoff/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [],
+          "characters": 6914,
+          "lines": 133,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "board-minutes",
+          "targetId": "board-minutes",
+          "sourcePath": "corporate-legal/skills/board-minutes/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [],
+          "characters": 12970,
+          "lines": 248,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "closing-checklist",
+          "targetId": "closing-checklist",
+          "sourcePath": "corporate-legal/skills/closing-checklist/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 11648,
+          "lines": 207,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "cold-start-interview",
+          "targetId": "cold-start-interview",
+          "sourcePath": "corporate-legal/skills/cold-start-interview/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 41417,
+          "lines": 500,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "customize",
+          "targetId": "customize",
+          "sourcePath": "corporate-legal/skills/customize/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 4699,
+          "lines": 102,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "deal-team-summary",
+          "targetId": "deal-team-summary",
+          "sourcePath": "corporate-legal/skills/deal-team-summary/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [],
+          "characters": 5051,
+          "lines": 126,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "diligence-issue-extraction",
+          "targetId": "diligence-issue-extraction",
+          "sourcePath": "corporate-legal/skills/diligence-issue-extraction/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 13123,
+          "lines": 189,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "entity-compliance",
+          "targetId": "entity-compliance",
+          "sourcePath": "corporate-legal/skills/entity-compliance/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 21445,
+          "lines": 459,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "integration-management",
+          "targetId": "integration-management",
+          "sourcePath": "corporate-legal/skills/integration-management/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 22597,
+          "lines": 553,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "material-contract-schedule",
+          "targetId": "material-contract-schedule",
+          "sourcePath": "corporate-legal/skills/material-contract-schedule/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 6532,
+          "lines": 148,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "matter-workspace",
+          "targetId": "matter-workspace",
+          "sourcePath": "corporate-legal/skills/matter-workspace/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 9743,
+          "lines": 185,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "tabular-review",
+          "targetId": "tabular-review",
+          "sourcePath": "corporate-legal/skills/tabular-review/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [],
+          "characters": 17323,
+          "lines": 235,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "written-consent",
+          "targetId": "written-consent",
+          "sourcePath": "corporate-legal/skills/written-consent/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 20398,
+          "lines": 323,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        }
+      ],
+      "agents": [
+        {
+          "sourceId": "dataroom-watcher",
+          "sourcePath": "corporate-legal/agents/dataroom-watcher.md",
+          "disposition": "power-platform-automation"
+        }
+      ]
+    },
+    {
+      "sourcePlugin": "employment-legal",
+      "sourceKind": "first-party",
+      "sourcePath": "employment-legal",
+      "skillCount": 20,
+      "registeredSkillCount": 18,
+      "agentCount": 1,
+      "connectorCount": 2,
+      "skills": [
+        {
+          "sourceId": "cold-start-interview",
+          "targetId": "cold-start-interview",
+          "sourcePath": "employment-legal/skills/cold-start-interview/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 31923,
+          "lines": 324,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "customize",
+          "targetId": "customize",
+          "sourcePath": "employment-legal/skills/customize/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 4841,
+          "lines": 104,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "expansion-kickoff",
+          "targetId": "expansion-kickoff",
+          "sourcePath": "employment-legal/skills/expansion-kickoff/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 1625,
+          "lines": 41,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "expansion-update",
+          "targetId": "expansion-update",
+          "sourcePath": "employment-legal/skills/expansion-update/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 2387,
+          "lines": 74,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "handbook-updates",
+          "targetId": "handbook-updates",
+          "sourcePath": "employment-legal/skills/handbook-updates/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [],
+          "characters": 3665,
+          "lines": 107,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "hiring-review",
+          "targetId": "hiring-review",
+          "sourcePath": "employment-legal/skills/hiring-review/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 13289,
+          "lines": 213,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "internal-investigation",
+          "targetId": "internal-investigation",
+          "sourcePath": "employment-legal/skills/internal-investigation/SKILL.md",
+          "disposition": "internal-reference",
+          "registeredInCowork": false,
+          "frontmatterFields": [
+            "description",
+            "name",
+            "user-invocable"
+          ],
+          "unsupportedFrontmatterFields": [
+            "user-invocable"
+          ],
+          "characters": 27753,
+          "lines": 765,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "international-expansion",
+          "targetId": "international-expansion",
+          "sourcePath": "employment-legal/skills/international-expansion/SKILL.md",
+          "disposition": "internal-reference",
+          "registeredInCowork": false,
+          "frontmatterFields": [
+            "description",
+            "name",
+            "user-invocable"
+          ],
+          "unsupportedFrontmatterFields": [
+            "user-invocable"
+          ],
+          "characters": 15562,
+          "lines": 361,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "investigation-add",
+          "targetId": "investigation-add",
+          "sourcePath": "employment-legal/skills/investigation-add/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 1355,
+          "lines": 39,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "investigation-memo",
+          "targetId": "investigation-memo",
+          "sourcePath": "employment-legal/skills/investigation-memo/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 1152,
+          "lines": 36,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "investigation-open",
+          "targetId": "investigation-open",
+          "sourcePath": "employment-legal/skills/investigation-open/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 1153,
+          "lines": 36,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "investigation-query",
+          "targetId": "investigation-query",
+          "sourcePath": "employment-legal/skills/investigation-query/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 1399,
+          "lines": 44,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "investigation-summary",
+          "targetId": "investigation-summary",
+          "sourcePath": "employment-legal/skills/investigation-summary/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 1301,
+          "lines": 40,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "leave-tracker",
+          "targetId": "leave-tracker",
+          "sourcePath": "employment-legal/skills/leave-tracker/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 1266,
+          "lines": 36,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "log-leave",
+          "targetId": "log-leave",
+          "sourcePath": "employment-legal/skills/log-leave/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 2509,
+          "lines": 59,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "matter-workspace",
+          "targetId": "matter-workspace",
+          "sourcePath": "employment-legal/skills/matter-workspace/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 9776,
+          "lines": 187,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "policy-drafting",
+          "targetId": "policy-drafting",
+          "sourcePath": "employment-legal/skills/policy-drafting/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 5486,
+          "lines": 131,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "termination-review",
+          "targetId": "termination-review",
+          "sourcePath": "employment-legal/skills/termination-review/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 16600,
+          "lines": 283,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "wage-hour-qa",
+          "targetId": "wage-hour-qa",
+          "sourcePath": "employment-legal/skills/wage-hour-qa/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 13283,
+          "lines": 214,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "worker-classification",
+          "targetId": "worker-classification",
+          "sourcePath": "employment-legal/skills/worker-classification/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 22045,
+          "lines": 399,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        }
+      ],
+      "agents": [
+        {
+          "sourceId": "leave-tracker",
+          "sourcePath": "employment-legal/agents/leave-tracker.md",
+          "disposition": "power-platform-automation"
+        }
+      ]
+    },
+    {
+      "sourcePlugin": "cocounsel-legal",
+      "sourceKind": "vendor",
+      "sourcePath": "external_plugins/cocounsel-legal",
+      "skillCount": 1,
+      "registeredSkillCount": 1,
+      "agentCount": 0,
+      "connectorCount": 1,
+      "skills": [
+        {
+          "sourceId": "cocounsel-legal:deep-research",
+          "targetId": "deep-research",
+          "sourcePath": "external_plugins/cocounsel-legal/skills/deep-research/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "allowed-tools",
+            "description",
+            "name",
+            "version"
+          ],
+          "unsupportedFrontmatterFields": [
+            "allowed-tools",
+            "version"
+          ],
+          "characters": 7690,
+          "lines": 132,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        }
+      ],
+      "agents": []
+    },
+    {
+      "sourcePlugin": "ip-legal",
+      "sourceKind": "first-party",
+      "sourcePath": "ip-legal",
+      "skillCount": 12,
+      "registeredSkillCount": 12,
+      "agentCount": 1,
+      "connectorCount": 5,
+      "skills": [
+        {
+          "sourceId": "cease-desist",
+          "targetId": "cease-desist",
+          "sourcePath": "ip-legal/skills/cease-desist/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 37253,
+          "lines": 501,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "clearance",
+          "targetId": "clearance",
+          "sourcePath": "ip-legal/skills/clearance/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 27139,
+          "lines": 497,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "cold-start-interview",
+          "targetId": "cold-start-interview",
+          "sourcePath": "ip-legal/skills/cold-start-interview/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 42179,
+          "lines": 479,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "customize",
+          "targetId": "customize",
+          "sourcePath": "ip-legal/skills/customize/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 4724,
+          "lines": 103,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "fto-triage",
+          "targetId": "fto-triage",
+          "sourcePath": "ip-legal/skills/fto-triage/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 25691,
+          "lines": 537,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "infringement-triage",
+          "targetId": "infringement-triage",
+          "sourcePath": "ip-legal/skills/infringement-triage/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 29246,
+          "lines": 628,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "invention-intake",
+          "targetId": "invention-intake",
+          "sourcePath": "ip-legal/skills/invention-intake/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 22463,
+          "lines": 472,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "ip-clause-review",
+          "targetId": "ip-clause-review",
+          "sourcePath": "ip-legal/skills/ip-clause-review/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 19672,
+          "lines": 286,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "matter-workspace",
+          "targetId": "matter-workspace",
+          "sourcePath": "ip-legal/skills/matter-workspace/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 9878,
+          "lines": 184,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "oss-review",
+          "targetId": "oss-review",
+          "sourcePath": "ip-legal/skills/oss-review/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 19830,
+          "lines": 283,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "portfolio",
+          "targetId": "portfolio",
+          "sourcePath": "ip-legal/skills/portfolio/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 21290,
+          "lines": 539,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "takedown",
+          "targetId": "takedown",
+          "sourcePath": "ip-legal/skills/takedown/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 30608,
+          "lines": 447,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        }
+      ],
+      "agents": [
+        {
+          "sourceId": "ip-renewal-watcher",
+          "sourcePath": "ip-legal/agents/ip-renewal-watcher.md",
+          "disposition": "power-platform-automation"
+        }
+      ]
+    },
+    {
+      "sourcePlugin": "law-student",
+      "sourceKind": "first-party",
+      "sourcePath": "law-student",
+      "skillCount": 13,
+      "registeredSkillCount": 13,
+      "agentCount": 0,
+      "connectorCount": 4,
+      "skills": [
+        {
+          "sourceId": "bar-prep-questions",
+          "targetId": "bar-prep-questions",
+          "sourcePath": "law-student/skills/bar-prep-questions/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 19776,
+          "lines": 270,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "case-brief",
+          "targetId": "case-brief",
+          "sourcePath": "law-student/skills/case-brief/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 6466,
+          "lines": 108,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "cold-call-prep",
+          "targetId": "cold-call-prep",
+          "sourcePath": "law-student/skills/cold-call-prep/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 7174,
+          "lines": 133,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "cold-start-interview",
+          "targetId": "cold-start-interview",
+          "sourcePath": "law-student/skills/cold-start-interview/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 29037,
+          "lines": 308,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "customize",
+          "targetId": "customize",
+          "sourcePath": "law-student/skills/customize/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 3973,
+          "lines": 88,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "exam-forecast",
+          "targetId": "exam-forecast",
+          "sourcePath": "law-student/skills/exam-forecast/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 9143,
+          "lines": 165,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "flashcards",
+          "targetId": "flashcards",
+          "sourcePath": "law-student/skills/flashcards/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 8454,
+          "lines": 158,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "irac-practice",
+          "targetId": "irac-practice",
+          "sourcePath": "law-student/skills/irac-practice/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 10385,
+          "lines": 178,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "legal-writing",
+          "targetId": "legal-writing",
+          "sourcePath": "law-student/skills/legal-writing/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 9105,
+          "lines": 167,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "outline-builder",
+          "targetId": "outline-builder",
+          "sourcePath": "law-student/skills/outline-builder/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 9323,
+          "lines": 152,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "session",
+          "targetId": "session",
+          "sourcePath": "law-student/skills/session/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 1912,
+          "lines": 31,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "socratic-drill",
+          "targetId": "socratic-drill",
+          "sourcePath": "law-student/skills/socratic-drill/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 6318,
+          "lines": 101,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "study-plan",
+          "targetId": "study-plan",
+          "sourcePath": "law-student/skills/study-plan/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 13907,
+          "lines": 248,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        }
+      ],
+      "agents": []
+    },
+    {
+      "sourcePlugin": "legal-builder-hub",
+      "sourceKind": "first-party",
+      "sourcePath": "legal-builder-hub",
+      "skillCount": 10,
+      "registeredSkillCount": 9,
+      "agentCount": 1,
+      "connectorCount": 3,
+      "skills": [
+        {
+          "sourceId": "auto-updater",
+          "targetId": "auto-updater",
+          "sourcePath": "legal-builder-hub/skills/auto-updater/SKILL.md",
+          "disposition": "admin-approval-flow",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 8608,
+          "lines": 177,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "cold-start-interview",
+          "targetId": "cold-start-interview",
+          "sourcePath": "legal-builder-hub/skills/cold-start-interview/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 28337,
+          "lines": 286,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "customize",
+          "targetId": "customize",
+          "sourcePath": "legal-builder-hub/skills/customize/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 4335,
+          "lines": 94,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "disable",
+          "targetId": "disable",
+          "sourcePath": "legal-builder-hub/skills/disable/SKILL.md",
+          "disposition": "admin-approval-flow",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 1479,
+          "lines": 38,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "registry-browser",
+          "targetId": "registry-browser",
+          "sourcePath": "legal-builder-hub/skills/registry-browser/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 2479,
+          "lines": 82,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "related-skills-surfacer",
+          "targetId": "related-skills-surfacer",
+          "sourcePath": "legal-builder-hub/skills/related-skills-surfacer/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [],
+          "characters": 3225,
+          "lines": 72,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "skill-installer",
+          "targetId": "skill-installer",
+          "sourcePath": "legal-builder-hub/skills/skill-installer/SKILL.md",
+          "disposition": "admin-approval-flow",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 26027,
+          "lines": 505,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "skill-manager",
+          "targetId": "skill-manager",
+          "sourcePath": "legal-builder-hub/skills/skill-manager/SKILL.md",
+          "disposition": "internal-reference",
+          "registeredInCowork": false,
+          "frontmatterFields": [
+            "description",
+            "name",
+            "user-invocable"
+          ],
+          "unsupportedFrontmatterFields": [
+            "user-invocable"
+          ],
+          "characters": 4437,
+          "lines": 132,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "skills-qa",
+          "targetId": "skills-qa",
+          "sourcePath": "legal-builder-hub/skills/skills-qa/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 33620,
+          "lines": 699,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "uninstall",
+          "targetId": "uninstall",
+          "sourcePath": "legal-builder-hub/skills/uninstall/SKILL.md",
+          "disposition": "admin-approval-flow",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 1542,
+          "lines": 35,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        }
+      ],
+      "agents": [
+        {
+          "sourceId": "registry-sync",
+          "sourcePath": "legal-builder-hub/agents/registry-sync.md",
+          "disposition": "power-platform-automation"
+        }
+      ]
+    },
+    {
+      "sourcePlugin": "legal-clinic",
+      "sourceKind": "first-party",
+      "sourcePath": "legal-clinic",
+      "skillCount": 16,
+      "registeredSkillCount": 14,
+      "agentCount": 0,
+      "connectorCount": 5,
+      "skills": [
+        {
+          "sourceId": "build-guide",
+          "targetId": "build-guide",
+          "sourcePath": "legal-clinic/skills/build-guide/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 15004,
+          "lines": 251,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "client-comms-log",
+          "targetId": "client-comms-log",
+          "sourcePath": "legal-clinic/skills/client-comms-log/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 6314,
+          "lines": 116,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "client-intake",
+          "targetId": "client-intake",
+          "sourcePath": "legal-clinic/skills/client-intake/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 12751,
+          "lines": 248,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "client-letter",
+          "targetId": "client-letter",
+          "sourcePath": "legal-clinic/skills/client-letter/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 8334,
+          "lines": 166,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "cold-start-interview",
+          "targetId": "cold-start-interview",
+          "sourcePath": "legal-clinic/skills/cold-start-interview/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 36071,
+          "lines": 363,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "customize",
+          "targetId": "customize",
+          "sourcePath": "legal-clinic/skills/customize/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 4614,
+          "lines": 99,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "deadlines",
+          "targetId": "deadlines",
+          "sourcePath": "legal-clinic/skills/deadlines/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 11181,
+          "lines": 173,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "draft",
+          "targetId": "draft",
+          "sourcePath": "legal-clinic/skills/draft/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 9627,
+          "lines": 163,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "form-generation",
+          "targetId": "form-generation",
+          "sourcePath": "legal-clinic/skills/form-generation/SKILL.md",
+          "disposition": "internal-reference",
+          "registeredInCowork": false,
+          "frontmatterFields": [
+            "description",
+            "name",
+            "user-invocable"
+          ],
+          "unsupportedFrontmatterFields": [
+            "user-invocable"
+          ],
+          "characters": 727,
+          "lines": 19,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "memo",
+          "targetId": "memo",
+          "sourcePath": "legal-clinic/skills/memo/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 9838,
+          "lines": 210,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "plain-language-letters",
+          "targetId": "plain-language-letters",
+          "sourcePath": "legal-clinic/skills/plain-language-letters/SKILL.md",
+          "disposition": "internal-reference",
+          "registeredInCowork": false,
+          "frontmatterFields": [
+            "description",
+            "name",
+            "user-invocable"
+          ],
+          "unsupportedFrontmatterFields": [
+            "user-invocable"
+          ],
+          "characters": 822,
+          "lines": 22,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "ramp",
+          "targetId": "ramp",
+          "sourcePath": "legal-clinic/skills/ramp/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 7886,
+          "lines": 136,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "research-start",
+          "targetId": "research-start",
+          "sourcePath": "legal-clinic/skills/research-start/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 11131,
+          "lines": 203,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "semester-handoff",
+          "targetId": "semester-handoff",
+          "sourcePath": "legal-clinic/skills/semester-handoff/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 10291,
+          "lines": 191,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "status",
+          "targetId": "status",
+          "sourcePath": "legal-clinic/skills/status/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 7322,
+          "lines": 194,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "supervisor-review-queue",
+          "targetId": "supervisor-review-queue",
+          "sourcePath": "legal-clinic/skills/supervisor-review-queue/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 4354,
+          "lines": 108,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        }
+      ],
+      "agents": []
+    },
+    {
+      "sourcePlugin": "litigation-legal",
+      "sourceKind": "first-party",
+      "sourcePath": "litigation-legal",
+      "skillCount": 19,
+      "registeredSkillCount": 19,
+      "agentCount": 1,
+      "connectorCount": 7,
+      "skills": [
+        {
+          "sourceId": "brief-section-drafter",
+          "targetId": "brief-section-drafter",
+          "sourcePath": "litigation-legal/skills/brief-section-drafter/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 16101,
+          "lines": 191,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "chronology",
+          "targetId": "chronology",
+          "sourcePath": "litigation-legal/skills/chronology/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 22597,
+          "lines": 279,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "claim-chart",
+          "targetId": "claim-chart",
+          "sourcePath": "litigation-legal/skills/claim-chart/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 40835,
+          "lines": 476,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "cold-start-interview",
+          "targetId": "cold-start-interview",
+          "sourcePath": "litigation-legal/skills/cold-start-interview/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 47798,
+          "lines": 514,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "customize",
+          "targetId": "customize",
+          "sourcePath": "litigation-legal/skills/customize/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 4653,
+          "lines": 102,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "demand-draft",
+          "targetId": "demand-draft",
+          "sourcePath": "litigation-legal/skills/demand-draft/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 25881,
+          "lines": 351,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "demand-intake",
+          "targetId": "demand-intake",
+          "sourcePath": "litigation-legal/skills/demand-intake/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 12773,
+          "lines": 271,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "demand-received",
+          "targetId": "demand-received",
+          "sourcePath": "litigation-legal/skills/demand-received/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 13457,
+          "lines": 235,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "deposition-prep",
+          "targetId": "deposition-prep",
+          "sourcePath": "litigation-legal/skills/deposition-prep/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 14019,
+          "lines": 204,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "legal-hold",
+          "targetId": "legal-hold",
+          "sourcePath": "litigation-legal/skills/legal-hold/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 15077,
+          "lines": 238,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "matter-briefing",
+          "targetId": "matter-briefing",
+          "sourcePath": "litigation-legal/skills/matter-briefing/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 4854,
+          "lines": 109,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "matter-close",
+          "targetId": "matter-close",
+          "sourcePath": "litigation-legal/skills/matter-close/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 6108,
+          "lines": 130,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "matter-intake",
+          "targetId": "matter-intake",
+          "sourcePath": "litigation-legal/skills/matter-intake/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 13250,
+          "lines": 310,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "matter-update",
+          "targetId": "matter-update",
+          "sourcePath": "litigation-legal/skills/matter-update/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 8040,
+          "lines": 150,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "matter-workspace",
+          "targetId": "matter-workspace",
+          "sourcePath": "litigation-legal/skills/matter-workspace/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 9901,
+          "lines": 184,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "oc-status",
+          "targetId": "oc-status",
+          "sourcePath": "litigation-legal/skills/oc-status/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 8459,
+          "lines": 159,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "portfolio-status",
+          "targetId": "portfolio-status",
+          "sourcePath": "litigation-legal/skills/portfolio-status/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 5364,
+          "lines": 126,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "privilege-log-review",
+          "targetId": "privilege-log-review",
+          "sourcePath": "litigation-legal/skills/privilege-log-review/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 19031,
+          "lines": 230,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "subpoena-triage",
+          "targetId": "subpoena-triage",
+          "sourcePath": "litigation-legal/skills/subpoena-triage/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 17923,
+          "lines": 278,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        }
+      ],
+      "agents": [
+        {
+          "sourceId": "docket-watcher",
+          "sourcePath": "litigation-legal/agents/docket-watcher.md",
+          "disposition": "power-platform-automation"
+        }
+      ]
+    },
+    {
+      "sourcePlugin": "privacy-legal",
+      "sourceKind": "first-party",
+      "sourcePath": "privacy-legal",
+      "skillCount": 9,
+      "registeredSkillCount": 9,
+      "agentCount": 0,
+      "connectorCount": 2,
+      "skills": [
+        {
+          "sourceId": "cold-start-interview",
+          "targetId": "cold-start-interview",
+          "sourcePath": "privacy-legal/skills/cold-start-interview/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 37172,
+          "lines": 498,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "customize",
+          "targetId": "customize",
+          "sourcePath": "privacy-legal/skills/customize/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 4496,
+          "lines": 101,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "dpa-review",
+          "targetId": "dpa-review",
+          "sourcePath": "privacy-legal/skills/dpa-review/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 20966,
+          "lines": 245,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "dsar-response",
+          "targetId": "dsar-response",
+          "sourcePath": "privacy-legal/skills/dsar-response/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 20247,
+          "lines": 288,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "matter-workspace",
+          "targetId": "matter-workspace",
+          "sourcePath": "privacy-legal/skills/matter-workspace/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 9677,
+          "lines": 186,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "pia-generation",
+          "targetId": "pia-generation",
+          "sourcePath": "privacy-legal/skills/pia-generation/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 16724,
+          "lines": 282,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "policy-monitor",
+          "targetId": "policy-monitor",
+          "sourcePath": "privacy-legal/skills/policy-monitor/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 17853,
+          "lines": 358,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "reg-gap-analysis",
+          "targetId": "reg-gap-analysis",
+          "sourcePath": "privacy-legal/skills/reg-gap-analysis/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 10514,
+          "lines": 184,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "use-case-triage",
+          "targetId": "use-case-triage",
+          "sourcePath": "privacy-legal/skills/use-case-triage/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 16229,
+          "lines": 295,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        }
+      ],
+      "agents": []
+    },
+    {
+      "sourcePlugin": "product-legal",
+      "sourceKind": "first-party",
+      "sourcePath": "product-legal",
+      "skillCount": 7,
+      "registeredSkillCount": 7,
+      "agentCount": 1,
+      "connectorCount": 5,
+      "skills": [
+        {
+          "sourceId": "cold-start-interview",
+          "targetId": "cold-start-interview",
+          "sourcePath": "product-legal/skills/cold-start-interview/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 35008,
+          "lines": 492,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "customize",
+          "targetId": "customize",
+          "sourcePath": "product-legal/skills/customize/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 4537,
+          "lines": 98,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "feature-risk-assessment",
+          "targetId": "feature-risk-assessment",
+          "sourcePath": "product-legal/skills/feature-risk-assessment/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [],
+          "characters": 8907,
+          "lines": 158,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "is-this-a-problem",
+          "targetId": "is-this-a-problem",
+          "sourcePath": "product-legal/skills/is-this-a-problem/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 9138,
+          "lines": 143,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "launch-review",
+          "targetId": "launch-review",
+          "sourcePath": "product-legal/skills/launch-review/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 19859,
+          "lines": 259,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "marketing-claims-review",
+          "targetId": "marketing-claims-review",
+          "sourcePath": "product-legal/skills/marketing-claims-review/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 14570,
+          "lines": 220,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "matter-workspace",
+          "targetId": "matter-workspace",
+          "sourcePath": "product-legal/skills/matter-workspace/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 9654,
+          "lines": 186,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        }
+      ],
+      "agents": [
+        {
+          "sourceId": "launch-watcher",
+          "sourcePath": "product-legal/agents/launch-watcher.md",
+          "disposition": "power-platform-automation"
+        }
+      ]
+    },
+    {
+      "sourcePlugin": "regulatory-legal",
+      "sourceKind": "first-party",
+      "sourcePath": "regulatory-legal",
+      "skillCount": 9,
+      "registeredSkillCount": 8,
+      "agentCount": 1,
+      "connectorCount": 2,
+      "skills": [
+        {
+          "sourceId": "cold-start-interview",
+          "targetId": "cold-start-interview",
+          "sourcePath": "regulatory-legal/skills/cold-start-interview/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 30956,
+          "lines": 358,
+          "overStrictCharacterLimit": true,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "comments",
+          "targetId": "comments",
+          "sourcePath": "regulatory-legal/skills/comments/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 4151,
+          "lines": 90,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "customize",
+          "targetId": "customize",
+          "sourcePath": "regulatory-legal/skills/customize/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 4738,
+          "lines": 103,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "gap-surfacer",
+          "targetId": "gap-surfacer",
+          "sourcePath": "regulatory-legal/skills/gap-surfacer/SKILL.md",
+          "disposition": "internal-reference",
+          "registeredInCowork": false,
+          "frontmatterFields": [
+            "description",
+            "name",
+            "user-invocable"
+          ],
+          "unsupportedFrontmatterFields": [
+            "user-invocable"
+          ],
+          "characters": 14782,
+          "lines": 242,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "gaps",
+          "targetId": "gaps",
+          "sourcePath": "regulatory-legal/skills/gaps/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 915,
+          "lines": 14,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "matter-workspace",
+          "targetId": "matter-workspace",
+          "sourcePath": "regulatory-legal/skills/matter-workspace/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 9665,
+          "lines": 180,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "policy-diff",
+          "targetId": "policy-diff",
+          "sourcePath": "regulatory-legal/skills/policy-diff/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 11822,
+          "lines": 205,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "policy-redraft",
+          "targetId": "policy-redraft",
+          "sourcePath": "regulatory-legal/skills/policy-redraft/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 13944,
+          "lines": 199,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        },
+        {
+          "sourceId": "reg-feed-watcher",
+          "targetId": "reg-feed-watcher",
+          "sourcePath": "regulatory-legal/skills/reg-feed-watcher/SKILL.md",
+          "disposition": "cowork-skill",
+          "registeredInCowork": true,
+          "frontmatterFields": [
+            "argument-hint",
+            "description",
+            "name"
+          ],
+          "unsupportedFrontmatterFields": [
+            "argument-hint"
+          ],
+          "characters": 14934,
+          "lines": 227,
+          "overStrictCharacterLimit": false,
+          "validTargetId": true
+        }
+      ],
+      "agents": [
+        {
+          "sourceId": "reg-change-monitor",
+          "sourcePath": "regulatory-legal/agents/reg-change-monitor.md",
+          "disposition": "power-platform-automation"
+        }
+      ]
+    }
+  ],
+  "cookbooks": [
+    {
+      "sourceId": "diligence-grid",
+      "sourcePath": "managed-agent-cookbooks/diligence-grid",
+      "leafCount": 4,
+      "disposition": "power-platform-solution"
+    },
+    {
+      "sourceId": "docket-watcher",
+      "sourcePath": "managed-agent-cookbooks/docket-watcher",
+      "leafCount": 3,
+      "disposition": "power-platform-solution"
+    },
+    {
+      "sourceId": "launch-radar",
+      "sourcePath": "managed-agent-cookbooks/launch-radar",
+      "leafCount": 3,
+      "disposition": "power-platform-solution"
+    },
+    {
+      "sourceId": "reg-monitor",
+      "sourcePath": "managed-agent-cookbooks/reg-monitor",
+      "leafCount": 3,
+      "disposition": "power-platform-solution"
+    },
+    {
+      "sourceId": "renewal-watcher",
+      "sourcePath": "managed-agent-cookbooks/renewal-watcher",
+      "leafCount": 3,
+      "disposition": "power-platform-solution"
+    }
+  ]
+}

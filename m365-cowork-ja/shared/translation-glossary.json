@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "locale": "ja-JP",
+  "entries": [
+    {
+      "source": "attorney work product",
+      "target": "弁護士作業成果（米国法上の概念）",
+      "preserveSourceTerm": true
+    },
+    {
+      "source": "privileged and confidential",
+      "target": "秘匿特権対象・機密",
+      "preserveSourceTerm": false
+    },
+    {
+      "source": "reviewer note",
+      "target": "レビュー担当者向け注記",
+      "preserveSourceTerm": false
+    },
+    {
+      "source": "matter",
+      "target": "案件",
+      "preserveSourceTerm": true
+    },
+    {
+      "source": "playbook",
+      "target": "プレイブック",
+      "preserveSourceTerm": true
+    },
+    {
+      "source": "redline",
+      "target": "修正文案",
+      "preserveSourceTerm": true
+    },
+    {
+      "source": "impact assessment",
+      "target": "影響評価",
+      "preserveSourceTerm": false
+    },
+    {
+      "source": "data processing agreement",
+      "target": "データ処理契約",
+      "preserveSourceTerm": true
+    },
+    {
+      "source": "legal hold",
+      "target": "証拠保全指示",
+      "preserveSourceTerm": true
+    },
+    {
+      "source": "human review",
+      "target": "人によるレビュー",
+      "preserveSourceTerm": false
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "statuses": [
+    "pending",
+    "in-review",
+    "approved",
+    "blocked"
+  ],
+  "plugins": [
+    "ai-governance-legal",
+    "commercial-legal",
+    "corporate-legal",
+    "employment-legal",
+    "ip-legal",
+    "law-student",
+    "legal-builder-hub",
+    "legal-clinic",
+    "litigation-legal",
+    "privacy-legal",
+    "product-legal",
+    "regulatory-legal",
+    "cocounsel-legal"
+  ],
+  "defaultReview": {
+    "originalJurisdictionTranslation": "pending",
+    "japanLawLocalization": "pending",
+    "primarySourcesRecorded": false,
+    "effectiveDateRecorded": false,
+    "qualifiedReviewerRecorded": false
+  },
+  "productionRule": "Every included module must be approved."
+}
