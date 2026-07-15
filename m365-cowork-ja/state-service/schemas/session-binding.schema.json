@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/claude-for-legal/session-binding.schema.json",
+  "title": "Session to matter binding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenantId",
+    "practiceId",
+    "userObjectId",
+    "sessionId",
+    "matterId",
+    "status",
+    "boundAt",
+    "boundBy"
+  ],
+  "properties": {
+    "tenantId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "practiceId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "userObjectId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sessionId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "matterId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "revoked"
+      ]
+    },
+    "boundAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "boundBy": {
+      "type": "string",
+      "minLength": 1
+    },
+    "revokedAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "revokedBy": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "revocationReason": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 500
+    }
+  }
+}

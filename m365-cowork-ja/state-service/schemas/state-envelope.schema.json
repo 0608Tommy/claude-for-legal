@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/claude-for-legal/state-envelope.schema.json",
+  "title": "Legal state envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenantId",
+    "practiceId",
+    "scopeType",
+    "scopeId",
+    "recordType",
+    "recordId",
+    "itemId",
+    "eTag",
+    "version",
+    "payload",
+    "updatedAt"
+  ],
+  "properties": {
+    "tenantId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "practiceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "scopeType": {
+      "type": "string",
+      "enum": [
+        "tenant",
+        "practice",
+        "user",
+        "matter",
+        "session"
+      ]
+    },
+    "scopeId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "recordType": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+    },
+    "recordId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "itemId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "eTag": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "payload": {
+      "type": "object"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

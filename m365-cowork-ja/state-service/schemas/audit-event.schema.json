@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/claude-for-legal/audit-event.schema.json",
+  "title": "Append-only legal audit event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenantId",
+    "practiceId",
+    "eventType",
+    "correlationId",
+    "actorObjectId",
+    "timestamp",
+    "outcome"
+  ],
+  "properties": {
+    "tenantId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "practiceId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "matterId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "eventType": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+    },
+    "correlationId": {
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 128
+    },
+    "idempotencyKey": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 256
+    },
+    "actorObjectId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "succeeded",
+        "failed",
+        "rejected",
+        "partial"
+      ]
+    },
+    "itemIds": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "string",
+        "maxLength": 256
+      }
+    },
+    "details": {
+      "type": "object"
+    }
+  }
+}

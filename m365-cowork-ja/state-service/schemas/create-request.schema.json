@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/claude-for-legal/create-request.schema.json",
+  "title": "Conditional state create request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenantId",
+    "practiceId",
+    "scopeType",
+    "scopeId",
+    "recordType",
+    "recordId",
+    "idempotencyKey",
+    "expectedAbsent",
+    "payload"
+  ],
+  "properties": {
+    "tenantId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "practiceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "scopeType": {
+      "type": "string",
+      "enum": [
+        "tenant",
+        "practice",
+        "user",
+        "matter",
+        "session"
+      ]
+    },
+    "scopeId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "recordType": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+    },
+    "recordId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 256
+    },
+    "expectedAbsent": {
+      "const": true
+    },
+    "payload": {
+      "type": "object"
+    }
+  }
+}

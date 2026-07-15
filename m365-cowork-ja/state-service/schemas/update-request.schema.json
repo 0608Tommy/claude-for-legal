@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/claude-for-legal/update-request.schema.json",
+  "title": "Conditional state update request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenantId",
+    "practiceId",
+    "scopeType",
+    "scopeId",
+    "recordType",
+    "recordId",
+    "itemId",
+    "eTag",
+    "idempotencyKey",
+    "patch"
+  ],
+  "properties": {
+    "tenantId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "practiceId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "scopeType": {
+      "type": "string",
+      "enum": [
+        "tenant",
+        "practice",
+        "user",
+        "matter",
+        "session"
+      ]
+    },
+    "scopeId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "recordType": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+    },
+    "recordId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "itemId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "eTag": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 256
+    },
+    "patch": {
+      "type": "object",
+      "minProperties": 1
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "principals": {
+    "currentUser": {
+      "profiles": "read-own-user-profile",
+      "matters": "read-authorized-items",
+      "state": "read-write-authorized-scope",
+      "audit": "append-only",
+      "outputs": "draft-or-approved-promotion"
+    },
+    "stateGateway": {
+      "profiles": "least-privilege",
+      "matters": "item-level-acl-enforced",
+      "state": "conditional-create-update",
+      "audit": "append-only",
+      "outputs": "no-external-sharing"
+    },
+    "administrator": {
+      "purpose": "provisioning, retention, incident response",
+      "routineMatterAccess": false
+    }
+  },
+  "rules": [
+    "Do not infer authorization from a display name, slug, or conversation history.",
+    "Resolve exact Entra object and group IDs.",
+    "Default cross-matter access to false.",
+    "Do not copy restricted matter facts into company or practice profiles.",
+    "Revoke every session binding when its matter is archived or access is removed.",
+    "External sharing requires a separate destination and privilege check."
+  ]
+}

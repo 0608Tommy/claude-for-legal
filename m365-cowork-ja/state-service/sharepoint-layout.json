@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "tenantParameters": {
+    "siteId": "${M365_SITE_ID}",
+    "profilesLibraryId": "${M365_PROFILES_LIBRARY_ID}",
+    "mattersLibraryId": "${M365_MATTERS_LIBRARY_ID}",
+    "outputsLibraryId": "${M365_OUTPUTS_LIBRARY_ID}",
+    "stateListId": "${M365_STATE_LIST_ID}",
+    "auditListId": "${M365_AUDIT_LIST_ID}"
+  },
+  "documentLibraries": {
+    "profiles": {
+      "contentTypes": [
+        "company-profile",
+        "practice-profile",
+        "user-profile"
+      ],
+      "versioning": true,
+      "checkoutRequired": false
+    },
+    "matters": {
+      "contentTypes": [
+        "matter-profile",
+        "matter-document",
+        "matter-template"
+      ],
+      "versioning": true,
+      "itemLevelAcl": true
+    },
+    "outputs": {
+      "contentTypes": [
+        "reviewed-deliverable"
+      ],
+      "versioning": true,
+      "promotionApprovalRequired": true
+    }
+  },
+  "lists": {
+    "state": {
+      "uniqueKey": [
+        "tenantId",
+        "practiceId",
+        "scopeType",
+        "scopeId",
+        "recordType",
+        "recordId"
+      ],
+      "indexedColumns": [
+        "tenantId",
+        "practiceId",
+        "scopeType",
+        "scopeId",
+        "recordType",
+        "recordId",
+        "updatedAt"
+      ],
+      "versioning": true
+    },
+    "audit": {
+      "appendOnly": true,
+      "indexedColumns": [
+        "tenantId",
+        "practiceId",
+        "matterId",
+        "eventType",
+        "timestamp",
+        "correlationId"
+      ],
+      "allowUpdate": false,
+      "allowDelete": false
+    }
+  },
+  "oneDrive": {
+    "purpose": "current-user drafts before explicit promotion",
+    "sharedByDefault": false
+  }
+}
