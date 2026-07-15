@@ -44,3 +44,15 @@ bash scripts/build-m365-cowork-packages.sh
 移植台帳を作成するための機械可読な基礎データです。人が確認した最終的な
 処置、call graph、mode変換、agent対応は `shared/migration-map.json` を
 正本とします。
+
+## 文書
+
+- [`docs/QUICKSTART.md`](docs/QUICKSTART.md)
+- [`docs/TOOLCHAIN.md`](docs/TOOLCHAIN.md)
+- [`docs/CONNECTORS.md`](docs/CONNECTORS.md)
+- [`docs/SECURITY.md`](docs/SECURITY.md)
+- [`docs/PRIVACY.md`](docs/PRIVACY.md)
+- [`docs/TERMS.md`](docs/TERMS.md)
+- [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md)
+- [`docs/CODE_OF_CONDUCT.md`](docs/CODE_OF_CONDUCT.md)
+- [`docs/SOURCE-MAINTENANCE.md`](docs/SOURCE-MAINTENANCE.md)
