@@ -595,6 +595,7 @@ affected_binding_packages = {
     "corporate-legal",
     "employment-legal",
     "ip-legal",
+    "litigation-legal",
     "product-legal",
     "regulatory-legal",
 }
@@ -1138,6 +1139,213 @@ for schema_copy in regulatory_schema_copies:
     if schema_copy.read_bytes() != canonical_regulatory_schema:
         raise SystemExit(
             f"{schema_copy}: regulatory schema is not synced"
+        )
+
+
+def litigation_matter_errors(document):
+    errors = []
+    if document.get("status") not in {
+        "active",
+        "close-pending",
+        "archived",
+    }:
+        errors.append("litigation status lifecycle is invalid")
+    generation = document.get("bindingGeneration")
+    if (
+        not isinstance(generation, int)
+        or isinstance(generation, bool)
+        or generation < 0
+    ):
+        errors.append(
+            "litigation bindingGeneration must be nonnegative integer"
+        )
+    matter_id = document.get("id")
+    if not isinstance(matter_id, str) or not matter_id.strip():
+        errors.append("litigation matter ID must be nonblank")
+    return errors
+
+
+def litigation_transition_errors(current, updated):
+    errors = [
+        *litigation_matter_errors(current),
+        *litigation_matter_errors(updated),
+    ]
+    if current.get("id") != updated.get("id"):
+        errors.append("litigation matter ID is immutable")
+    current_status = current.get("status")
+    current_generation = current.get("bindingGeneration")
+    updated_status = updated.get("status")
+    updated_generation = updated.get("bindingGeneration")
+    if current_status == "active":
+        if updated_status != "close-pending":
+            errors.append("litigation matter must fence before archive")
+        if (
+            isinstance(current_generation, int)
+            and not isinstance(current_generation, bool)
+            and updated_generation != current_generation + 1
+        ):
+            errors.append("litigation fence must increment generation")
+    elif current_status == "close-pending":
+        if updated_status != "archived":
+            errors.append("litigation fence must finalize archived")
+        if updated_generation != current_generation:
+            errors.append("litigation finalize must preserve generation")
+    else:
+        errors.append("litigation transition source is invalid")
+    return errors
+
+
+litigation_root = packages_root / "litigation-legal"
+litigation_schema_path = (
+    litigation_root / "references" / "litigation-record-schemas.md"
+)
+litigation_schema_text = litigation_schema_path.read_text(
+    encoding="utf-8"
+)
+litigation_matter_section = litigation_schema_text.split(
+    "## Matter\n",
+    maxsplit=1,
+)[1]
+litigation_matter_match = re.search(
+    r"```yaml\n(.*?)```",
+    litigation_matter_section,
+    flags=re.DOTALL,
+)
+if litigation_matter_match is None:
+    raise SystemExit("litigation matter schema example is missing")
+litigation_matter_template = yaml.safe_load(
+    litigation_matter_match.group(1)
+)
+if (
+    litigation_matter_template.get("status")
+    != "active | close-pending | archived"
+    or litigation_matter_template.get("bindingGeneration") != 0
+):
+    raise SystemExit(
+        "litigation matter schema lacks fenced lifecycle fields"
+    )
+
+litigation_matter = {
+    "id": "matter-1",
+    "status": "active",
+    "bindingGeneration": 0,
+}
+if litigation_matter_errors(litigation_matter):
+    raise SystemExit("valid litigation matter fixture rejected")
+fenced_litigation_matter = {
+    **litigation_matter,
+    "status": "close-pending",
+    "bindingGeneration": 1,
+}
+if litigation_transition_errors(
+    litigation_matter,
+    fenced_litigation_matter,
+):
+    raise SystemExit("valid litigation fence rejected")
+archived_litigation_matter = {
+    **fenced_litigation_matter,
+    "status": "archived",
+}
+if litigation_transition_errors(
+    fenced_litigation_matter,
+    archived_litigation_matter,
+):
+    raise SystemExit("valid litigation finalize rejected")
+
+litigation_negative_profiles = (
+    {**litigation_matter, "bindingGeneration": -1},
+    {**litigation_matter, "bindingGeneration": True},
+    {**litigation_matter, "bindingGeneration": "0"},
+    {**litigation_matter, "status": "closed"},
+)
+for candidate in litigation_negative_profiles:
+    if not litigation_matter_errors(candidate):
+        raise SystemExit(
+            "invalid litigation matter fixture was accepted"
+        )
+
+litigation_negative_transitions = (
+    (
+        litigation_matter,
+        {**litigation_matter, "status": "archived"},
+    ),
+    (
+        litigation_matter,
+        {**litigation_matter, "status": "close-pending"},
+    ),
+    (
+        fenced_litigation_matter,
+        {
+            **archived_litigation_matter,
+            "bindingGeneration": 2,
+        },
+    ),
+)
+for transition in litigation_negative_transitions:
+    if not litigation_transition_errors(*transition):
+        raise SystemExit(
+            "invalid litigation lifecycle transition was accepted"
+        )
+
+canonical_litigation_schema = litigation_schema_path.read_bytes()
+litigation_schema_copies = sorted(
+    (litigation_root / "skills").glob(
+        "*/references/common/litigation-record-schemas.md"
+    )
+)
+if not litigation_schema_copies:
+    raise SystemExit("litigation schema common copies are missing")
+for schema_copy in litigation_schema_copies:
+    if schema_copy.read_bytes() != canonical_litigation_schema:
+        raise SystemExit(
+            f"{schema_copy}: litigation schema is not synced"
+        )
+
+matter_close_path = (
+    litigation_root / "skills" / "matter-close" / "SKILL.md"
+)
+matter_close_text = matter_close_path.read_text(encoding="utf-8")
+update_sequence = matter_close_text.split(
+    "## Update sequence\n",
+    maxsplit=1,
+)[1].split("## Record", maxsplit=1)[0]
+matter_close_fragments = (
+    "最初のatomic conditional operation",
+    "fence成功後",
+    "activeだけをrevocation対象",
+    "already-revokedはsatisfied",
+    "zero active",
+    "`status: archived`へconditional",
+    "fence前にcommitしたcreate",
+    "fence後のcreate",
+    "fenced state",
+)
+for fragment in matter_close_fragments:
+    if fragment not in update_sequence:
+        raise SystemExit(
+            f"{matter_close_path}: close sequence missing {fragment}"
+        )
+matter_close_order = (
+    "最初のatomic conditional operation",
+    "fence成功後",
+    "activeだけをrevocation対象",
+    "zero active",
+    "`status: archived`へconditional",
+)
+matter_close_positions = tuple(
+    update_sequence.index(fragment)
+    for fragment in matter_close_order
+)
+if matter_close_positions != tuple(sorted(matter_close_positions)):
+    raise SystemExit("litigation matter-close lifecycle order invalid")
+for forbidden in (
+    "matterを`status: archived`へconditional update",
+    "全bindingをitemごとに`revoked`へconditional update",
+    "matter archive後",
+):
+    if forbidden in matter_close_text:
+        raise SystemExit(
+            "litigation matter-close contains archive-first guidance"
         )
 
 canonical_references = {

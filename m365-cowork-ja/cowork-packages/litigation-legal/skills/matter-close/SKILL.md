@@ -1,7 +1,7 @@
 ---
 name: matter-close
 description: >
-  settlement、判決、取下げ、請求放棄・認諾、控訴、確定、執行、preservation dispositionを確認してmatterをarchiveするPower Platform front end。source outcome tokenを保持し、全session bindingをrevokeし、deleteしない。
+  settlement、判決、取下げ、請求放棄・認諾、控訴、確定、執行、preservation dispositionを確認してmatterをarchiveするPower Platform front end。source outcome tokenを保持し、matterをfenceしてactive session bindingだけをrevokeし、deleteしない。
 license: Apache-2.0
 metadata:
   locale: ja-JP
@@ -23,9 +23,10 @@ folder moveをしない。
 ## Mandatory gate
 
 1. `references/common/cowork-runtime-contract.md`を読み、gateway、matter/state/audit、
-   all-binding queryをlive preflight。
+   atomic matter fence、all-binding query、conditional revokeをlive preflight。
 2. exact user/profile、target matter、latest item/eTag/version、authorityを確認。
-3. target matterを参照する全bindingをexact query。current bindingだけで終わらない。
+3. exact matter preconditionとcurrent `bindingGeneration`を確認し、new binding createを
+   fenceできないgatewayではcloseを開始しない。
 4. Japanなら
    `references/common/jurisdictions/ja-jp/civil-procedure-and-digital.md`、
    `demands-limitation-settlement.md`、`evidence-confidentiality-preservation.md`を読む。
@@ -81,11 +82,19 @@ referenceをauthorized successor active matterへ
 
 1. exact diffを表示。
 2. fresh approval。
-3. matterを`status: archived`へconditional updateし、close fieldsをversion追加。
-4. target matterの全bindingをitemごとに`revoked`へconditional update。
-5. each resultをcanonical auditへappend。
-6. 1件でもrevocation failureならblock event、archived matterのsubstantive access拒否。
-7. close summaryはreview済みoutput候補。retention deleteはscope外。
+3. 最初のatomic conditional operationでmatterを`close-pending`等のnon-active
+   stateへtransitionし、`bindingGeneration`を増やしてnew binding createをfence。
+4. fence成功後、target matterの全bindingをexact query。
+5. activeだけをrevocation対象とし、already-revokedはsatisfiedとして再更新しない。
+6. active bindingだけをexact item/eTagで`revoked`へconditional updateし、each
+   resultをcanonical auditへappend。
+7. 全bindingを再照合し、zero activeを確認。
+8. zero active確認後だけpost-fence matterを`status: archived`へconditional
+   finalizeし、close fieldsをversion追加。
+9. fence前にcommitしたcreateはstep 4で捕捉され、fence後のcreateはexact matter
+   precondition/generationで失敗。
+10. revocation/finalize failureはfenced stateを維持し、block eventとsubstantive
+    access拒否。close summaryはreview済みoutput候補。retention deleteはscope外。
 
 ## Record
 
@@ -93,6 +102,7 @@ referenceをauthorized successor active matterへ
 
 ```yaml
 status: archived
+bindingGeneration: "[fenced generation]"
 resolutionAt: "[ISO-8601]"
 finalityAt: "[ISO-8601 or null]"
 preservationDisposition: continue | partial-release | release-approved | unresolved
@@ -111,6 +121,7 @@ revoked binding count、failures、new eTag/version、audit IDsを示す。
 - delete
 - settlement/appeal/preservation releaseの自動決定
 - current bindingだけのrevoke
+- archive-first / revoke-every close
 - same-session substantive continuation
 - US dismissal semanticsの移植
 - local filesystem、agent、hook、subagent

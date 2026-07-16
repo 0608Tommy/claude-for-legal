@@ -1,7 +1,7 @@
 ---
 name: matter-workspace
 description: >
-  litigation matterをnew、list、switch、close、noneの会話stateで管理するPower Platform front end。expiring non-null binding、fresh-session practice mode、全binding revoke、restricted/clean-team/evidence/hold ACLをcanonical keyで強制する。
+  litigation matterをnew、list、switch、close、noneの会話stateで管理するPower Platform front end。expiring non-null binding、fresh-session practice mode、fence-first active-only revoke、restricted/clean-team/evidence/hold ACLをcanonical keyで強制する。
 license: Apache-2.0
 metadata:
   locale: ja-JP
@@ -40,7 +40,8 @@ canonical labels:
 6. practice modeはfresh sessionでbinding不在。`matterId: null` active binding禁止。
 7. new/switch/close/noneは別operation、exact diff、fresh confirmation。
 8. switch/noneはcurrent sessionを停止し、新conversationを要求。
-9. closeはtarget matterを参照する全bindingをrevoke。
+9. closeはmatterを先にfenceし、全bindingをenumerateしてactiveだけをrevoke。
+   already-revokedはsatisfiedとし、zero active後だけarchivedへfinalize。
 10. Cowork内DLP必須ならconfidential matterを投入せず停止。
 
 ## State
@@ -50,7 +51,7 @@ canonical labels:
 | `new <slug>` | intake後、matterをconditional create |
 | `list` | authorized active/archived matterを表示 |
 | `switch <slug>` | current binding revoke、新sessionでnew binding create |
-| `close <slug>` | matter archive、全binding revoke |
+| `close <slug>` | fence → enumerate → active-only revoke → zero active確認 → archived finalize |
 | `none` | current binding revoke、新sessionでpractice mode |
 
 ## `new <slug>`
@@ -94,16 +95,23 @@ intake:
 4. fresh confirmation。
 5. current bindingがあればconditional revokeし、current sessionで停止。
 6. binding不在でもcurrent sessionでtarget sourceを読み始めず停止。
-7. new conversation/new session IDでtarget bindingをconditional create。
+7. new conversation/new session IDでtarget bindingをconditional create。exact matter
+   `itemId`、latest `eTag` / `version`またはbinding-generation token、
+   expected active statusをbinding absenceと同一transactionで評価。
 8. old/new matter/session、expiry、actor、outcomeをaudit。
 
 same-session switch禁止。
 
 ## `close <slug>`
 
-`matter-close`のclose checklistを使う。matter archive後、target matterの**全binding**を
-itemごとにrevoke。revocation failureはblock。delete、folder move、retention expiry
-deletionをしない。
+`matter-close`のclose checklistを使う。最初のatomic conditional operationでmatterを
+`close-pending`等のnon-active stateへfenceする。fence成功後に全bindingを
+enumerateし、activeだけをrevocation対象としてrevoke、already-revokedはsatisfied
+として再更新しない。zero active確認後だけ`archived`へconditional finalizeする。
+fence前にcommitしたcreateは
+enumerationで捕捉され、fence後のcreateはmatter preconditionで失敗する。途中失敗は
+fenced stateを維持してfail closed。delete、folder move、retention expiry deletionを
+しない。
 
 ## `none`
 
@@ -127,6 +135,7 @@ retention、auditを示す。substantive workを自動開始しない。
 - same-session switch/none
 - null-matter active binding
 - close時current bindingだけrevoke
+- archive-first / revoke-every close
 - conflict/engagement/retention delete
 - restricted isolationの無効化
 - Power Platform solution/schedule実行の主張

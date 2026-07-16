@@ -16,7 +16,8 @@ type: contract | employment | ip | regulatory | investigation | product | other
 role: plaintiff | defendant | claimant | respondent | investigated
 counterparty: "[name]"
 jurisdiction: "[forum]"
-status: active | archived
+status: active | close-pending | archived
+bindingGeneration: 0
 posture: threatened | filed | other
 sourceStatus: "[raw imported status such as closed/dismissed or null]"
 stage: "[source stage token]"
@@ -187,6 +188,12 @@ internalDecisionDeadline: "[date or null]"
 ```
 
 ## Close
+
+close fenceは`active -> close-pending`と同じconditional operationで
+`bindingGeneration`を1増やす。fence後にactive bindingだけをrevokeし、
+already-revokedはsatisfiedとして再更新しない。zero active確認後にgenerationを
+変えず`close-pending -> archived`へfinalizeする。`active -> archived`の直接遷移、
+archive-first、revoke-every、generation減少を拒否する。
 
 source `outcome`:
 
