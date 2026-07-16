@@ -1,0 +1,69 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.28/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.28",
+  "version": "1.0.0",
+  "id": "c181a980-a0af-5508-8997-8c5ab0a7413a",
+  "developer": {
+    "name": "0608Tommy",
+    "websiteUrl": "https://github.com/0608Tommy/claude-for-legal",
+    "privacyUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/PRIVACY.md",
+    "termsOfUseUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/TERMS.md"
+  },
+  "name": {
+    "short": "コーポレート法務",
+    "full": "コーポレート法務 — 日本語版 Microsoft 365 Copilot Cowork"
+  },
+  "description": {
+    "short": "M&A、取締役会、開示、クロージング、法人管理を支援します。",
+    "full": "anthropics/claude-for-legalを日本語化し、Microsoft 365向けに変更した派生版です。M&Aデューデリジェンス、取締役会・株主総会、開示、クロージング、統合、法人管理を支援します。すべての出力は有資格者によるレビュー前提のドラフトです。"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#243B53",
+  "localizationInfo": {
+    "defaultLanguageTag": "ja"
+  },
+  "agentSkills": [
+    {
+      "folder": "./skills/ai-tool-handoff"
+    },
+    {
+      "folder": "./skills/board-minutes"
+    },
+    {
+      "folder": "./skills/closing-checklist"
+    },
+    {
+      "folder": "./skills/cold-start-interview"
+    },
+    {
+      "folder": "./skills/customize"
+    },
+    {
+      "folder": "./skills/deal-team-summary"
+    },
+    {
+      "folder": "./skills/diligence-issue-extraction"
+    },
+    {
+      "folder": "./skills/entity-compliance"
+    },
+    {
+      "folder": "./skills/integration-management"
+    },
+    {
+      "folder": "./skills/material-contract-schedule"
+    },
+    {
+      "folder": "./skills/matter-workspace"
+    },
+    {
+      "folder": "./skills/tabular-review"
+    },
+    {
+      "folder": "./skills/written-consent"
+    }
+  ]
+}
