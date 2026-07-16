@@ -13,7 +13,8 @@ matterId: "[opaque matter ID]"
 slug: "[lowercase-hyphen]"
 pseudonymousCode: "[EMP-0001]"
 matterType: "[hire | termination | contested-termination | investigation | whistleblowing | leave | medical-accommodation | discipline | classification | country-expansion | policy-project | other]"
-status: active | archived
+status: active | close-pending | archived
+bindingGeneration: 0
 confidentiality: standard | heightened | restricted | clean-team
 restricted: true
 jurisdictions: []
@@ -41,8 +42,15 @@ newは`expectedAbsent: true`、updateはexact`itemId`/`eTag`です。
 ## Binding
 
 canonical binding schemaはcommon runtime contractのfieldをそのまま使います。
-active bindingの`matterId`はnon-null。switch/noneはnew session、closeは全binding
-revokeです。
+active bindingの`matterId`はnon-null。switch/noneはnew sessionです。
+
+## Close
+
+最初のatomic conditional operationでmatterを`close-pending`へfenceし、
+`bindingGeneration`を増やします。fence成功後に全bindingをenumerateし、active
+bindingだけをrevokeします。already-revokedはsatisfiedとして再更新せず、zero
+activeを確認してからだけ`archived`へfinalizeします。fence前にcommitしたcreateは
+enumerationで捕捉され、fence後のcreateはmatter preconditionで失敗します。
 
 ## Restricted identity
 

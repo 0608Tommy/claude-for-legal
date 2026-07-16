@@ -17,7 +17,8 @@ counterparties:
   - "[name]"
 matterType: launch
 opened: "2026-07-16"
-status: active
+status: active | close-pending | archived
+bindingGeneration: 1
 confidentiality: restricted
 jurisdictions:
   - ja-JP

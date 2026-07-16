@@ -206,6 +206,15 @@ def _is_positive_integer(value: object) -> TypeGuard[int]:
     )
 
 
+def _is_nonnegative_integer(value: object) -> TypeGuard[int]:
+    """Return whether a value is a nonnegative non-Boolean integer."""
+    return (
+        isinstance(value, int)
+        and not isinstance(value, bool)
+        and value >= 0
+    )
+
+
 def _integer_value(value: object, field_name: str) -> int:
     """Return a positive integer value."""
     if _is_positive_integer(value):
@@ -263,13 +272,13 @@ def _generation_value(
     value: object,
     field_name: str,
 ) -> BindingGeneration:
-    """Return a nonblank string or positive integer generation."""
-    if _is_positive_integer(value):
+    """Return a nonblank string or nonnegative integer generation."""
+    if _is_nonnegative_integer(value):
         return value
     if isinstance(value, str) and value.strip():
         return value
     message = (
-        f"{field_name} must be a positive integer or nonblank string"
+        f"{field_name} must be a nonnegative integer or nonblank string"
     )
     _raise_transition_error(message)
 

@@ -38,32 +38,111 @@ bindingを代用しない。
 
 ## Expiring session–matter binding
 
-matter scopeの唯一のactive sourceは次のserver-side recordである。
+matter scopeの唯一のactive sourceはshared state-service contractに従う
+server-side recordである。
+
+| Field | Value |
+|---|---|
+| `scopeType` | `session` |
+| `scopeId` | `userObjectId:sessionId` |
+| `recordType` | `session-matter-binding` |
+| `recordId` | `active-matter` |
+
+### Binding create
 
 ```yaml
+tenantId: tenant-1
+practiceId: corporate
+scopeType: session
+scopeId: user-1:session-1
 recordType: session-matter-binding
-tenantId: "[tenant id]"
-practiceId: "[practice id]"
-userObjectId: "[Microsoft Entra object ID]"
-sessionId: "[Cowork session ID]"
-matterId: "[matter ID]"
-status: active | revoked
-boundAt: "[ISO-8601]"
-boundBy: "[Microsoft Entra object ID]"
-expiresAt: "[ISO-8601]"
-revokedAt: "[ISO-8601 or null]"
-revokedBy: "[Microsoft Entra object ID or null]"
-revocationReason: "[reason or null]"
+recordId: active-matter
+idempotencyKey: binding-create-0001
+expectedAbsent: true
+matterPrecondition:
+  itemId: matter-item-1
+  eTag: '"5"'
+  version: 5
+  bindingGeneration: 7
+  expectedStatus: active
+  atomicWithBindingExpectedAbsent: true
+payload:
+  tenantId: tenant-1
+  practiceId: corporate
+  userObjectId: user-1
+  sessionId: session-1
+  matterId: matter-1
+  status: active
+  boundAt: "2026-07-16T09:00:00+09:00"
+  boundBy: user-1
+  expiresAt: "2026-07-16T17:00:00+09:00"
+  revokedAt: null
+  revokedBy: null
+  revocationReason: null
 ```
 
+gatewayはexact matter preconditionとbinding `expectedAbsent: true`を同一transaction
+で評価し、一方でもstale/failedならcreateしない。
+
+### Persisted binding
+
+```yaml
+tenantId: tenant-1
+practiceId: corporate
+scopeType: session
+scopeId: user-1:session-1
+recordType: session-matter-binding
+recordId: active-matter
+itemId: binding-item-1
+eTag: '"1"'
+version: 1
+payload:
+  tenantId: tenant-1
+  practiceId: corporate
+  userObjectId: user-1
+  sessionId: session-1
+  matterId: matter-1
+  status: active
+  boundAt: "2026-07-16T09:00:00+09:00"
+  boundBy: user-1
+  expiresAt: "2026-07-16T17:00:00+09:00"
+  revokedAt: null
+  revokedBy: null
+  revocationReason: null
+updatedAt: "2026-07-16T09:00:00+09:00"
+```
+
+### Binding revoke
+
+```yaml
+tenantId: tenant-1
+practiceId: corporate
+scopeType: session
+scopeId: user-1:session-1
+recordType: session-matter-binding
+recordId: active-matter
+itemId: binding-item-1
+eTag: '"1"'
+idempotencyKey: binding-revoke-0001
+patch:
+  status: revoked
+  revokedAt: "2026-07-16T10:00:00+09:00"
+  revokedBy: user-1
+  revocationReason: matter-close
+```
+
+gatewayはpatch merge後のpayload全体をsession-binding schemaで再検証する。
 `status: active`、`expiresAt > now`、matter `status: active`、current userの
 accessがすべて必要である。practice-level modeは、fresh sessionで利用者が
 明示的に選び、bindingが存在しない状態で表す。`matterId: null`のactive
 bindingを作らない。過去matterのdocument、quote、draft、cursorをcarryしない。
 
-matter close時はcurrent bindingだけでなく、その`matterId`を参照する全bindingを
-`revoked`へ条件付きupdateし、各結果をauditする。revocation failureが1件でも
-あればblock eventを残し、archived matterへのsubstantive accessを拒否する。
+matter closeは最初にmatterを`close-pending`等のnon-active stateへatomic
+conditional updateし、new binding createをfenceする。fence後に全bindingを
+enumerateし、activeだけをrevokeし、already-revokedはsatisfiedとして再更新しない。
+zero activeを再照合後にだけ`archived`へfinalizeする。fence前にcommitしたcreateは
+enumerationで捕捉され、fence後のcreateはmatter preconditionで失敗する。途中失敗は
+fenced stateを維持し、substantive accessをfail closedで拒否する。
 
 ## 読取り順序
 
@@ -158,6 +237,10 @@ acknowledgeした後の別operationで更新する。
 
 createに架空の既存`itemId`または`eTag`を要求しない。createをupdateとして
 実行しない。
+
+session binding createだけは参照matterのexact `itemId`、latest `eTag` /
+`version`またはbinding-generation token、expected active statusを追加し、
+binding absenceとatomically評価する。
 
 ### Update
 

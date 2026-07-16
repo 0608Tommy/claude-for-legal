@@ -272,6 +272,44 @@ validate_session_binding_create(
     matter_snapshot,
 )
 
+zero_generation_create = copy.deepcopy(generation_binding_create)
+zero_generation_create["matterPrecondition"]["bindingGeneration"] = 0
+zero_generation_matter = cast(
+    MatterSnapshot,
+    {
+        **matter_snapshot,
+        "bindingGeneration": 0,
+    },
+)
+validate("create-request", zero_generation_create)
+validate_session_binding_create(
+    cast(SessionBindingCreateRequest, zero_generation_create),
+    zero_generation_matter,
+)
+
+for invalid_generation in (-1, True, ""):
+    invalid_generation_create = copy.deepcopy(
+        generation_binding_create
+    )
+    invalid_generation_create["matterPrecondition"][
+        "bindingGeneration"
+    ] = invalid_generation
+    reject_schema(
+        "create-request",
+        invalid_generation_create,
+        f"binding create accepted generation {invalid_generation!r}",
+    )
+    reject_semantic(
+        lambda fixture=cast(
+            SessionBindingCreateRequest,
+            invalid_generation_create,
+        ): validate_session_binding_create(
+            fixture,
+            matter_snapshot,
+        ),
+        f"semantic binding create accepted {invalid_generation!r}",
+    )
+
 missing_matter_precondition = copy.deepcopy(binding_create_fixture)
 del missing_matter_precondition["matterPrecondition"]
 reject_schema(
@@ -552,23 +590,554 @@ if not any(
         "state gateway atomic binding-create rule is missing"
     )
 
-runtime_contracts = [
-    root.parent
-    / "cowork-packages"
-    / plugin
-    / "references"
-    / "cowork-runtime-contract.md"
-    for plugin in (
-        "ai-governance-legal",
-        "commercial-legal",
-        "privacy-legal",
+packages_root = root.parent / "cowork-packages"
+affected_binding_packages = {
+    "corporate-legal",
+    "employment-legal",
+    "ip-legal",
+    "product-legal",
+    "regulatory-legal",
+}
+
+
+def binding_example_kind(document):
+    if document.get("recordType") != "session-matter-binding":
+        return None
+    if "expectedAbsent" in document and "payload" in document:
+        return "create"
+    if "itemId" in document and "payload" in document:
+        return "persist"
+    if "itemId" in document and "patch" in document:
+        return "revoke"
+    return None
+
+
+def current_matter_for_create(document):
+    payload = document["payload"]
+    precondition = document["matterPrecondition"]
+    return {
+        "tenantId": payload["tenantId"],
+        "practiceId": payload["practiceId"],
+        "matterId": payload["matterId"],
+        "itemId": precondition["itemId"],
+        "eTag": precondition.get("eTag", "\"synthetic\""),
+        "version": precondition.get("version", 1),
+        "bindingGeneration": precondition.get(
+            "bindingGeneration",
+            1,
+        ),
+        "status": "active",
+    }
+
+
+def require_outer_binding_identity(document, payload, context):
+    expected_scope = (
+        f"{payload['userObjectId']}:{payload['sessionId']}"
     )
-]
+    expected = {
+        "tenantId": payload["tenantId"],
+        "practiceId": payload["practiceId"],
+        "scopeType": "session",
+        "scopeId": expected_scope,
+        "recordType": "session-matter-binding",
+        "recordId": "active-matter",
+    }
+    for field, value in expected.items():
+        if document.get(field) != value:
+            raise SystemExit(
+                f"{context}: outer {field} does not match payload"
+            )
+
+
+binding_examples = {}
+runtime_contracts = sorted(
+    packages_root.glob("*/references/cowork-runtime-contract.md")
+)
 for runtime_contract in runtime_contracts:
-    text = runtime_contract.read_text(encoding="utf-8")
-    if "expiresAt > now" not in text:
+    runtime_text_candidate = runtime_contract.read_text(
+        encoding="utf-8"
+    )
+    if (
+        "session-matter-binding" in runtime_text_candidate
+        and "expiresAt > now" not in runtime_text_candidate
+    ):
         raise SystemExit(
             f"{runtime_contract}: binding expiry check is missing"
+        )
+    package = runtime_contract.parent.parent.name
+    package_examples = {}
+    for block in re.findall(
+        r"```yaml\n(.*?)```",
+        runtime_text_candidate,
+        flags=re.DOTALL,
+    ):
+        document = yaml.safe_load(block)
+        if not isinstance(document, dict):
+            continue
+        kind = binding_example_kind(document)
+        if kind is None:
+            continue
+        if kind in package_examples:
+            raise SystemExit(
+                f"{runtime_contract}: duplicate binding {kind} example"
+            )
+        package_examples[kind] = document
+    if package_examples:
+        binding_examples[package] = package_examples
+
+for package, examples in binding_examples.items():
+    create_example = examples.get("create")
+    persist_example = examples.get("persist")
+    revoke_example = examples.get("revoke")
+    if create_example is not None:
+        validate("create-request", create_example)
+        create_payload = create_example["payload"]
+        validate("session-binding", create_payload)
+        require_outer_binding_identity(
+            create_example,
+            create_payload,
+            f"{package} create",
+        )
+        validate_session_binding_create(
+            cast(SessionBindingCreateRequest, create_example),
+            cast(
+                MatterSnapshot,
+                current_matter_for_create(create_example),
+            ),
+        )
+    if persist_example is not None:
+        validate("state-envelope", persist_example)
+        persist_payload = persist_example["payload"]
+        validate("session-binding", persist_payload)
+        require_outer_binding_identity(
+            persist_example,
+            persist_payload,
+            f"{package} persist",
+        )
+        if (
+            create_example is not None
+            and persist_payload != create_example["payload"]
+        ):
+            raise SystemExit(
+                f"{package}: create and persisted payload differ"
+            )
+    if revoke_example is not None:
+        validate("update-request", revoke_example)
+        current_payload = (
+            persist_example["payload"]
+            if persist_example is not None
+            else create_example["payload"]
+            if create_example is not None
+            else None
+        )
+        if current_payload is None:
+            raise SystemExit(
+                f"{package}: revoke example has no active payload"
+            )
+        require_outer_binding_identity(
+            revoke_example,
+            current_payload,
+            f"{package} revoke",
+        )
+        revoked_payload = validate_session_binding_update(
+            cast(SessionBindingUpdateRequest, revoke_example),
+            cast(SessionBinding, current_payload),
+        )
+        validate("session-binding", revoked_payload)
+
+for package in affected_binding_packages:
+    example_kinds = set(binding_examples.get(package, {}))
+    if example_kinds != {"create", "persist", "revoke"}:
+        raise SystemExit(
+            f"{package}: binding example coverage is {example_kinds}"
+        )
+
+for package in affected_binding_packages:
+    package_root = packages_root / package
+    runtime_path = (
+        package_root / "references" / "cowork-runtime-contract.md"
+    )
+    canonical_runtime = runtime_path.read_bytes()
+    package_runtime_text = canonical_runtime.decode("utf-8")
+    runtime_close_fragments = (
+        "matter closeは最初に",
+        "fence後に全binding",
+        "activeだけをrevoke",
+        "already-revokedはsatisfied",
+        "zero active",
+        "`archived`へfinalize",
+        "fence前にcommitしたcreate",
+        "fence後のcreate",
+        "fail closed",
+        "binding absenceとatomically",
+    )
+    for fragment in runtime_close_fragments:
+        if fragment not in package_runtime_text:
+            raise SystemExit(
+                f"{runtime_path}: runtime binding rule missing {fragment}"
+            )
+    runtime_order_fragments = (
+        "matter closeは最初に",
+        "fence後に全binding",
+        "activeだけをrevoke",
+        "zero active",
+        "`archived`へfinalize",
+    )
+    runtime_positions = tuple(
+        package_runtime_text.index(fragment)
+        for fragment in runtime_order_fragments
+    )
+    if runtime_positions != tuple(sorted(runtime_positions)):
+        raise SystemExit(
+            f"{runtime_path}: runtime close order is invalid"
+        )
+    for forbidden in (
+        "matter close時は、その`matterId`を参照する全bindingを",
+        "全bindingをitemごとに`revoked`へ",
+        "matter archived update後、全binding revoke",
+    ):
+        if forbidden in package_runtime_text:
+            raise SystemExit(
+                f"{runtime_path}: archive-first/revoke-every runtime rule"
+            )
+    local_runtime_paths = sorted(
+        (package_root / "skills").glob(
+            "*/references/common/cowork-runtime-contract.md"
+        )
+    )
+    if not local_runtime_paths:
+        raise SystemExit(
+            f"{package}: no skill-local runtime contracts found"
+        )
+    for local_runtime in local_runtime_paths:
+        if local_runtime.read_bytes() != canonical_runtime:
+            raise SystemExit(
+                f"{local_runtime}: runtime contract is not synced"
+            )
+
+for package in affected_binding_packages:
+    matter_skill_path = (
+        packages_root
+        / package
+        / "skills"
+        / "matter-workspace"
+        / "SKILL.md"
+    )
+    package_matter_skill = matter_skill_path.read_text(
+        encoding="utf-8"
+    )
+    close_match = re.search(
+        r"^## `close(?: <slug>)?`\n(.*?)(?=^## )",
+        package_matter_skill,
+        flags=re.DOTALL | re.MULTILINE,
+    )
+    if close_match is None:
+        raise SystemExit(
+            f"{matter_skill_path}: close section is missing"
+        )
+    close_section_candidate = close_match.group(1)
+    close_fragments = (
+        "最初のatomic conditional operation",
+        "fence成功後",
+        "activeだけをrevocation対象",
+        "already-revokedはsatisfied",
+        "zero active",
+        "archived`へconditional finalize",
+        "fence前にcommitしたcreate",
+        "fence後のcreate",
+        "fail closed",
+    )
+    for fragment in close_fragments:
+        if fragment not in close_section_candidate:
+            raise SystemExit(
+                f"{matter_skill_path}: close rule missing {fragment}"
+            )
+    ordered_fragments = (
+        "最初のatomic conditional operation",
+        "fence成功後",
+        "activeだけをrevocation対象",
+        "zero active",
+        "archived`へconditional finalize",
+    )
+    positions = tuple(
+        close_section_candidate.index(fragment)
+        for fragment in ordered_fragments
+    )
+    if positions != tuple(sorted(positions)):
+        raise SystemExit(
+            f"{matter_skill_path}: close lifecycle order is invalid"
+        )
+    for forbidden in (
+        "matterを`archived`へconditional update",
+        "全binding**をitemごとに`revoked`",
+        "全bindingを`revoked`へ",
+        "matter archived update後、全binding revoke",
+        "matterをarchivedへupdateし、全bindingをrevoke",
+    ):
+        if forbidden in package_matter_skill:
+            raise SystemExit(
+                f"{matter_skill_path}: archive-first/revoke-every rule"
+            )
+    matter_records_path = (
+        matter_skill_path.parent / "references" / "matter-records.md"
+    )
+    if matter_records_path.is_file():
+        matter_records_text = matter_records_path.read_text(
+            encoding="utf-8"
+        )
+        for fragment in ("close-pending", "bindingGeneration"):
+            if fragment not in matter_records_text:
+                raise SystemExit(
+                    f"{matter_records_path}: matter fence field missing"
+                )
+        if package in {"employment-legal", "ip-legal"}:
+            normalized_records = re.sub(
+                r"\s+",
+                " ",
+                matter_records_text,
+            )
+            for fragment in (
+                "bindingGeneration: 0",
+                "最初のatomic conditional operation",
+                "fence成功後に全bindingをenumerate",
+                "active bindingだけをrevoke",
+                "already-revokedはsatisfied",
+                "zero active",
+                "`archived`へfinalize",
+                "fence前にcommitしたcreate",
+                "fence後のcreate",
+            ):
+                if fragment not in normalized_records:
+                    raise SystemExit(
+                        f"{matter_records_path}: close guidance missing "
+                        f"{fragment}"
+                    )
+            for forbidden in (
+                "closeは全binding revoke",
+                "全session bindingを itemごとにrevoke",
+                "matter profileをconditional updateし",
+            ):
+                if forbidden in normalized_records:
+                    raise SystemExit(
+                        f"{matter_records_path}: stale revoke-every "
+                        "guidance"
+                    )
+
+
+def regulatory_matter_errors(document):
+    errors = []
+    string_fields = (
+        "matterId",
+        "slug",
+        "clientOrBusinessUnit",
+        "matterType",
+        "confidentiality",
+        "retentionClass",
+        "legalHoldStatus",
+        "openedAt",
+    )
+    for field in string_fields:
+        value = document.get(field)
+        if not isinstance(value, str) or not value.strip():
+            errors.append(f"{field} must be a nonblank string")
+    if document.get("status") not in {
+        "active",
+        "close-pending",
+        "archived",
+    }:
+        errors.append("status must support active/close-pending/archived")
+    generation = document.get("bindingGeneration")
+    if (
+        not isinstance(generation, int)
+        or isinstance(generation, bool)
+        or generation < 0
+    ):
+        errors.append("bindingGeneration must be a nonnegative integer")
+    for field in ("jurisdictions", "authorities", "authorizedGroups"):
+        value = document.get(field)
+        if (
+            not isinstance(value, list)
+            or not all(
+                isinstance(item, str) and item.strip()
+                for item in value
+            )
+        ):
+            errors.append(f"{field} must be a string array")
+    opened_at = document.get("openedAt")
+    if (
+        isinstance(opened_at, str)
+        and not format_checker.conforms(opened_at, "date-time")
+    ):
+        errors.append("openedAt must be date-time")
+    closed_at = document.get("closedAt")
+    if closed_at is not None and (
+        not isinstance(closed_at, str)
+        or not format_checker.conforms(closed_at, "date-time")
+    ):
+        errors.append("closedAt must be null or date-time")
+    return errors
+
+
+def regulatory_transition_errors(current, updated):
+    errors = [
+        *regulatory_matter_errors(current),
+        *regulatory_matter_errors(updated),
+    ]
+    for field in (
+        "matterId",
+        "slug",
+        "clientOrBusinessUnit",
+        "matterType",
+        "openedAt",
+    ):
+        if current.get(field) != updated.get(field):
+            errors.append(f"{field} is immutable")
+    current_status = current.get("status")
+    current_generation = current.get("bindingGeneration")
+    updated_status = updated.get("status")
+    updated_generation = updated.get("bindingGeneration")
+    if current_status == "active":
+        if updated_status != "close-pending":
+            errors.append("active matter must fence before archive")
+        if (
+            isinstance(current_generation, int)
+            and not isinstance(current_generation, bool)
+            and updated_generation != current_generation + 1
+        ):
+            errors.append("fence must increment bindingGeneration")
+    elif current_status == "close-pending":
+        if updated_status != "archived":
+            errors.append("fenced matter must finalize archived")
+        if updated_generation != current_generation:
+            errors.append("finalize must preserve bindingGeneration")
+    else:
+        errors.append("only active or close-pending may transition")
+    return errors
+
+
+regulatory_root = packages_root / "regulatory-legal"
+regulatory_schema_path = (
+    regulatory_root / "references" / "regulatory-record-schemas.md"
+)
+regulatory_schema_text = regulatory_schema_path.read_text(
+    encoding="utf-8"
+)
+matter_section = regulatory_schema_text.split(
+    "## Matter profile\n",
+    maxsplit=1,
+)[1]
+matter_match = re.search(
+    r"```yaml\n(.*?)```",
+    matter_section,
+    flags=re.DOTALL,
+)
+if matter_match is None:
+    raise SystemExit(
+        "regulatory matter profile example is missing"
+    )
+regulatory_matter = yaml.safe_load(matter_match.group(1))
+matter_errors = regulatory_matter_errors(regulatory_matter)
+if matter_errors:
+    raise SystemExit(
+        f"regulatory matter profile invalid: {matter_errors}"
+    )
+
+fenced_regulatory_matter = copy.deepcopy(regulatory_matter)
+fenced_regulatory_matter["status"] = "close-pending"
+fenced_regulatory_matter["bindingGeneration"] += 1
+fence_errors = regulatory_transition_errors(
+    regulatory_matter,
+    fenced_regulatory_matter,
+)
+if fence_errors:
+    raise SystemExit(
+        f"valid regulatory fence rejected: {fence_errors}"
+    )
+
+archived_regulatory_matter = copy.deepcopy(
+    fenced_regulatory_matter
+)
+archived_regulatory_matter["status"] = "archived"
+archived_regulatory_matter["closedAt"] = (
+    "2026-07-16T10:00:00+09:00"
+)
+finalize_errors = regulatory_transition_errors(
+    fenced_regulatory_matter,
+    archived_regulatory_matter,
+)
+if finalize_errors:
+    raise SystemExit(
+        f"valid regulatory finalize rejected: {finalize_errors}"
+    )
+
+negative_profiles = {
+    "negative generation": {
+        **regulatory_matter,
+        "bindingGeneration": -1,
+    },
+    "Boolean generation": {
+        **regulatory_matter,
+        "bindingGeneration": True,
+    },
+    "string generation": {
+        **regulatory_matter,
+        "bindingGeneration": "1",
+    },
+    "unsupported status": {
+        **regulatory_matter,
+        "status": "closed",
+    },
+}
+for name, candidate in negative_profiles.items():
+    if not regulatory_matter_errors(candidate):
+        raise SystemExit(
+            f"invalid regulatory matter accepted: {name}"
+        )
+
+negative_transitions = {
+    "archive before fence": (
+        regulatory_matter,
+        {
+            **regulatory_matter,
+            "status": "archived",
+            "closedAt": "2026-07-16T10:00:00+09:00",
+        },
+    ),
+    "fence without generation increment": (
+        regulatory_matter,
+        {
+            **regulatory_matter,
+            "status": "close-pending",
+        },
+    ),
+    "finalize with generation change": (
+        fenced_regulatory_matter,
+        {
+            **archived_regulatory_matter,
+            "bindingGeneration": (
+                fenced_regulatory_matter["bindingGeneration"] + 1
+            ),
+        },
+    ),
+}
+for name, transition in negative_transitions.items():
+    if not regulatory_transition_errors(*transition):
+        raise SystemExit(
+            f"invalid regulatory transition accepted: {name}"
+        )
+
+canonical_regulatory_schema = regulatory_schema_path.read_bytes()
+regulatory_schema_copies = sorted(
+    (regulatory_root / "skills").glob(
+        "*/references/common/regulatory-record-schemas.md"
+    )
+)
+if not regulatory_schema_copies:
+    raise SystemExit("regulatory schema common copies are missing")
+for schema_copy in regulatory_schema_copies:
+    if schema_copy.read_bytes() != canonical_regulatory_schema:
+        raise SystemExit(
+            f"{schema_copy}: regulatory schema is not synced"
         )
 
 canonical_references = {

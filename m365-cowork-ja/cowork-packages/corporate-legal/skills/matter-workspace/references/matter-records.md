@@ -19,7 +19,8 @@ matterType: M&A buy-side | M&A sell-side | financing | board matter | entity reo
 transactionStructure: share sale | business transfer | merger | company split | share exchange | share transfer | share delivery | other | not-applicable
 opened: "[ISO date]"
 closed: "[ISO date or null]"
-status: active | archived
+status: active | close-pending | archived
+bindingGeneration: 1
 confidentiality: standard | heightened | clean-team
 jurisdictions:
   - ja-JP

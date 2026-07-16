@@ -21,7 +21,8 @@ payload:
   confidentiality: standard | heightened | restricted | clean-team
   jurisdictions:
     - "[jurisdiction]"
-  status: active | archived
+  status: active | close-pending | archived
+  bindingGeneration: 0
   authorizedViewerObjectIds:
     - "[Entra object/group ID]"
   outsideCounsel: "[authorized record ID or null]"
@@ -47,6 +48,9 @@ claim strategyを入れません。restricted factsとdocumentsはitem-level ACL
 
 ## Archive
 
-matter profileをconditional updateし、対象matterを参照する全session bindingを
-itemごとにrevokeします。partial failureは`outcome: partial`でauditし、accessを
-blockします。
+最初のatomic conditional operationでmatterを`close-pending`へfenceし、
+`bindingGeneration`を増やします。fence成功後に全bindingをenumerateし、active
+bindingだけをrevokeします。already-revokedはsatisfiedとして再更新せず、zero
+activeを確認してからだけ`archived`へfinalizeします。fence前にcommitしたcreateは
+enumerationで捕捉され、fence後のcreateはmatter preconditionで失敗します。
+partial failureはfenced stateを維持し、accessをfail closedでblockします。

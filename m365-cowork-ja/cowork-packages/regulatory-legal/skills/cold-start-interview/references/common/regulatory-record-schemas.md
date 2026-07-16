@@ -508,20 +508,30 @@ authorityHash: "[hash]"
 ## Matter profile
 
 ```yaml
-matterId: "[opaque ID]"
-slug: "[lowercase-hyphen alias]"
-clientOrBusinessUnit: "[name]"
-matterType: rulemaking | comment-period | gap-remediation | agency-inquiry | enforcement-response | standing-topic | other
-confidentiality: standard | heightened | restricted | clean-team
-jurisdictions: []
-authorities: []
-authorizedGroups: []
-status: active | archived
-retentionClass: "[class]"
-legalHoldStatus: "[status]"
-openedAt: "[ISO-8601]"
-closedAt: "[ISO-8601 or null]"
+matterId: matter-1
+slug: regulatory-matter-1
+clientOrBusinessUnit: business-unit-1
+matterType: rulemaking
+confidentiality: restricted
+jurisdictions:
+  - ja-JP
+authorities:
+  - authority-1
+authorizedGroups:
+  - group-1
+status: active
+bindingGeneration: 0
+retentionClass: regulatory-standard
+legalHoldStatus: none
+openedAt: "2026-07-16T09:00:00+09:00"
+closedAt: null
 ```
+
+`status`は`active | close-pending | archived`だけ。`bindingGeneration`はBooleanでない
+integerかつ`>= 0`とする。close fenceは`active -> close-pending`と同じconditional
+operationでgenerationを1増やし、zero active binding確認後にgenerationを変えず
+`close-pending -> archived`へfinalizeする。`active -> archived`の直接遷移、
+generation減少、revocation前のfinalizeを拒否する。
 
 slugはrouting hintであり、権限・bindingのsourceではない。
 

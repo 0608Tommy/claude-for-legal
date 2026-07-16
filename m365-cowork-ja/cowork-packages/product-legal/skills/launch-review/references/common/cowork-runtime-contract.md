@@ -57,74 +57,84 @@ canonical mapping:
 ### Conditional create request
 
 ```yaml
-tenantId: "[tenant id]"
-practiceId: "[practice id]"
+tenantId: tenant-1
+practiceId: product
 scopeType: session
-scopeId: "[userObjectId]:[sessionId]"
+scopeId: user-1:session-1
 recordType: session-matter-binding
 recordId: active-matter
-idempotencyKey: "[16-256 character idempotency key]"
+idempotencyKey: binding-create-0001
 expectedAbsent: true
+matterPrecondition:
+  itemId: matter-item-1
+  eTag: '"5"'
+  version: 5
+  bindingGeneration: 7
+  expectedStatus: active
+  atomicWithBindingExpectedAbsent: true
 payload:
-  tenantId: "[tenant id]"
-  practiceId: "[practice id]"
-  userObjectId: "[Microsoft Entra object ID]"
-  sessionId: "[Cowork session ID]"
-  matterId: "[non-null matter ID]"
+  tenantId: tenant-1
+  practiceId: product
+  userObjectId: user-1
+  sessionId: session-1
+  matterId: matter-1
   status: active
-  boundAt: "[ISO-8601]"
-  boundBy: "[Microsoft Entra object ID]"
-  expiresAt: "[ISO-8601]"
+  boundAt: "2026-07-16T09:00:00+09:00"
+  boundBy: user-1
+  expiresAt: "2026-07-16T17:00:00+09:00"
   revokedAt: null
   revokedBy: null
   revocationReason: null
 ```
 
+gatewayはexact matter preconditionとbinding `expectedAbsent: true`を同一transaction
+で評価し、一方でもstale/failedならcreateしない。
+
 ### Persisted state envelope
 
 ```yaml
-tenantId: "[tenant id]"
-practiceId: "[practice id]"
+tenantId: tenant-1
+practiceId: product
 scopeType: session
-scopeId: "[userObjectId]:[sessionId]"
+scopeId: user-1:session-1
 recordType: session-matter-binding
 recordId: active-matter
-itemId: "[SharePoint state item ID]"
-eTag: "[current eTag]"
+itemId: binding-item-1
+eTag: '"1"'
 version: 1
 payload:
-  tenantId: "[tenant id]"
-  practiceId: "[practice id]"
-  userObjectId: "[Microsoft Entra object ID]"
-  sessionId: "[Cowork session ID]"
-  matterId: "[non-null matter ID]"
+  tenantId: tenant-1
+  practiceId: product
+  userObjectId: user-1
+  sessionId: session-1
+  matterId: matter-1
   status: active
-  boundAt: "[ISO-8601]"
-  boundBy: "[Microsoft Entra object ID]"
-  expiresAt: "[ISO-8601]"
+  boundAt: "2026-07-16T09:00:00+09:00"
+  boundBy: user-1
+  expiresAt: "2026-07-16T17:00:00+09:00"
   revokedAt: null
   revokedBy: null
   revocationReason: null
-updatedAt: "[ISO-8601]"
+updatedAt: "2026-07-16T09:00:00+09:00"
 ```
 
 ### Conditional revoke update
 
 ```yaml
-tenantId: "[tenant id]"
-practiceId: "[practice id]"
+tenantId: tenant-1
+practiceId: product
 scopeType: session
-scopeId: "[userObjectId]:[sessionId]"
+scopeId: user-1:session-1
 recordType: session-matter-binding
 recordId: active-matter
-itemId: "[exact SharePoint state item ID]"
-eTag: "[latest eTag]"
-idempotencyKey: "[16-256 character idempotency key]"
+itemId: binding-item-1
+eTag: '"1"'
+idempotencyKey: binding-revoke-0001
 patch:
   status: revoked
-  revokedAt: "[ISO-8601]"
-  revokedBy: "[Microsoft Entra object ID]"
-  revocationReason: "[reason]"
+  revokedAt: "2026-07-16T10:00:00+09:00"
+  revokedBy: user-1
+  revocationReason: matter-close
 ```
 
 gatewayは`patch`をexisting payloadへmergeし、更新後のpayload全体を
@@ -136,9 +146,12 @@ bindingが存在しない状態で表す。`matterId: null`のactive bindingを�
 
 `switch`と`none`はcurrent bindingをrevokeした後、verified hard context resetを
 伴う新しいCowork sessionを要求する。同一sessionで別matterまたはpractice modeへ
-移らない。matter close時は、その`matterId`を参照する全bindingをitemごとに
-`revoked`へconditional updateし、各結果をauditする。1件でも失敗すればblock
-eventを残し、archived matterへのsubstantive accessを拒否する。
+移らない。matter closeは最初にmatterを`close-pending`等のnon-active stateへ
+atomic conditional updateし、new binding createをfenceする。fence後に全bindingを
+enumerateし、activeだけをrevokeし、already-revokedはsatisfiedとして再更新しない。
+zero activeを再照合後にだけ`archived`へfinalizeする。fence前にcommitしたcreateは
+enumerationで捕捉され、fence後のcreateはmatter preconditionで失敗する。途中失敗は
+fenced stateを維持し、substantive accessをfail closedで拒否する。
 
 ## 読取り順序
 
@@ -243,6 +256,10 @@ scope、source、filter、sort、queryが変われば別cursorとする。同時
 5. actor、scope、source、resultをauditへappendする。
 
 createに架空の`itemId`/`eTag`を要求せず、updateとして実行しない。
+
+session binding createだけは参照matterのexact `itemId`、latest `eTag` /
+`version`またはbinding-generation token、expected active statusを追加し、
+binding absenceとatomically評価する。
 
 ### Update
 

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import copy
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Final, NamedTuple, TypeGuard, cast
@@ -24,7 +25,7 @@ _CURSOR_HEADING: Final = "## Scope別cursor"
 _CONTRACT_NAME: Final = "cowork-runtime-contract.md"
 _JSON_FENCE: Final = "```json\n"
 _FENCE_END: Final = "\n```"
-_MISMATCH_SUFFIX: Final = "-mismatch"
+_SHA256_PATTERN: Final = re.compile(r"^[0-9a-f]{64}$")
 
 
 class EnvelopeValidationError(ValueError):
@@ -46,7 +47,14 @@ class ValidationResult(NamedTuple):
     """Hold successful positive and negative validation counts."""
 
     example_count: int
-    mismatch_count: int
+    probe_set_count: int
+
+
+class NegativeProbe(NamedTuple):
+    """Hold one named schema-valid cursor invariant probe."""
+
+    label: str
+    document: JsonObject
 
 
 def _error(context: str, detail: str) -> EnvelopeValidationError:
@@ -232,9 +240,14 @@ def _cursor_components(
     query_fingerprint = payload.get("queryFingerprint")
     if not isinstance(query_fingerprint, str):
         return "cursor payload.queryFingerprint must be a string"
-    if not query_fingerprint:
-        return "cursor payload.queryFingerprint must be a non-empty string"
     return record_id, query_fingerprint
+
+
+def _sha256_error(value: str, field: str) -> str | None:
+    """Return an exact lowercase SHA-256 format error."""
+    if _SHA256_PATTERN.fullmatch(value) is None:
+        return f"{field} must match ^[0-9a-f]{{64}}$"
+    return None
 
 
 def _cursor_invariant_error(document: JsonObject) -> str | None:
@@ -243,9 +256,17 @@ def _cursor_invariant_error(document: JsonObject) -> str | None:
     if isinstance(components, str):
         return components
     record_id, query_fingerprint = components
-    if ":" in query_fingerprint:
-        return "cursor payload.queryFingerprint must not contain ':'"
-    if record_id.rsplit(":", 1)[-1] != query_fingerprint:
+    record_suffix = record_id.rsplit(":", 1)[-1]
+    payload_error = _sha256_error(
+        query_fingerprint,
+        "cursor payload.queryFingerprint",
+    )
+    if payload_error is not None:
+        return payload_error
+    suffix_error = _sha256_error(record_suffix, "cursor recordId suffix")
+    if suffix_error is not None:
+        return suffix_error
+    if record_suffix != query_fingerprint:
         return (
             "cursor recordId final component must equal "
             "payload.queryFingerprint"
@@ -253,34 +274,99 @@ def _cursor_invariant_error(document: JsonObject) -> str | None:
     return None
 
 
-def _mismatch_probe(document: JsonObject) -> JsonObject:
-    """Create a schema-valid cursor with a mismatched fingerprint."""
+def _require_probe_payload(document: JsonObject) -> JsonObject:
+    """Return a mutable payload for one copied probe."""
+    payload = document.get("payload")
+    if isinstance(payload, dict):
+        return payload
+    context = "fingerprint probe"
+    detail = "cursor payload must be an object"
+    raise _error(context, detail)
+
+
+def _payload_probe(
+    document: JsonObject,
+    query_fingerprint: str,
+) -> JsonObject:
+    """Copy a cursor and replace only its payload fingerprint."""
     candidate = copy.deepcopy(document)
-    payload = candidate.get("payload")
-    context = "mismatch probe"
-    if not isinstance(payload, dict):
-        detail = "cursor payload must be an object"
-        raise _error(context, detail)
-    query_fingerprint = payload.get("queryFingerprint")
-    if not isinstance(query_fingerprint, str):
-        detail = "cursor queryFingerprint must be a string"
-        raise _error(context, detail)
-    payload["queryFingerprint"] = f"{query_fingerprint}{_MISMATCH_SUFFIX}"
+    payload = _require_probe_payload(candidate)
+    payload["queryFingerprint"] = query_fingerprint
     return candidate
 
 
-def _validate_cursor_negative(
+def _paired_probe(
+    document: JsonObject,
+    query_fingerprint: str,
+) -> JsonObject:
+    """Copy a cursor and replace both fingerprint representations."""
+    candidate = _payload_probe(document, query_fingerprint)
+    components = _cursor_components(candidate)
+    context = "fingerprint probe"
+    if isinstance(components, str):
+        raise _error(context, components)
+    record_id, _ = components
+    prefix, separator, _ = record_id.rpartition(":")
+    if not separator:
+        detail = "cursor recordId must contain a fingerprint separator"
+        raise _error(context, detail)
+    candidate["recordId"] = f"{prefix}:{query_fingerprint}"
+    return candidate
+
+
+def _different_hash(query_fingerprint: str) -> str:
+    """Return a different lowercase 64-character hexadecimal value."""
+    replacement = "0" if query_fingerprint[-1:] != "0" else "1"
+    return f"{query_fingerprint[:-1]}{replacement}"
+
+
+def _negative_probes(document: JsonObject) -> tuple[NegativeProbe, ...]:
+    """Build mismatch, non-hex, uppercase, and length probes."""
+    components = _cursor_components(document)
+    context = "fingerprint probes"
+    if isinstance(components, str):
+        raise _error(context, components)
+    _, query_fingerprint = components
+    non_hash = f"g{query_fingerprint[1:]}"
+    uppercase = f"A{query_fingerprint[1:]}"
+    short_hash = query_fingerprint[:-1]
+    return (
+        NegativeProbe(
+            "mismatch",
+            _payload_probe(
+                document,
+                _different_hash(query_fingerprint),
+            ),
+        ),
+        NegativeProbe(
+            "non-hash",
+            _paired_probe(document, non_hash),
+        ),
+        NegativeProbe(
+            "uppercase",
+            _paired_probe(document, uppercase),
+        ),
+        NegativeProbe(
+            "length",
+            _paired_probe(document, short_hash),
+        ),
+    )
+
+
+def _validate_cursor_negatives(
     validator: Draft202012Validator,
     document: JsonObject,
     context: str,
 ) -> None:
-    """Require the fingerprint mismatch probe to fail only the invariant."""
-    mismatch = _mismatch_probe(document)
-    schema_error = _first_schema_error(validator, mismatch)
-    if schema_error is not None:
-        raise _error(context, "mismatch probe must remain schema-valid")
-    if _cursor_invariant_error(mismatch) is None:
-        raise _error(context, "mismatch-negative probe was accepted")
+    """Require every fingerprint probe to fail only the invariant."""
+    for probe in _negative_probes(document):
+        schema_error = _first_schema_error(validator, probe.document)
+        if schema_error is not None:
+            detail = f"{probe.label} probe must remain schema-valid"
+            raise _error(context, detail)
+        if _cursor_invariant_error(probe.document) is None:
+            detail = f"{probe.label} fingerprint probe was accepted"
+            raise _error(context, detail)
 
 
 def _validate_example(
@@ -299,7 +385,7 @@ def _validate_example(
     invariant_error = _cursor_invariant_error(document)
     if invariant_error is not None:
         raise _error(context, invariant_error)
-    _validate_cursor_negative(validator, document, context)
+    _validate_cursor_negatives(validator, document, context)
     return True
 
 
@@ -309,13 +395,13 @@ def _validate_examples(
     validator: Draft202012Validator,
 ) -> ValidationResult:
     """Validate every canonical and packaged example."""
-    mismatch_count = sum(
+    probe_set_count = sum(
         _validate_example(path, settings, validator)
         for path in paths
     )
     return ValidationResult(
         example_count=len(paths),
-        mismatch_count=mismatch_count,
+        probe_set_count=probe_set_count,
     )
 
 
@@ -334,15 +420,18 @@ def _success_message(
     result: ValidationResult,
 ) -> str:
     """Build the deterministic success message."""
-    mismatch = (
+    probes = (
         ""
         if settings.is_audit
-        else f", {result.mismatch_count} mismatch-negative probes"
+        else (
+            f", {result.probe_set_count} each "
+            "mismatch/non-hash/uppercase/length probe sets"
+        )
     )
     return (
         f"{settings.package_root.name} {settings.kind} "
         f"envelope validation: {result.example_count} examples"
-        f"{mismatch} OK\n"
+        f"{probes} OK\n"
     )
 
 

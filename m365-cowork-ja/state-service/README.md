@@ -21,6 +21,8 @@ Graph/MCP/Power Platform gatewayを介して、型付きrecordを扱うための
 ordinary createのrequest shapeは変わりません。`session-matter-binding`だけは、
 参照matterのexact `itemId`、`expectedStatus: active`、latest `eTag` /
 `version`または`bindingGeneration` tokenを`matterPrecondition`として追加します。
+integerの`bindingGeneration`はBooleanでない`>= 0`（初期値0を含む）とし、
+negative、Boolean、blank stringを拒否します。
 gatewayはmatter preconditionとbindingの`expectedAbsent: true`を同一transactionで
 評価し、どちらかが失敗すれば何も作成しません。read-check後に別createを行う
 sequential実装は契約違反です。

@@ -58,48 +58,87 @@ active sourceはserver-side bindingである。
 conditional create:
 
 ```yaml
-tenantId: "[tenant id]"
-practiceId: "[practice id]"
+tenantId: tenant-1
+practiceId: regulatory
 scopeType: session
-scopeId: "[userObjectId]:[sessionId]"
+scopeId: user-1:session-1
 recordType: session-matter-binding
 recordId: active-matter
-idempotencyKey: "[16-256 character unique key]"
+idempotencyKey: binding-create-0001
 expectedAbsent: true
+matterPrecondition:
+  itemId: matter-item-1
+  eTag: '"5"'
+  version: 5
+  bindingGeneration: 7
+  expectedStatus: active
+  atomicWithBindingExpectedAbsent: true
 payload:
-  tenantId: "[tenant id]"
-  practiceId: "[practice id]"
-  userObjectId: "[Microsoft Entra object ID]"
-  sessionId: "[Cowork session ID]"
-  matterId: "[non-null matter ID]"
+  tenantId: tenant-1
+  practiceId: regulatory
+  userObjectId: user-1
+  sessionId: session-1
+  matterId: matter-1
   status: active
-  boundAt: "[ISO-8601]"
-  boundBy: "[Microsoft Entra object ID]"
-  expiresAt: "[future ISO-8601]"
+  boundAt: "2026-07-16T09:00:00+09:00"
+  boundBy: user-1
+  expiresAt: "2026-07-16T17:00:00+09:00"
   revokedAt: null
   revokedBy: null
   revocationReason: null
 ```
 
+gatewayはexact matter preconditionとbinding `expectedAbsent: true`を同一transaction
+で評価し、一方でもstale/failedならcreateしない。
+
 persisted envelope:
 
 ```yaml
-tenantId: "[tenant id]"
-practiceId: "[practice id]"
+tenantId: tenant-1
+practiceId: regulatory
 scopeType: session
-scopeId: "[userObjectId]:[sessionId]"
+scopeId: user-1:session-1
 recordType: session-matter-binding
 recordId: active-matter
-itemId: "[exact SharePoint state item ID]"
-eTag: "[current eTag]"
+itemId: binding-item-1
+eTag: '"1"'
 version: 1
 payload:
-  matterId: "[non-null matter ID]"
+  tenantId: tenant-1
+  practiceId: regulatory
+  userObjectId: user-1
+  sessionId: session-1
+  matterId: matter-1
   status: active
-  expiresAt: "[future ISO-8601]"
-updatedAt: "[ISO-8601]"
+  boundAt: "2026-07-16T09:00:00+09:00"
+  boundBy: user-1
+  expiresAt: "2026-07-16T17:00:00+09:00"
+  revokedAt: null
+  revokedBy: null
+  revocationReason: null
+updatedAt: "2026-07-16T09:00:00+09:00"
 ```
 
+conditional revoke:
+
+```yaml
+tenantId: tenant-1
+practiceId: regulatory
+scopeType: session
+scopeId: user-1:session-1
+recordType: session-matter-binding
+recordId: active-matter
+itemId: binding-item-1
+eTag: '"1"'
+idempotencyKey: binding-revoke-0001
+patch:
+  status: revoked
+  revokedAt: "2026-07-16T10:00:00+09:00"
+  revokedBy: user-1
+  revocationReason: matter-close
+```
+
+gatewayはpatch merge後のpayload全体をsession-binding schemaで再検証する。
 substantive matter workには`status: active`、`expiresAt > now`、non-null
 `matterId`、matter `status: active`、current user accessがすべて必要である。
 practice-level modeはfresh sessionで利用者が明示的に選び、bindingが存在しない状態で
@@ -107,9 +146,14 @@ practice-level modeはfresh sessionで利用者が明示的に選び、binding�
 
 `switch`と`none`はcurrent bindingをconditional revokeした後、verified hard context
 resetを伴う新しいCowork sessionを要求する。同一sessionで別matterまたはpractice
-modeへ移らない。matter close時は、その`matterId`を参照する全bindingをitemごとに
-`revoked`へ更新し、各結果をauditする。過去matterのdocument、quote、draft、
-source、cursorをcarryしない。
+modeへ移らない。matter closeは最初にmatterを`close-pending`等のnon-active
+stateへatomic conditional updateし、new binding createをfenceする。
+fence後に全bindingをenumerateし、activeだけをrevokeし、
+already-revokedはsatisfiedとして再更新しない。zero activeを再照合後にだけ
+`archived`へfinalizeする。fence前にcommitしたcreateはenumerationで捕捉され、
+fence後のcreateはmatter preconditionで
+失敗する。途中失敗はfenced stateを維持し、substantive accessをfail closedで
+拒否する。過去matterのdocument、quote、draft、source、cursorをcarryしない。
 
 ## Power Platform execution scope
 
@@ -258,6 +302,10 @@ practice runはapproved service identityが全stage完了をauditした後に進
 5. actor、scope、source、resultをauditへappend。
 
 create requestへ架空の`itemId`/`eTag`を要求しない。`expectedAbsent`はcreate専用。
+
+session binding createだけは参照matterのexact `itemId`、latest `eTag` /
+`version`またはbinding-generation token、expected active statusを追加し、
+binding absenceとatomically評価する。
 
 ### Update
 

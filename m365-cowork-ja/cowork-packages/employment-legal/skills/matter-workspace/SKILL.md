@@ -1,7 +1,7 @@
 ---
 name: matter-workspace
 description: >
-  employment matterをnew、list、switch、close、noneの会話stateで管理するSharePoint / Power Platform front end。一般workspaceがoffでもinvestigation、whistleblowing、medical、leave、discipline、contested terminationをrestricted isolationし、expiring bindingと全binding revokeを強制する。
+  employment matterをnew、list、switch、close、noneの会話stateで管理するSharePoint / Power Platform front end。一般workspaceがoffでもinvestigation、whistleblowing、medical、leave、discipline、contested terminationをrestricted isolationし、expiring bindingとfence-first active-only revokeを強制する。
 license: Apache-2.0
 metadata:
   locale: ja-JP
@@ -49,7 +49,9 @@ Coworkではsubcommandを会話stateとして扱います。
    作りません。
 8. conflict/engagement/authority、viewer、retention、legal hold、DLPを人が確認。
 9. new/switch/close/noneは別operation、exact diffとfresh confirmation。
-10. closeは対象matterの全bindingをrevoke。switch/noneは新sessionを要求します。
+10. closeはmatterを先にfenceし、全bindingを列挙してactiveだけをrevokeします。
+    already-revokedはsatisfiedとし、zero active後だけarchivedへfinalizeします。
+    switch/noneは新sessionを要求します。
 11. Cowork内DLP必須ならconfidential matterを投入せずproduction停止です。
 
 Japan privacyは
@@ -63,7 +65,7 @@ recordは`references/matter-records.md`を使います。
 | `new <slug>` | intake後、SharePoint mattersへconditional create |
 | `list` | authorized active/archived matterをscope cursorで表示 |
 | `switch <slug>` | current bindingをrevokeし、新sessionでnew binding |
-| `close <slug>` | matterをarchivedへupdateし、全bindingをrevoke |
+| `close <slug>` | fence → enumerate → active-only revoke → zero active確認 → archived finalize |
 | `none` | current bindingをrevokeし、新sessionでpractice mode |
 
 ## `new <slug>`
@@ -111,22 +113,29 @@ intake:
 3. old→new、破棄context、新session requirementを示す。
 4. fresh confirmation。
 5. current bindingがある場合だけconditional revokeし、current sessionで停止。
-6. 新しいCowork conversationでnew session bindingをconditional create。
+6. 新しいCowork conversationでnew session bindingをconditional create。exact
+   matter `itemId`、latest `eTag` / `version`またはbinding-generation token、
+   expected active statusをbinding absenceと同一transactionで評価します。
 7. old/new matter/session、actor、outcomeをaudit。
 
 verified hard context resetなしにsame-session switchを許可しません。
 
 ## `close <slug>`
 
-1. exact matter、latest `eTag`。
-2. targetを参照する全bindingをexact query。
-3. open investigation/leave/discipline/termination/expansion、deadline、draft、
+1. exact active matter、latest `eTag` / `version`、current binding generation。
+2. open investigation/leave/discipline/termination/expansion、deadline、draft、
    shared link、legal hold、retentionを確認。
-4. close date/reason/approver/impactとfresh confirmation。
-5. matterを`archived`へconditional update。
-6. **全binding**をitemごとに`revoked`へconditional update。
-7. each outcomeをcanonical auditへappend。
-8. failureがあればblockしarchived accessを拒否。
+3. close date/reason/approver/fence/impactとfresh confirmation。
+4. 最初のatomic conditional operationでmatterを`close-pending`等のnon-active
+   stateへtransitionし、new binding createをfence。
+5. fence成功後、targetを参照する全bindingをexact query。
+6. activeだけをrevocation対象とし、already-revokedはsatisfiedとして再更新しない。
+7. active bindingだけをexact item/eTagで`revoked`へconditional updateし、
+   each outcomeをcanonical auditへappend。
+8. 全bindingを再照合し、zero activeを確認。
+9. zero active確認後だけpost-fence matterを`archived`へconditional finalize。
+10. fence前にcommitしたcreateはstep 5で捕捉され、fence後のcreateはmatter
+    preconditionで失敗。途中失敗はfenced stateを維持してfail closed。
 
 retention expiry後のdeleteはscope外です。
 
@@ -148,6 +157,7 @@ matter factはmatter scopeです。
 - same-session switch/none
 - null-matter active binding
 - close時current bindingだけrevoke
+- archive-first / revoke-every close
 - conflict clearance/retention delete
 - restricted isolationの無効化
 - Power Platform solution/scheduleを作成・実行したと主張
