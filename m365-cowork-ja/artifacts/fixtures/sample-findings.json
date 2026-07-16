@@ -1,0 +1,38 @@
+{
+  "title": "契約レビューfindings",
+  "generatedAt": "2026-07-16T09:00:00+09:00",
+  "scope": "matter-001",
+  "reviewerNote": "全3件を確認。1件は有資格者判断が必要です。",
+  "rows": [
+    {
+      "severity": "Blocking",
+      "category": "Data",
+      "item": "<script>alert('unsafe')</script>",
+      "owner": "Legal",
+      "status": "Open",
+      "date": "2026-07-20",
+      "details": "=HYPERLINK(\"https://attacker.invalid\")",
+      "url": "javascript:alert(1)"
+    },
+    {
+      "severity": "High",
+      "category": "Liability",
+      "item": "責任上限",
+      "owner": "GC",
+      "status": "Review",
+      "date": "2026-07-22",
+      "details": "12か月分fees",
+      "url": "https://example.invalid/review"
+    },
+    {
+      "severity": "Low",
+      "category": "Notice",
+      "item": "更新通知",
+      "owner": "Legal Ops",
+      "status": "Tracked",
+      "date": "2026-08-01",
+      "details": "@external-value",
+      "url": "mailto:legal@example.invalid"
+    }
+  ]
+}

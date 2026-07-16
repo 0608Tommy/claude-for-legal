@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "implementedOffline": [
+    "html",
+    "markdown",
+    "csv"
+  ],
+  "tenantRendererRequired": [
+    "docx",
+    "xlsx",
+    "pptx",
+    "pdf",
+    "tracked-changes"
+  ],
+  "security": {
+    "htmlEscapeExternalValues": true,
+    "domInsertion": "textContent-only",
+    "allowedUrlSchemes": [
+      "http",
+      "https",
+      "mailto"
+    ],
+    "spreadsheetFormulaPrefixes": [
+      "=",
+      "+",
+      "-",
+      "@"
+    ],
+    "externalDependencies": false
+  },
+  "structure": [
+    "title-and-metadata",
+    "summary-stats",
+    "reviewer-note",
+    "one-or-two-charts",
+    "table",
+    "decision-tree"
+  ],
+  "productionGate": "Every format requires golden-file review in the target tenant."
+}
