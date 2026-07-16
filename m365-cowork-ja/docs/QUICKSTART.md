@@ -25,10 +25,7 @@ python3 -m venv m365-cowork-ja/.cache/skills-ref-venv
 m365-cowork-ja/.cache/skills-ref-venv/bin/python \
   -m pip install "skills-ref==0.1.1"
 
-bash scripts/test-m365-cowork-inventory.sh
-bash scripts/test-m365-apache-notices.sh
-bash scripts/test-m365-cowork-target.sh
-bash scripts/build-m365-cowork-packages.sh
+bash scripts/test-m365-cowork-fleet.sh
 ```
 
 生成物は `m365-cowork-ja/dist/<plugin>/<plugin>-ja.zip` に保存されます。

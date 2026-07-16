@@ -129,10 +129,7 @@ clone/exportするまで未生成です。
 最短手順は[`QUICKSTART.md`](QUICKSTART.md)を参照してください。
 
 ```bash
-bash scripts/test-m365-cowork-inventory.sh
-bash scripts/test-m365-apache-notices.sh
-bash scripts/test-m365-cowork-target.sh
-bash scripts/build-m365-cowork-packages.sh
+bash scripts/test-m365-cowork-fleet.sh
 ```
 
 外部validation、tenant install、Power Apps Checker、solution importは組織の
