@@ -20,6 +20,9 @@
       "$ref": "#/$defs/clinicMatter"
     },
     {
+      "$ref": "#/$defs/workflowCursor"
+    },
+    {
       "$ref": "#/$defs/trackerRecord"
     }
   ],
@@ -27,6 +30,12 @@
     "nonEmptyString": {
       "type": "string",
       "minLength": 1
+    },
+    "sha256Hex": {
+      "type": "string",
+      "minLength": 64,
+      "maxLength": 64,
+      "pattern": "^[0-9a-f]{64}$"
     },
     "nullableString": {
       "type": [
@@ -1458,6 +1467,104 @@
           }
         }
       ]
+    },
+    "workflowCursor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tenantId",
+        "practiceId",
+        "scopeType",
+        "scopeId",
+        "recordType",
+        "recordId",
+        "itemId",
+        "eTag",
+        "version",
+        "payload",
+        "updatedAt"
+      ],
+      "properties": {
+        "tenantId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "practiceId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "scopeType": {
+          "type": "string",
+          "enum": [
+            "practice",
+            "matter"
+          ]
+        },
+        "scopeId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "recordType": {
+          "const": "workflow-cursor"
+        },
+        "recordId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[^:]+:[^:]+:[0-9a-f]{64}$",
+          "not": {
+            "pattern": "[\\r\\n]"
+          }
+        },
+        "itemId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "eTag": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "payload": {
+          "$ref": "#/$defs/workflowCursorPayload"
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/isoDateTime"
+        }
+      },
+      "x-semantic-invariants": [
+        {
+          "id": "cursor-fingerprint-suffix",
+          "rule": "recordId final colon-delimited component equals payload.queryFingerprint"
+        }
+      ]
+    },
+    "workflowCursorPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceSystem",
+        "queryFingerprint",
+        "timestamp",
+        "lastSourceItemId",
+        "sourceVersion"
+      ],
+      "properties": {
+        "sourceSystem": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+        },
+        "queryFingerprint": {
+          "$ref": "#/$defs/sha256Hex"
+        },
+        "timestamp": {
+          "$ref": "#/$defs/isoDateTime"
+        },
+        "lastSourceItemId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sourceVersion": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
     },
     "trackerRecord": {
       "type": "object",

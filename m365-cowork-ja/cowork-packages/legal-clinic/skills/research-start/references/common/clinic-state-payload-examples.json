@@ -249,6 +249,65 @@
     "scopeSourceItemId": "scope-item-1",
     "responsibleLawyerObjectId": "lawyer-object-1"
   },
+  "workflowCursorPractice": {
+    "tenantId": "tenant-example",
+    "practiceId": "practice-example",
+    "scopeType": "practice",
+    "scopeId": "practice-example",
+    "recordType": "workflow-cursor",
+    "recordId": "deadline-sweep:sharepoint:414ac49ec343ed7885fb558ffab35fabb16892497dfd2e056ab3c546f9ac8a0d",
+    "itemId": "cursor-practice-item-1",
+    "eTag": "\"1\"",
+    "version": 1,
+    "payload": {
+      "sourceSystem": "sharepoint",
+      "queryFingerprint": "414ac49ec343ed7885fb558ffab35fabb16892497dfd2e056ab3c546f9ac8a0d",
+      "timestamp": "2026-07-16T11:00:00+09:00",
+      "lastSourceItemId": "source-item-100",
+      "sourceVersion": "v100"
+    },
+    "updatedAt": "2026-07-16T11:05:00+09:00"
+  },
+  "workflowCursorMatter": {
+    "$baseExample": "workflowCursorPractice",
+    "$patch": [
+      {
+        "op": "replace",
+        "path": "/scopeType",
+        "value": "matter"
+      },
+      {
+        "op": "replace",
+        "path": "/scopeId",
+        "value": "matter-example-1"
+      },
+      {
+        "op": "replace",
+        "path": "/recordId",
+        "value": "client-comms-sweep:sharepoint:5ac2976d27ea82a8aaa1015fb4dc259e6d7837f16932224c1bf5231cde7ce1a2"
+      },
+      {
+        "op": "replace",
+        "path": "/itemId",
+        "value": "cursor-matter-item-1"
+      },
+      {
+        "op": "replace",
+        "path": "/payload/queryFingerprint",
+        "value": "5ac2976d27ea82a8aaa1015fb4dc259e6d7837f16932224c1bf5231cde7ce1a2"
+      },
+      {
+        "op": "replace",
+        "path": "/payload/lastSourceItemId",
+        "value": "communication-item-200"
+      },
+      {
+        "op": "replace",
+        "path": "/payload/sourceVersion",
+        "value": "v200"
+      }
+    ]
+  },
   "trackerRecordCommunication": {
     "recordType": "tracker-record",
     "tenantId": "tenant-example",

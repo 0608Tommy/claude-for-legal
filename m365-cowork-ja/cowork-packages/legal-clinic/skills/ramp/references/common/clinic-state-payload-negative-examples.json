@@ -129,6 +129,138 @@
       ]
     },
     {
+      "id": "cursor-payload-nonhash",
+      "baseExample": "workflowCursorPractice",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/payload/queryFingerprint",
+          "value": "g14ac49ec343ed7885fb558ffab35fabb16892497dfd2e056ab3c546f9ac8a0d"
+        }
+      ]
+    },
+    {
+      "id": "cursor-recordid-nonhash",
+      "baseExample": "workflowCursorPractice",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/recordId",
+          "value": "deadline-sweep:sharepoint:g14ac49ec343ed7885fb558ffab35fabb16892497dfd2e056ab3c546f9ac8a0d"
+        }
+      ]
+    },
+    {
+      "id": "cursor-payload-uppercase",
+      "baseExample": "workflowCursorPractice",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/payload/queryFingerprint",
+          "value": "414AC49EC343ED7885FB558FFAB35FABB16892497DFD2E056AB3C546F9AC8A0D"
+        }
+      ]
+    },
+    {
+      "id": "cursor-recordid-uppercase",
+      "baseExample": "workflowCursorPractice",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/recordId",
+          "value": "deadline-sweep:sharepoint:414AC49EC343ED7885FB558FFAB35FABB16892497DFD2E056AB3C546F9AC8A0D"
+        }
+      ]
+    },
+    {
+      "id": "cursor-payload-short-hash",
+      "baseExample": "workflowCursorPractice",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/payload/queryFingerprint",
+          "value": "414ac49ec343ed7885fb558ffab35fabb16892497dfd2e056ab3c546f9ac8a0"
+        }
+      ]
+    },
+    {
+      "id": "cursor-recordid-short-hash",
+      "baseExample": "workflowCursorPractice",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/recordId",
+          "value": "deadline-sweep:sharepoint:414ac49ec343ed7885fb558ffab35fabb16892497dfd2e056ab3c546f9ac8a0"
+        }
+      ]
+    },
+    {
+      "id": "cursor-payload-trailing-newline",
+      "baseExample": "workflowCursorPractice",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/payload/queryFingerprint",
+          "value": "414ac49ec343ed7885fb558ffab35fabb16892497dfd2e056ab3c546f9ac8a0d\n"
+        }
+      ]
+    },
+    {
+      "id": "cursor-payload-trailing-carriage-return",
+      "baseExample": "workflowCursorPractice",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/payload/queryFingerprint",
+          "value": "414ac49ec343ed7885fb558ffab35fabb16892497dfd2e056ab3c546f9ac8a0d\r"
+        }
+      ]
+    },
+    {
+      "id": "cursor-recordid-trailing-newline",
+      "baseExample": "workflowCursorPractice",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/recordId",
+          "value": "deadline-sweep:sharepoint:414ac49ec343ed7885fb558ffab35fabb16892497dfd2e056ab3c546f9ac8a0d\n"
+        }
+      ]
+    },
+    {
+      "id": "cursor-recordid-trailing-carriage-return",
+      "baseExample": "workflowCursorPractice",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/recordId",
+          "value": "deadline-sweep:sharepoint:414ac49ec343ed7885fb558ffab35fabb16892497dfd2e056ab3c546f9ac8a0d\r"
+        }
+      ]
+    },
+    {
+      "id": "cursor-recordid-fingerprint-mismatch",
+      "baseExample": "workflowCursorPractice",
+      "expectedFailure": "semantic",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/recordId",
+          "value": "deadline-sweep:sharepoint:514ac49ec343ed7885fb558ffab35fabb16892497dfd2e056ab3c546f9ac8a0d"
+        }
+      ]
+    },
+    {
       "id": "tracker-discriminator-forbidden-at-envelope",
       "baseExample": "trackerRecordCommunication",
       "expectedFailure": "schema",

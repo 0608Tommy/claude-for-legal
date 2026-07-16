@@ -1,15 +1,30 @@
 #!/usr/bin/env python3
 # Copyright 2026 Anthropic PBC
 # SPDX-License-Identifier: Apache-2.0
-"""Validate legal-clinic schemas, examples, and semantic invariants."""
+"""Validate legal-clinic schemas, examples, and semantic invariants.
+
+The validator applies four independent layers. It checks the authoritative
+package schema with format validation, evaluates cross-field semantic rules,
+rejects every declared negative fixture, and verifies byte parity across all
+skill-local copies.
+
+Tracker and workflow-cursor records receive an additional shared-envelope
+validation pass. Cursor records must keep source metadata inside ``payload``,
+use lowercase 64-character SHA-256 fingerprints, and repeat the exact
+fingerprint as the final colon-delimited component of ``recordId``.
+
+Every validation class must contain at least one example so a missing fixture
+set cannot produce a vacuous success.
+"""
 
 from __future__ import annotations
 
 import copy
 import json
+import re
 import sys
 from pathlib import Path
-from typing import Final, cast
+from typing import Final, NamedTuple, cast
 
 from jsonschema import Draft202012Validator, FormatChecker
 
@@ -17,6 +32,19 @@ type JsonScalar = str | int | float | bool | None
 type JsonValue = JsonScalar | list[JsonValue] | dict[str, JsonValue]
 type JsonObject = dict[str, JsonValue]
 type JsonContainer = list[JsonValue] | JsonObject
+
+_SHA256_PATTERN: Final = re.compile(r"^[0-9a-f]{64}$")
+_SHARED_ENVELOPE_RECORD_TYPES: Final = frozenset(
+    {"tracker-record", "workflow-cursor"},
+)
+
+
+class EnvelopeCounts(NamedTuple):
+    """Hold shared-envelope tracker and cursor validation counts."""
+
+    tracker: int
+    cursor: int
+
 
 ROOT: Final = Path(__file__).resolve().parent
 PACKAGE_ROOT: Final = ROOT.parent
@@ -233,6 +261,64 @@ def _tracker_errors(document: JsonObject) -> list[str]:
     return errors
 
 
+def _sha256_value_error(value: JsonValue, field: str) -> str | None:
+    if (
+        not isinstance(value, str)
+        or _SHA256_PATTERN.fullmatch(value) is None
+    ):
+        return f"{field} must match ^[0-9a-f]{{64}}$"
+    return None
+
+
+def _cursor_match_error(
+    record_suffix: str,
+    query_fingerprint: str,
+) -> str | None:
+    if record_suffix != query_fingerprint:
+        return (
+            "cursor recordId final component must equal "
+            "payload queryFingerprint"
+        )
+    return None
+
+
+def _cursor_record_errors(
+    record_id: JsonValue,
+    query_fingerprint: str,
+) -> list[str]:
+    if not isinstance(record_id, str):
+        return ["cursor recordId must be a string"]
+    record_suffix = record_id.rsplit(":", 1)[-1]
+    suffix_error = _sha256_value_error(
+        record_suffix,
+        "cursor recordId suffix",
+    )
+    if suffix_error is not None:
+        return [suffix_error]
+    match_error = _cursor_match_error(
+        record_suffix,
+        query_fingerprint,
+    )
+    return [] if match_error is None else [match_error]
+
+
+def _cursor_errors(document: JsonObject) -> list[str]:
+    payload = document.get("payload")
+    if not isinstance(payload, dict):
+        return ["cursor payload must be an object"]
+    query_fingerprint = payload.get("queryFingerprint")
+    query_error = _sha256_value_error(
+        query_fingerprint,
+        "cursor payload queryFingerprint",
+    )
+    if query_error is not None:
+        return [query_error]
+    return _cursor_record_errors(
+        document.get("recordId"),
+        cast("str", query_fingerprint),
+    )
+
+
 def _string_list(value: JsonValue) -> list[str] | None:
     if not isinstance(value, list):
         return None
@@ -302,16 +388,25 @@ def _revocation_errors(document: JsonObject) -> list[str]:
     return errors
 
 
+def _successful_revocation_batch(
+    document: JsonObject,
+    record_type: JsonValue,
+) -> bool:
+    return (
+        record_type == "binding-revocation-batch"
+        and document.get("atomicOutcome") == "succeeded"
+    )
+
+
 def _semantic_errors(document: JsonValue) -> list[str]:
     if not isinstance(document, dict):
         return []
     record_type = document.get("recordType")
     if record_type == "tracker-record":
         return _tracker_errors(document)
-    if (
-        record_type == "binding-revocation-batch"
-        and document.get("atomicOutcome") == "succeeded"
-    ):
+    if record_type == "workflow-cursor":
+        return _cursor_errors(document)
+    if _successful_revocation_batch(document, record_type):
         return _revocation_errors(document)
     return []
 
@@ -326,58 +421,114 @@ def _schema_errors(
     ]
 
 
+def _copy_paths(canonical_path: Path) -> list[Path]:
+    return sorted(
+        PACKAGE_ROOT.glob(
+            f"skills/*/references/common/{canonical_path.name}",
+        ),
+    )
+
+
+def _copy_failures(
+    canonical_path: Path,
+    copy_paths: list[Path],
+) -> list[str]:
+    canonical_bytes = canonical_path.read_bytes()
+    return [
+        f"byte parity mismatch: {copy_path}"
+        for copy_path in copy_paths
+        if copy_path.read_bytes() != canonical_bytes
+    ]
+
+
 def _parity_failures() -> tuple[list[str], list[Path]]:
     failures: list[str] = []
     example_paths = [EXAMPLES_PATH]
     for canonical_path in (SCHEMA_PATH, EXAMPLES_PATH, NEGATIVE_PATH):
-        copy_paths = sorted(
-            PACKAGE_ROOT.glob(
-                f"skills/*/references/common/{canonical_path.name}",
-            ),
-        )
+        copy_paths = _copy_paths(canonical_path)
         if not copy_paths:
             failures.append(
                 f"{canonical_path.name}: no skill-local copies",
             )
-            continue
-        canonical_bytes = canonical_path.read_bytes()
-        failures.extend(
-            f"byte parity mismatch: {copy_path}"
-            for copy_path in copy_paths
-            if copy_path.read_bytes() != canonical_bytes
-        )
+        else:
+            failures.extend(
+                _copy_failures(canonical_path, copy_paths),
+            )
         if canonical_path == EXAMPLES_PATH:
             example_paths.extend(copy_paths)
     return failures, example_paths
 
 
-def _tracker_envelope_failures(
+def _envelope_record_type(document: JsonValue) -> str | None:
+    if not isinstance(document, dict):
+        return None
+    record_type = document.get("recordType")
+    if (
+        isinstance(record_type, str)
+        and record_type in _SHARED_ENVELOPE_RECORD_TYPES
+    ):
+        return record_type
+    return None
+
+
+def _updated_envelope_counts(
+    counts: EnvelopeCounts,
+    record_type: str,
+) -> EnvelopeCounts:
+    if record_type == "tracker-record":
+        return EnvelopeCounts(counts.tracker + 1, counts.cursor)
+    return EnvelopeCounts(counts.tracker, counts.cursor + 1)
+
+
+def _missing_envelope_failure(
+    example_path: Path,
+    counts: EnvelopeCounts,
+) -> str | None:
+    if counts.tracker + counts.cursor == 0:
+        return f"shared envelope {example_path}: no envelope examples"
+    return None
+
+
+def _path_envelope_failures(
+    validator: Draft202012Validator,
+    example_path: Path,
+) -> tuple[list[str], EnvelopeCounts]:
+    failures: list[str] = []
+    counts = EnvelopeCounts(0, 0)
+    examples = _expand_examples(_load_object(example_path))
+    for name, document in examples.items():
+        record_type = _envelope_record_type(document)
+        if record_type is None:
+            continue
+        counts = _updated_envelope_counts(counts, record_type)
+        errors = _schema_errors(validator, document)
+        if errors:
+            failures.append(
+                f"shared envelope {example_path}:{name}: {errors[0]}",
+            )
+    missing_failure = _missing_envelope_failure(example_path, counts)
+    if missing_failure is not None:
+        failures.append(missing_failure)
+    return failures, counts
+
+
+def _shared_envelope_failures(
     validator: Draft202012Validator,
     example_paths: list[Path],
-) -> tuple[list[str], int]:
+) -> tuple[list[str], EnvelopeCounts]:
     failures: list[str] = []
-    tracker_count = 0
+    counts = EnvelopeCounts(0, 0)
     for example_path in example_paths:
-        examples = _expand_examples(_load_object(example_path))
-        path_tracker_count = 0
-        for name, document in examples.items():
-            if (
-                not isinstance(document, dict)
-                or document.get("recordType") != "tracker-record"
-            ):
-                continue
-            path_tracker_count += 1
-            errors = _schema_errors(validator, document)
-            if errors:
-                failures.append(
-                    f"shared envelope {example_path}:{name}: {errors[0]}",
-                )
-        if path_tracker_count == 0:
-            failures.append(
-                f"shared envelope {example_path}: no tracker examples",
-            )
-        tracker_count += path_tracker_count
-    return failures, tracker_count
+        path_failures, path_counts = _path_envelope_failures(
+            validator,
+            example_path,
+        )
+        failures.extend(path_failures)
+        counts = EnvelopeCounts(
+            counts.tracker + path_counts.tracker,
+            counts.cursor + path_counts.cursor,
+        )
+    return failures, counts
 
 
 def _example_object(
@@ -504,7 +655,8 @@ def _positive_failures(
         ]
         if (
             isinstance(document, dict)
-            and document.get("recordType") == "tracker-record"
+            and document.get("recordType")
+            in _SHARED_ENVELOPE_RECORD_TYPES
         ):
             errors.extend(
                 _schema_errors(state_envelope_validator, document),
@@ -587,11 +739,11 @@ def main() -> int:
             examples,
         ),
     ]
-    tracker_failures, tracker_count = _tracker_envelope_failures(
+    envelope_failures, envelope_counts = _shared_envelope_failures(
         state_envelope_validator,
         example_paths,
     )
-    failures.extend(tracker_failures)
+    failures.extend(envelope_failures)
     negative_failures, negative_count = _negative_failures(
         validator,
         examples,
@@ -608,7 +760,8 @@ def main() -> int:
         "clinic state payload validation: "
         f"{positive_count} positive, "
         f"{negative_count} bypass-negative, "
-        f"{tracker_count} shared-envelope tracker copies OK\n",
+        f"{envelope_counts.tracker} tracker and "
+        f"{envelope_counts.cursor} cursor shared-envelope copies OK\n",
     )
     return 0
 
