@@ -95,7 +95,7 @@
       "displayNameShort": "プロダクト法務",
       "displayNameFull": "プロダクト法務 — 日本語版 Microsoft 365 Copilot Cowork",
       "descriptionShort": "製品リリース、機能リスク、広告表示、法務トリアージを支援します。",
-      "status": "planned"
+      "status": "draft-legal-review"
     },
     "regulatory-legal": {
       "appId": "df610cb5-1b09-5376-a657-d6dc1da5a292",

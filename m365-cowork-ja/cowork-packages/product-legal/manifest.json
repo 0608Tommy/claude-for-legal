@@ -1,0 +1,51 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.28/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.28",
+  "version": "1.0.0",
+  "id": "c0382b19-9a18-5a3d-bcdd-81fdbba6b12a",
+  "developer": {
+    "name": "0608Tommy",
+    "websiteUrl": "https://github.com/0608Tommy/claude-for-legal",
+    "privacyUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/PRIVACY.md",
+    "termsOfUseUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/TERMS.md"
+  },
+  "name": {
+    "short": "プロダクト法務",
+    "full": "プロダクト法務 — 日本語版 Microsoft 365 Copilot Cowork"
+  },
+  "description": {
+    "short": "製品リリース、機能リスク、広告表示、法務トリアージを支援します。",
+    "full": "anthropics/claude-for-legalを日本語化し、Microsoft 365向けに変更した派生版です。製品リリース、機能リスク、広告表示・通信販売画面、短時間の法務トリアージを、日本法レイヤーと会社固有のrisk calibrationに沿って支援します。すべての出力は有資格者によるレビュー前提のドラフトです。"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#1F5A7A",
+  "localizationInfo": {
+    "defaultLanguageTag": "ja"
+  },
+  "agentSkills": [
+    {
+      "folder": "./skills/cold-start-interview"
+    },
+    {
+      "folder": "./skills/customize"
+    },
+    {
+      "folder": "./skills/feature-risk-assessment"
+    },
+    {
+      "folder": "./skills/is-this-a-problem"
+    },
+    {
+      "folder": "./skills/launch-review"
+    },
+    {
+      "folder": "./skills/marketing-claims-review"
+    },
+    {
+      "folder": "./skills/matter-workspace"
+    }
+  ]
+}
