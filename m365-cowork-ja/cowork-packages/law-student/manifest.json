@@ -1,0 +1,69 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.28/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.28",
+  "version": "1.0.0",
+  "id": "33511356-5b43-570f-a0da-d007fc2d98e2",
+  "developer": {
+    "name": "0608Tommy",
+    "websiteUrl": "https://github.com/0608Tommy/claude-for-legal",
+    "privacyUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/PRIVACY.md",
+    "termsOfUseUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/TERMS.md"
+  },
+  "name": {
+    "short": "法学学習支援",
+    "full": "法学学習支援 — 日本語版 Microsoft 365 Copilot Cowork"
+  },
+  "description": {
+    "short": "ソクラテス式演習、判例、IRAC、試験、司法試験学習を支援します。",
+    "full": "anthropics/claude-for-legalのlaw-studentを日本語化し、Microsoft 365向けに変更した派生版です。法科大学院、司法試験・予備試験、司法修習、米国ロースクール・bar prepを法体系別に分離し、ソクラテス式演習、判例整理、アウトライン、答案・文章フィードバック、過去問分析、フラッシュカード、学習計画を支援します。学習用であり、法的助言、公式採点、提出、LMS連携、自動投稿ではありません。日本法・日本の法曹養成内容は有資格者レビュー前のDRAFTです。"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#294C7A",
+  "localizationInfo": {
+    "defaultLanguageTag": "ja"
+  },
+  "agentSkills": [
+    {
+      "folder": "./skills/bar-prep-questions"
+    },
+    {
+      "folder": "./skills/case-brief"
+    },
+    {
+      "folder": "./skills/cold-call-prep"
+    },
+    {
+      "folder": "./skills/cold-start-interview"
+    },
+    {
+      "folder": "./skills/customize"
+    },
+    {
+      "folder": "./skills/exam-forecast"
+    },
+    {
+      "folder": "./skills/flashcards"
+    },
+    {
+      "folder": "./skills/irac-practice"
+    },
+    {
+      "folder": "./skills/legal-writing"
+    },
+    {
+      "folder": "./skills/outline-builder"
+    },
+    {
+      "folder": "./skills/session"
+    },
+    {
+      "folder": "./skills/socratic-drill"
+    },
+    {
+      "folder": "./skills/study-plan"
+    }
+  ]
+}

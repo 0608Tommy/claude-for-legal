@@ -1,0 +1,32 @@
+{
+  "tenantId": "tenant-ja-001",
+  "practiceId": "law-student",
+  "matterId": null,
+  "eventType": "study-progress-saved",
+  "correlationId": "corr-20260716-session-0001",
+  "idempotencyKey": "lawstudent-session-20260716-001-create",
+  "actorObjectId": "entra-user-001",
+  "timestamp": "2026-07-16T08:05:01Z",
+  "outcome": "succeeded",
+  "itemIds": [
+    "sp-item-4107"
+  ],
+  "details": {
+    "scopeType": "session",
+    "scopeId": "session-20260716-001",
+    "recordType": "session-result",
+    "recordId": "session:session-20260716-001:1",
+    "userObjectId": "entra-user-001",
+    "studyScopeType": "exam",
+    "studyScopeId": "jp-judicial-exam-2026",
+    "legalSystem": "JP",
+    "exam_format_value": "judicial-exam-short-answer-and-essay",
+    "sourceItemId": "https://www.moj.go.jp/jinji/shihoushiken/jinji08_00272.html",
+    "sourceVersion": "checked-2026-07-16",
+    "temporalLabel": "exam-cutoff",
+    "eTagBefore": null,
+    "eTagAfter": "etag-0007",
+    "approvalId": "approval-session-20260716-001",
+    "notes": "Synthetic fixture; no answer text or personal data."
+  }
+}

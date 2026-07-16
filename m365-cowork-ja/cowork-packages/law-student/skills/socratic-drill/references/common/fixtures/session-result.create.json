@@ -1,0 +1,46 @@
+{
+  "tenantId": "tenant-ja-001",
+  "practiceId": "law-student",
+  "scopeType": "session",
+  "scopeId": "session-20260716-001",
+  "recordType": "session-result",
+  "recordId": "session:session-20260716-001:1",
+  "idempotencyKey": "lawstudent-session-20260716-001-create",
+  "expectedAbsent": true,
+  "payload": {
+    "userObjectId": "entra-user-001",
+    "studyScopeType": "exam",
+    "studyScopeId": "jp-judicial-exam-2026",
+    "legalSystem": "JP",
+    "bar_or_exam": {
+      "exam_type": "judicial-exam",
+      "exam_year": 2026,
+      "exam_component": "short-answer",
+      "exam_format": {
+        "value": "judicial-exam-short-answer-and-essay",
+        "source_system": "MOJ",
+        "source_item_id": "https://www.moj.go.jp/jinji/shihoushiken/jinji08_00272.html",
+        "source_version": "checked-2026-07-16",
+        "verified_at": "2026-07-16T08:00:00Z"
+      },
+      "attempt_cap": {
+        "status": "none-within-eligibility-period",
+        "count": null
+      }
+    },
+    "subjectId": "constitutional-law",
+    "method": "short-answer",
+    "requestedCount": 5,
+    "completedCount": 5,
+    "selfAssessment": {
+      "right": 3,
+      "partial": 1,
+      "wrong": 1
+    },
+    "temporalBasis": {
+      "label": "exam-cutoff",
+      "asOf": "2026-01-01",
+      "examCutoffRelation": "included"
+    }
+  }
+}

@@ -55,7 +55,7 @@
       "displayNameShort": "法学学習支援",
       "displayNameFull": "法学学習支援 — 日本語版 Microsoft 365 Copilot Cowork",
       "descriptionShort": "ソクラテス式演習、判例、IRAC、試験、司法試験学習を支援します。",
-      "status": "planned"
+      "status": "draft-legal-review"
     },
     "legal-builder-hub": {
       "appId": "c46832ff-f835-5909-92db-81fc3c0fec0f",
