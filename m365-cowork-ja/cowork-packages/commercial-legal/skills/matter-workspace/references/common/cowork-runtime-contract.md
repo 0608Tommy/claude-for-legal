@@ -34,15 +34,19 @@
 
 ## 読取り順序
 
-1. server-side session–matter bindingを正確な複合キーで読む。
-2. 現在利用者の`user-profile`を読む。
-3. `company-profile`と`commercial-practice-profile`を読む。
-4. matterが有効なら、権限ある`matter-profile`と指定資料だけを読む。
-5. 必要な`state`をscope-specific cursorまたは正確な`itemId`で読む。
-6. 取得対象、範囲、version、失敗をレビュー担当者向け注記へ記録する。
+1. 現在利用者の`user-profile`を読む。
+2. `company-profile`と`commercial-practice-profile`を読む。
+3. matter scopeではserver-side bindingを読み、`status: active`、
+   `expiresAt > now`、matter `status: active`を確認する。
+4. fresh sessionでpractice-levelを明示した場合はbindingなしを許可し、
+   過去matter contextをcarryしない。
+5. matterが有効なら、権限ある`matter-profile`と指定資料だけを読む。
+6. 必要な`state`をscope-specific cursorまたは正確な`itemId`で読む。
+7. 取得対象、範囲、version、失敗をレビュー担当者向け注記へ記録する。
 
 複数案件候補、会話名とserver bindingの矛盾、matter権限不足、
-`scopeType/scopeId`欠落がある場合は停止する。既定でcross-matter accessは
+期限切れ・revoked binding、`scopeType/scopeId`欠落がある場合は停止する。
+既定でcross-matter accessは
 `false`。通常の実質作業ではbinding先matterの`status`が`active`であること
 を確認し、`archived`またはbinding revokedなら処理しない。
 

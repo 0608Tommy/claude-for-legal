@@ -110,10 +110,14 @@ tenantId: "[tenant id]"
 practiceId: "[practice id]"
 userObjectId: "[Microsoft Entra object id]"
 sessionId: "[Cowork session id]"
-matterId: "[matter id or null]"
-authorized: true
+matterId: "[matter id]"
+status: active | revoked
+boundAt: "[ISO-8601]"
+boundBy: "[Microsoft Entra object id]"
 expiresAt: "[ISO-8601]"
-eTag: "[eTag]"
+revokedAt: "[ISO-8601 or null]"
+revokedBy: "[Microsoft Entra object id or null]"
+revocationReason: "[reason or null]"
 ```
 
 実装時の列・JSON schemaはテナント設計に合わせるが、意味、複合キー、

@@ -1,0 +1,57 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.28/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.28",
+  "version": "1.0.0",
+  "id": "57b6a3bb-4bfe-5d6d-b58a-25b759cbb1c4",
+  "developer": {
+    "name": "0608Tommy",
+    "websiteUrl": "https://github.com/0608Tommy/claude-for-legal",
+    "privacyUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/PRIVACY.md",
+    "termsOfUseUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/TERMS.md"
+  },
+  "name": {
+    "short": "プライバシー法務",
+    "full": "プライバシー法務 — 日本語版 Microsoft 365 Copilot Cowork"
+  },
+  "description": {
+    "short": "PIA、DPA、DSAR、処理トリアージ、規制ギャップを支援します。",
+    "full": "anthropics/claude-for-legalを日本語化し、Microsoft 365向けに変更した派生版です。PIA、DPA、DSAR相当の本人請求、処理トリアージ、規制ギャップ、ポリシー整合性を支援します。すべての出力は有資格者によるレビュー前提のドラフトです。"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#5B2A6E",
+  "localizationInfo": {
+    "defaultLanguageTag": "ja"
+  },
+  "agentSkills": [
+    {
+      "folder": "./skills/cold-start-interview"
+    },
+    {
+      "folder": "./skills/customize"
+    },
+    {
+      "folder": "./skills/dpa-review"
+    },
+    {
+      "folder": "./skills/dsar-response"
+    },
+    {
+      "folder": "./skills/matter-workspace"
+    },
+    {
+      "folder": "./skills/pia-generation"
+    },
+    {
+      "folder": "./skills/policy-monitor"
+    },
+    {
+      "folder": "./skills/reg-gap-analysis"
+    },
+    {
+      "folder": "./skills/use-case-triage"
+    }
+  ]
+}

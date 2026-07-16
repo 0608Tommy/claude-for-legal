@@ -45,6 +45,14 @@
       "qualifiedReviewerRecorded": false,
       "checkedThrough": "2026-07-16"
     },
+    "privacy-legal": {
+      "originalJurisdictionTranslation": "pending",
+      "japanLawLocalization": "pending",
+      "primarySourcesRecorded": true,
+      "effectiveDateRecorded": true,
+      "qualifiedReviewerRecorded": false,
+      "checkedThrough": "2026-07-16"
+    },
     "cocounsel-legal": {
       "originalJurisdictionTranslation": "blocked",
       "japanLawLocalization": "blocked",

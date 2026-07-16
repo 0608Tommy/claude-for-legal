@@ -33,6 +33,8 @@ Graph/MCP/Power Platform gatewayを介して、型付きrecordを扱うための
   `tenantId + practiceId + scopeType + scopeId + recordType + recordId`
 
 共有practice profileへ単一user roleまたはactive matterを保存しません。
+practice-levelは`matterId: null`のactive bindingではなく、bindingが存在しない
+fresh sessionとして表現します。
 matter close時は、その`matterId`を参照する全bindingをrevokedへ更新します。
 
 ## 実装状態

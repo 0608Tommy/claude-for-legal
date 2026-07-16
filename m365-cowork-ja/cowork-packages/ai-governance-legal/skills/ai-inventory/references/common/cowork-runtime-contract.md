@@ -19,15 +19,20 @@
 
 ## 読取り順序
 
-1. サーバー側のセッションと案件のバインディングを確認する。
-2. `profiles` の会社プロファイルを読む。
-3. `tenantId + practiceId + userObjectId` で現在利用者の `user-profile` を読む。
-4. `profiles` の `ai-governance-legal` 実務プロファイルを読む。
-5. 案件が有効なら、その案件の `matter-profile` と許可された資料だけを読む。
-6. 必要な `state` レコードを正確な `itemId` で読む。
-7. 各読取りの対象、範囲、取得失敗をレビュー担当者向け注記に記録する。
+1. `profiles` の会社プロファイルを読む。
+2. `tenantId + practiceId + userObjectId` で現在利用者の `user-profile` を読む。
+3. `profiles` の `ai-governance-legal` 実務プロファイルを読む。
+4. matter workspaceが有効でmatter scopeを選ぶ場合、サーバー側bindingを読み、
+   `status: active`、`expiresAt > now`、matter `status: active`を確認する。
+5. workspaceが無効、またはfresh sessionでpractice-levelを選ぶ場合、
+   bindingなしの`scopeType: practice`を許可し、過去matter contextをcarryしない。
+6. 案件が有効なら、その案件の `matter-profile` と許可された資料だけを読む。
+7. 必要な `state` レコードを正確な `itemId` で読む。
+8. 各読取りの対象、範囲、取得失敗をレビュー担当者向け注記に記録する。
 
-案件が特定できない、複数候補がある、サーバー側バインディングと会話中の案件名が一致しない場合は停止する。既定で案件横断アクセスは行わない。
+matter scopeで案件が特定できない、複数候補、期限切れ・revoked binding、
+サーバー側bindingと会話中の案件名が不一致の場合は停止する。既定で案件横断
+アクセスは行わない。
 
 共有practice profileには利用者のroleまたは単一のactive matterを保存しない。
 利用者情報は `tenantId + practiceId + userObjectId`、案件バインディングは

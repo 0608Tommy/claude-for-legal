@@ -1,0 +1,13 @@
+Privacy Legal — Japanese Microsoft 365 Copilot Cowork adaptation
+
+This package is a modified derivative of the privacy-legal plugin from:
+https://github.com/anthropics/claude-for-legal
+
+The original work is Copyright 2026 Anthropic PBC and is licensed under the
+Apache License, Version 2.0. The Japanese translation, Microsoft 365 storage
+adaptation, conversational state machines, and draft Japanese-law reference
+modules are modifications made for this derivative package.
+
+The Japanese-law modules are drafts pending review by qualified Japanese
+counsel. Product and company names remain the property of their respective
+owners. No trademark license is granted by the Apache License.

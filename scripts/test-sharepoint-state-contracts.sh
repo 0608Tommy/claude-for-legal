@@ -77,6 +77,36 @@ binding_required = set(schemas["session-binding"]["required"])
 if not binding_key.issubset(binding_required):
     raise SystemExit("session binding key is incomplete")
 
+binding_fixture = {
+    "tenantId": "tenant-1",
+    "practiceId": "privacy",
+    "userObjectId": "user-1",
+    "sessionId": "session-1",
+    "matterId": "matter-1",
+    "status": "active",
+    "boundAt": "2026-07-16T09:00:00+09:00",
+    "boundBy": "user-1",
+    "expiresAt": "2026-07-16T17:00:00+09:00",
+    "revokedAt": None,
+    "revokedBy": None,
+    "revocationReason": None,
+}
+jsonschema.validate(binding_fixture, schemas["session-binding"])
+
+invalid_practice_binding = {
+    **binding_fixture,
+    "matterId": None,
+}
+try:
+    jsonschema.validate(
+        invalid_practice_binding,
+        schemas["session-binding"],
+    )
+except jsonschema.ValidationError:
+    pass
+else:
+    raise SystemExit("active binding must require a matter ID")
+
 state_key = layout["lists"]["state"]["uniqueKey"]
 expected_state_key = [
     "tenantId",
@@ -94,6 +124,25 @@ if audit["appendOnly"] is not True:
     raise SystemExit("audit list must be append-only")
 if audit["allowUpdate"] is not False or audit["allowDelete"] is not False:
     raise SystemExit("audit updates and deletes must be disabled")
+
+runtime_contracts = [
+    root.parent
+    / "cowork-packages"
+    / plugin
+    / "references"
+    / "cowork-runtime-contract.md"
+    for plugin in (
+        "ai-governance-legal",
+        "commercial-legal",
+        "privacy-legal",
+    )
+]
+for runtime_contract in runtime_contracts:
+    text = runtime_contract.read_text(encoding="utf-8")
+    if "expiresAt > now" not in text:
+        raise SystemExit(
+            f"{runtime_contract}: binding expiry check is missing"
+        )
 
 print("SharePoint state contracts: OK")
 PY

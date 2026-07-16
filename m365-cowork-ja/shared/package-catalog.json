@@ -87,7 +87,7 @@
       "displayNameShort": "プライバシー法務",
       "displayNameFull": "プライバシー法務 — 日本語版 Microsoft 365 Copilot Cowork",
       "descriptionShort": "PIA、DPA、DSAR、処理トリアージ、規制ギャップを支援します。",
-      "status": "planned"
+      "status": "draft-legal-review"
     },
     "product-legal": {
       "appId": "c0382b19-9a18-5a3d-bcdd-81fdbba6b12a",
