@@ -20,15 +20,6 @@
       "description": "Google Drive上のポリシーや規制資料をread-onlyで参照する候補です。SharePoint/OneDriveの正本保存先を置き換えません。",
       "tenantConnectionRequired": true,
       "minimumPrivilegeRequired": true
-    },
-    {
-      "id": "CourtListener",
-      "sourceUrl": "https://mcp.courtlistener.com/",
-      "sourceTransport": "https-streamable-http",
-      "disposition": "foreign-jurisdiction-only",
-      "description": "米国の判例・docket確認候補です。日本の官報、e-Gov、裁判所、国会、当局一次資料の代替ではありません。",
-      "tenantConnectionRequired": true,
-      "minimumPrivilegeRequired": true
     }
   ],
   "recommendedCategories": [

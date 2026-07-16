@@ -1,12 +1,13 @@
 {
-  "_draftNotice": "DRAFT: connector registration is excluded from manifest.json and the skills-only ZIP until Microsoft 365 Copilot Cowork schema, authentication, consent, DLP, and tenant validation are complete.",
+  "_draftNotice": "DRAFT: connector registration is excluded from manifest.json and the skills-only ZIP until Microsoft 365 Copilot Cowork schema, authentication, consent, DLP, adapter, vendor, and tenant validation are complete.",
   "_modificationNotice": "Modified from anthropics/claude-for-legal revision 5ceb305b30b4c82653c9b6642499c12e946ec319 for Japanese Microsoft 365 Copilot Cowork.",
   "schemaVersion": "draft-2026-07-16",
   "connectors": [
     {
       "id": "Slack",
-      "transport": "https-streamable-http",
-      "url": "https://mcp.slack.com/mcp",
+      "sourceUrl": "https://mcp.slack.com/mcp",
+      "sourceTransport": "https-streamable-http",
+      "disposition": "m365-replacement-preferred",
       "displayName": "Slack",
       "description": "権限範囲内のメッセージ、チャンネル、議論を検索・参照します。投稿、証拠保全通知、外部送信は自動実行しません。",
       "tenantConnectionRequired": true,
@@ -14,8 +15,9 @@
     },
     {
       "id": "Google Drive",
-      "transport": "https-streamable-http",
-      "url": "https://drivemcp.googleapis.com/mcp/v1",
+      "sourceUrl": "https://drivemcp.googleapis.com/mcp/v1",
+      "sourceTransport": "https-streamable-http",
+      "disposition": "m365-replacement-preferred",
       "displayName": "Google Drive",
       "description": "Google Drive上の文書を検索・参照します。Microsoft 365の正本保存先を置き換えません。",
       "tenantConnectionRequired": true,
@@ -23,8 +25,9 @@
     },
     {
       "id": "Everlaw",
-      "transport": "https-streamable-http",
-      "url": "https://api.everlaw.com/v1/mcp",
+      "sourceUrl": "https://api.everlaw.com/v1/mcp",
+      "sourceTransport": "https-streamable-http",
+      "disposition": "tenant-validation-required",
       "displayName": "Everlaw",
       "description": "権限範囲内のproject、文書、metadata、review linkを参照します。production、coding、開示を自動実行しません。",
       "tenantConnectionRequired": true,
@@ -32,8 +35,9 @@
     },
     {
       "id": "TopCounsel",
-      "transport": "https-streamable-http",
-      "url": "https://api.techgc.co/api/mcp/topcounsel",
+      "sourceUrl": "https://api.techgc.co/api/mcp/topcounsel",
+      "sourceTransport": "https-streamable-http",
+      "disposition": "tenant-validation-required",
       "displayName": "TopCounsel",
       "description": "外部弁護士候補の専門分野・評価情報を参照します。選任、受任、conflict clearanceは人が行います。",
       "tenantConnectionRequired": true,
@@ -41,8 +45,13 @@
     },
     {
       "id": "CourtListener",
-      "transport": "https-streamable-http",
-      "url": "https://mcp.courtlistener.com/",
+      "sourceUrl": "https://mcp.courtlistener.com/",
+      "sourceTransport": "https-streamable-http",
+      "disposition": "tenant-validation-required",
+      "jurisdictionRestrictions": [
+        "United States coverage only",
+        "Not authoritative for Japan or a substitute for Japanese court records"
+      ],
       "displayName": "CourtListener",
       "description": "米国事件で判例・PACER由来docketを参照する候補です。日本の裁判所記録、mints、公開docketの代替ではありません。",
       "tenantConnectionRequired": true,
@@ -50,8 +59,9 @@
     },
     {
       "id": "Aurora",
-      "transport": "https-streamable-http",
-      "url": "https://mcp.ai.consilio.com",
+      "sourceUrl": "https://mcp.ai.consilio.com",
+      "sourceTransport": "https-streamable-http",
+      "disposition": "tenant-validation-required",
       "displayName": "Aurora",
       "description": "権限範囲内のeDiscovery matterとrecordをread-onlyで参照します。別案件への横断利用は明示権限が必要です。",
       "tenantConnectionRequired": true,
@@ -59,10 +69,11 @@
     },
     {
       "id": "Trellis",
-      "transport": "https-streamable-http",
-      "url": "https://mcp.trellis.law/anthropic",
+      "sourceUrl": "https://mcp.trellis.law/anthropic",
+      "sourceTransport": "anthropic-specific-unverified",
+      "disposition": "adapter-and-vendor-validation-required",
       "displayName": "Trellis",
-      "description": "米国州裁判所datasetを参照する候補です。日本の裁判所記録、裁判例検索、mintsの代替ではありません。",
+      "description": "Anthropic向け専用endpointであり、Cowork互換transportとは扱いません。米国州裁判所datasetを参照するにはvendor validationとapproved adapterが必要です。",
       "tenantConnectionRequired": true,
       "minimumPrivilegeRequired": true
     }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "freshApprovalRequiredFor": [
-    "external send or post",
+    "every send, post, notification, or delivery, including internal Teams and Outlook",
     "shared output promotion",
     "playbook or policy modification",
     "calendar entry",

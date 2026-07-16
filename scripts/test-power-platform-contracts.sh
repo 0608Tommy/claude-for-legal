@@ -83,8 +83,24 @@ if regulatory_monitor["stages"] != expected_regulatory_stages:
         "regulatory monitor must preserve independent status verification"
     )
 
-if not approval["freshApprovalRequiredFor"]:
-    raise SystemExit("approval policy has no consequential actions")
+expected_approval_actions = [
+    (
+        "every send, post, notification, or delivery, including "
+        "internal Teams and Outlook"
+    ),
+    "shared output promotion",
+    "playbook or policy modification",
+    "calendar entry",
+    "registry install, update, disable, or uninstall",
+    "filing, payment, signature, deletion, or matter close",
+]
+if approval["freshApprovalRequiredFor"] != expected_approval_actions:
+    raise SystemExit(
+        "approval policy must require fresh approval for every delivery "
+        "channel while retaining all other consequential actions\n"
+        f"expected={expected_approval_actions}\n"
+        f"actual={approval['freshApprovalRequiredFor']}"
+    )
 
 print("Power Platform automation contracts: OK")
 PY
