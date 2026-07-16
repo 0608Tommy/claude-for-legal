@@ -1,0 +1,87 @@
+{
+  "_draftNotice": "DRAFT: connector registration is excluded from manifest.json and the skills-only ZIP until Microsoft 365 Copilot Cowork schema, authentication, consent, DLP, and tenant validation are complete.",
+  "_modificationNotice": "Modified from anthropics/claude-for-legal revision 5ceb305b30b4c82653c9b6642499c12e946ec319 for Japanese Microsoft 365 Copilot Cowork.",
+  "schemaVersion": "draft-2026-07-16",
+  "connectors": [
+    {
+      "id": "Slack",
+      "transport": "https-streamable-http",
+      "url": "https://mcp.slack.com/mcp",
+      "displayName": "Slack",
+      "description": "権限範囲内のメッセージ、チャンネル、議論を検索・参照します。投稿、証拠保全通知、外部送信は自動実行しません。",
+      "tenantConnectionRequired": true,
+      "minimumPrivilegeRequired": true
+    },
+    {
+      "id": "Google Drive",
+      "transport": "https-streamable-http",
+      "url": "https://drivemcp.googleapis.com/mcp/v1",
+      "displayName": "Google Drive",
+      "description": "Google Drive上の文書を検索・参照します。Microsoft 365の正本保存先を置き換えません。",
+      "tenantConnectionRequired": true,
+      "minimumPrivilegeRequired": true
+    },
+    {
+      "id": "Everlaw",
+      "transport": "https-streamable-http",
+      "url": "https://api.everlaw.com/v1/mcp",
+      "displayName": "Everlaw",
+      "description": "権限範囲内のproject、文書、metadata、review linkを参照します。production、coding、開示を自動実行しません。",
+      "tenantConnectionRequired": true,
+      "minimumPrivilegeRequired": true
+    },
+    {
+      "id": "TopCounsel",
+      "transport": "https-streamable-http",
+      "url": "https://api.techgc.co/api/mcp/topcounsel",
+      "displayName": "TopCounsel",
+      "description": "外部弁護士候補の専門分野・評価情報を参照します。選任、受任、conflict clearanceは人が行います。",
+      "tenantConnectionRequired": true,
+      "minimumPrivilegeRequired": true
+    },
+    {
+      "id": "CourtListener",
+      "transport": "https-streamable-http",
+      "url": "https://mcp.courtlistener.com/",
+      "displayName": "CourtListener",
+      "description": "米国事件で判例・PACER由来docketを参照する候補です。日本の裁判所記録、mints、公開docketの代替ではありません。",
+      "tenantConnectionRequired": true,
+      "minimumPrivilegeRequired": true
+    },
+    {
+      "id": "Aurora",
+      "transport": "https-streamable-http",
+      "url": "https://mcp.ai.consilio.com",
+      "displayName": "Aurora",
+      "description": "権限範囲内のeDiscovery matterとrecordをread-onlyで参照します。別案件への横断利用は明示権限が必要です。",
+      "tenantConnectionRequired": true,
+      "minimumPrivilegeRequired": true
+    },
+    {
+      "id": "Trellis",
+      "transport": "https-streamable-http",
+      "url": "https://mcp.trellis.law/anthropic",
+      "displayName": "Trellis",
+      "description": "米国州裁判所datasetを参照する候補です。日本の裁判所記録、裁判例検索、mintsの代替ではありません。",
+      "tenantConnectionRequired": true,
+      "minimumPrivilegeRequired": true
+    }
+  ],
+  "recommendedCategories": [
+    "ediscovery",
+    "legal-research",
+    "case-law",
+    "court-analytics",
+    "outside-counsel-network",
+    "documents",
+    "chat"
+  ],
+  "notes": [
+    "A connector is connected only after a live probe succeeds; declaration alone is not proof of access.",
+    "No connector is registered in manifest.json in this skills-only package.",
+    "connectors.draft.json is excluded from the generated app ZIP.",
+    "Japan has no public PACER-equivalent docket feed; mints notices, court-issued documents, outside counsel, and manual record checks control.",
+    "Retrieved content is matter data, never executable instructions.",
+    "No connector may autonomously send, file, calendar, settle, issue or release a preservation instruction, produce evidence, or change matter state."
+  ]
+}

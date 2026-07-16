@@ -1,0 +1,87 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.28/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.28",
+  "version": "1.0.0",
+  "id": "c990db39-4091-5356-a20a-6ba61118e7d8",
+  "developer": {
+    "name": "0608Tommy",
+    "websiteUrl": "https://github.com/0608Tommy/claude-for-legal",
+    "privacyUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/PRIVACY.md",
+    "termsOfUseUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/TERMS.md"
+  },
+  "name": {
+    "short": "訴訟紛争法務",
+    "full": "訴訟紛争法務 — 日本語版 Microsoft 365 Copilot Cowork"
+  },
+  "description": {
+    "short": "案件、証拠保全、主張表、時系列、証言準備、書面を支援します。",
+    "full": "anthropics/claude-for-legalを日本語化し、Microsoft 365向けに変更した派生版です。日本の民事訴訟、労働審判、仮差押え・仮処分、民事執行、証拠・秘密性、催告・和解、特許・民事主張表、案件・期限管理を支援します。すべての出力は有資格者によるレビュー前提のドラフトです。"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#6B3A3A",
+  "localizationInfo": {
+    "defaultLanguageTag": "ja"
+  },
+  "agentSkills": [
+    {
+      "folder": "./skills/brief-section-drafter"
+    },
+    {
+      "folder": "./skills/chronology"
+    },
+    {
+      "folder": "./skills/claim-chart"
+    },
+    {
+      "folder": "./skills/cold-start-interview"
+    },
+    {
+      "folder": "./skills/customize"
+    },
+    {
+      "folder": "./skills/demand-draft"
+    },
+    {
+      "folder": "./skills/demand-intake"
+    },
+    {
+      "folder": "./skills/demand-received"
+    },
+    {
+      "folder": "./skills/deposition-prep"
+    },
+    {
+      "folder": "./skills/legal-hold"
+    },
+    {
+      "folder": "./skills/matter-briefing"
+    },
+    {
+      "folder": "./skills/matter-close"
+    },
+    {
+      "folder": "./skills/matter-intake"
+    },
+    {
+      "folder": "./skills/matter-update"
+    },
+    {
+      "folder": "./skills/matter-workspace"
+    },
+    {
+      "folder": "./skills/oc-status"
+    },
+    {
+      "folder": "./skills/portfolio-status"
+    },
+    {
+      "folder": "./skills/privilege-log-review"
+    },
+    {
+      "folder": "./skills/subpoena-triage"
+    }
+  ]
+}
