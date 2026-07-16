@@ -16,6 +16,10 @@ PNG_SIGNATURE: Final = b"\x89PNG\r\n\x1a\n"
 IHDR_FORMAT: Final = ">IIBBBBB"
 IHDR_LENGTH: Final = 13
 RGBA_BYTES_PER_PIXEL: Final = 4
+PNG_CHUNK_TYPE_LENGTH: Final = 4
+PNG_RESERVED_BYTE_INDEX: Final = 2
+ASCII_UPPERCASE_START: Final = ord("A")
+ASCII_UPPERCASE_END: Final = ord("Z")
 PNG_ANCILLARY_BIT: Final = 0x20
 MAX_PLTE_LENGTH: Final = 256 * 3
 SUPPORTED_CRITICAL_CHUNKS: Final = frozenset(
@@ -73,6 +77,24 @@ def _error(context: str, detail: str) -> IconValidationError:
     return IconValidationError(f"{context}: {detail}")
 
 
+def _validate_chunk_type(chunk_type: bytes, context: str) -> None:
+    """Require a four-letter PNG type with an uppercase reserved byte."""
+    if (
+        len(chunk_type) != PNG_CHUNK_TYPE_LENGTH
+        or not chunk_type.isalpha()
+    ):
+        raise _error(
+            context,
+            "PNG chunk type must be exactly four ASCII letters",
+        )
+    reserved_byte = chunk_type[PNG_RESERVED_BYTE_INDEX]
+    if not ASCII_UPPERCASE_START <= reserved_byte <= ASCII_UPPERCASE_END:
+        raise _error(
+            context,
+            "PNG chunk type reserved third byte must be uppercase",
+        )
+
+
 def _read_chunk(data: bytes, offset: int, context: str) -> PngChunk:
     """Read and CRC-check one PNG chunk."""
     minimum_chunk_length = 12
@@ -85,6 +107,7 @@ def _read_chunk(data: bytes, offset: int, context: str) -> PngChunk:
     if next_offset > len(data):
         raise _error(context, "PNG chunk length exceeds file size")
     chunk_type = data[slice(offset + 4, payload_start)]
+    _validate_chunk_type(chunk_type, context)
     payload = data[payload_start:payload_end]
     expected_crc = struct.unpack_from(">I", data, payload_end)[0]
     actual_crc = zlib.crc32(payload, zlib.crc32(chunk_type))

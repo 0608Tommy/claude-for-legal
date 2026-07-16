@@ -57,21 +57,19 @@ fi
 RUN_ID="${BASHPID:-$$}"
 FIRST_STAGE="$CACHE/package-build-first.$RUN_ID"
 SECOND_STAGE="$CACHE/package-build-second.$RUN_ID"
-DIST_BACKUP="$CACHE/dist-publication-backup"
-FAILED_DIST="$CACHE/dist-publication-failed.$RUN_ID"
+LEGACY_DIST_BACKUP="$CACHE/dist-publication-backup"
 PAUSE_MARKER="$CACHE/package-build-paused.$RUN_ID"
-PUBLICATION_PENDING=0
 
 path_exists() {
   [[ -e "$1" || -L "$1" ]]
 }
 
-recover_interrupted_publication() {
-  if ! path_exists "$DIST" && path_exists "$DIST_BACKUP"; then
-    echo "restoring interrupted Cowork publication" >&2
-    mv -T "$DIST_BACKUP" "$DIST"
-  elif path_exists "$DIST" && path_exists "$DIST_BACKUP"; then
-    rm -rf "$DIST_BACKUP"
+recover_legacy_publication() {
+  if ! path_exists "$DIST" && path_exists "$LEGACY_DIST_BACKUP"; then
+    echo "restoring legacy interrupted Cowork publication" >&2
+    mv --no-copy -T "$LEGACY_DIST_BACKUP" "$DIST"
+  elif path_exists "$DIST" && path_exists "$LEGACY_DIST_BACKUP"; then
+    rm -rf "$LEGACY_DIST_BACKUP"
   fi
 }
 
@@ -90,32 +88,10 @@ cleanup_abandoned_builds() {
   return 0
 }
 
-rollback_publication() {
-  local moved_candidate=0
-
-  ((PUBLICATION_PENDING == 1)) || return 0
-  path_exists "$DIST_BACKUP" || return 0
-  rm -rf "$FAILED_DIST"
-  if path_exists "$DIST"; then
-    mv -T "$DIST" "$FAILED_DIST"
-    moved_candidate=1
-  fi
-  if mv -T "$DIST_BACKUP" "$DIST"; then
-    rm -rf "$FAILED_DIST"
-    PUBLICATION_PENDING=0
-    return 0
-  fi
-  if ((moved_candidate == 1)); then
-    mv -T "$FAILED_DIST" "$DIST" || true
-  fi
-  return 1
-}
-
 cleanup() {
   local status=$?
 
   trap - EXIT HUP INT TERM
-  rollback_publication || status=1
   rm -rf "$FIRST_STAGE" "$SECOND_STAGE"
   rm -f "$PAUSE_MARKER"
   exit "$status"
@@ -125,7 +101,7 @@ trap 'exit 129' HUP
 trap 'exit 130' INT
 trap 'exit 143' TERM
 
-recover_interrupted_publication
+recover_legacy_publication
 cleanup_abandoned_builds
 
 inject_failure() {
@@ -139,9 +115,10 @@ inject_failure() {
 
 pause_at() {
   local point="$1"
+  local requested=",${M365_COWORK_BUILD_PAUSE_AT:-},"
 
-  if [[ "${M365_COWORK_BUILD_PAUSE_AT:-}" == "$point" ]]; then
-    printf '%s\n' "$BASHPID" >"$PAUSE_MARKER"
+  if [[ "$requested" == *",$point,"* ]]; then
+    printf '%s\t%s\n' "$BASHPID" "$point" >"$PAUSE_MARKER"
     kill -STOP "$BASHPID"
     rm -f "$PAUSE_MARKER"
   fi
@@ -512,16 +489,12 @@ cmp -s "$FIRST_STAGE/hash-map.tsv" "$CANDIDATE_HASHES" || {
 }
 
 if path_exists "$DIST"; then
-  path_exists "$DIST_BACKUP" && {
-    echo "publication backup already exists: $DIST_BACKUP" >&2
-    exit 1
-  }
-  mv -T "$DIST" "$DIST_BACKUP"
-  PUBLICATION_PENDING=1
-  inject_failure "after-dist-backup"
-  pause_at "after-dist-backup"
+  pause_at "before-dist-exchange"
+  mv --exchange --no-copy -T "$PUBLISH" "$DIST"
+  pause_at "after-dist-exchange"
+else
+  mv --no-copy -T "$PUBLISH" "$DIST"
 fi
-mv -T "$PUBLISH" "$DIST"
 
 PUBLISHED_HASHES="$SECOND_STAGE/published-hash-map.tsv"
 write_fleet_hash_map "$DIST" "$PUBLISHED_HASHES"
@@ -529,9 +502,6 @@ cmp -s "$FIRST_STAGE/hash-map.tsv" "$PUBLISHED_HASHES" || {
   echo "published package hashes differ from validated build hashes" >&2
   exit 1
 }
-
-PUBLICATION_PENDING=0
-rm -rf "$DIST_BACKUP" "$FAILED_DIST"
 
 printf 'Microsoft 365 Cowork package build: OK (%d deterministic ZIPs)\n' \
   "$EXPECTED_PACKAGE_COUNT"

@@ -204,6 +204,58 @@ expect_failure(
     "unsupported critical PNG chunk ABCD",
 )
 
+valid_unknown_ancillary = (
+    SIGNATURE
+    + chunk(b"IHDR", valid_header)
+    + chunk(b"abCd", b"crc-valid-ancillary")
+    + chunk(b"IDAT", compressed)
+    + chunk(b"IEND", b"")
+)
+validate_png_bytes(
+    valid_unknown_ancillary,
+    (WIDTH, HEIGHT),
+    "valid-unknown-ancillary",
+)
+
+invalid_reserved_type = (
+    SIGNATURE
+    + chunk(b"IHDR", valid_header)
+    + chunk(b"abcd", b"crc-valid-invalid-reserved-bit")
+    + chunk(b"IDAT", compressed)
+    + chunk(b"IEND", b"")
+)
+expect_failure(
+    "invalid-reserved-type",
+    invalid_reserved_type,
+    "reserved third byte must be uppercase",
+)
+
+invalid_nonletter_type = (
+    SIGNATURE
+    + chunk(b"IHDR", valid_header)
+    + chunk(b"ab1D", b"crc-valid-nonletter-type")
+    + chunk(b"IDAT", compressed)
+    + chunk(b"IEND", b"")
+)
+expect_failure(
+    "invalid-nonletter-type",
+    invalid_nonletter_type,
+    "exactly four ASCII letters",
+)
+
+invalid_nonascii_type = (
+    SIGNATURE
+    + chunk(b"IHDR", valid_header)
+    + chunk(b"a\x80cD", b"crc-valid-nonascii-type")
+    + chunk(b"IDAT", compressed)
+    + chunk(b"IEND", b"")
+)
+expect_failure(
+    "invalid-nonascii-type",
+    invalid_nonascii_type,
+    "exactly four ASCII letters",
+)
+
 expect_failure(
     "zlib-trailing",
     png_with_idat(valid_header, compressed + zlib.compress(b"x")),
