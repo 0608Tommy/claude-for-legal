@@ -1,0 +1,222 @@
+#!/usr/bin/env bash
+# Copyright 2026 Anthropic PBC
+# SPDX-License-Identifier: Apache-2.0
+# Exercise the dependency-free Cowork PNG parser and the 24-icon fleet gate.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+export PYTHONDONTWRITEBYTECODE=1
+export PYTHONPATH="$ROOT/scripts"
+
+python3 "$ROOT/scripts/validate_m365_cowork_icons.py"
+
+python3 - <<'PY'
+from __future__ import annotations
+
+import struct
+import zlib
+
+from validate_m365_cowork_icons import (
+    IconValidationError,
+    validate_png_bytes,
+)
+
+SIGNATURE = b"\x89PNG\r\n\x1a\n"
+WIDTH = 3
+HEIGHT = 5
+ROW_BYTES = WIDTH * 4
+
+
+def chunk(kind: bytes, payload: bytes) -> bytes:
+    checksum = zlib.crc32(payload, zlib.crc32(kind)) & 0xFFFFFFFF
+    return (
+        struct.pack(">I", len(payload))
+        + kind
+        + payload
+        + struct.pack(">I", checksum)
+    )
+
+
+def paeth(left: int, above: int, upper_left: int) -> int:
+    prediction = left + above - upper_left
+    distances = (
+        abs(prediction - left),
+        abs(prediction - above),
+        abs(prediction - upper_left),
+    )
+    return (left, above, upper_left)[distances.index(min(distances))]
+
+
+def filtered_row(
+    row: bytes,
+    previous: bytes,
+    filter_type: int,
+) -> bytes:
+    encoded = bytearray()
+    for index, value in enumerate(row):
+        left = row[index - 4] if index >= 4 else 0
+        above = previous[index]
+        upper_left = previous[index - 4] if index >= 4 else 0
+        predictors = (
+            0,
+            left,
+            above,
+            (left + above) // 2,
+            paeth(left, above, upper_left),
+        )
+        encoded.append((value - predictors[filter_type]) & 0xFF)
+    return bytes([filter_type]) + bytes(encoded)
+
+
+def image_rows(*, visible: bool = True) -> list[bytes]:
+    rows = []
+    for row_index in range(HEIGHT):
+        row = bytearray()
+        for column in range(WIDTH):
+            alpha = 255 if visible and (row_index or column) else 0
+            row.extend(
+                (
+                    20 + row_index,
+                    40 + column,
+                    60 + row_index + column,
+                    alpha,
+                ),
+            )
+        rows.append(bytes(row))
+    return rows
+
+
+def scanlines(
+    rows: list[bytes],
+    filters: tuple[int, ...] = (0, 1, 2, 3, 4),
+) -> bytes:
+    previous = bytes(ROW_BYTES)
+    encoded = bytearray()
+    for row, filter_type in zip(rows, filters, strict=True):
+        encoded.extend(filtered_row(row, previous, filter_type))
+        previous = row
+    return bytes(encoded)
+
+
+def png(
+    raw: bytes,
+    *,
+    width: int = WIDTH,
+    height: int = HEIGHT,
+    bit_depth: int = 8,
+    color_type: int = 6,
+    interlace: int = 0,
+) -> bytes:
+    header = struct.pack(
+        ">IIBBBBB",
+        width,
+        height,
+        bit_depth,
+        color_type,
+        0,
+        0,
+        interlace,
+    )
+    return png_with_idat(header, zlib.compress(raw))
+
+
+def png_with_idat(header: bytes, compressed: bytes) -> bytes:
+    """Build a PNG around caller-supplied IHDR and compressed IDAT bytes."""
+    return (
+        SIGNATURE
+        + chunk(b"IHDR", header)
+        + chunk(b"IDAT", compressed)
+        + chunk(b"IEND", b"")
+    )
+
+
+def expect_failure(label: str, data: bytes, fragment: str) -> None:
+    try:
+        validate_png_bytes(data, (WIDTH, HEIGHT), label)
+    except IconValidationError as error:
+        if fragment not in str(error):
+            raise AssertionError(
+                f"{label}: expected {fragment!r}, got {error!s}",
+            ) from error
+    else:
+        raise AssertionError(f"{label}: malformed PNG was accepted")
+
+
+valid_raw = scanlines(image_rows())
+valid = png(valid_raw)
+validate_png_bytes(valid, (WIDTH, HEIGHT), "all-filter-types")
+
+bad_crc = bytearray(valid)
+idat_offset = valid.index(b"IDAT")
+bad_crc[idat_offset + 5] ^= 1
+expect_failure("crc", bytes(bad_crc), "CRC mismatch")
+expect_failure("signature", b"not-png", "signature")
+expect_failure("dimensions", png(valid_raw, width=WIDTH + 1), "dimensions")
+expect_failure("bit-depth", png(valid_raw, bit_depth=16), "8-bit RGBA")
+expect_failure("color-type", png(valid_raw, color_type=2), "8-bit RGBA")
+expect_failure("interlace", png(valid_raw, interlace=1), "no interlace")
+expect_failure(
+    "short-decode",
+    png(valid_raw[: ROW_BYTES + 1]),
+    "decoded data length",
+)
+
+bad_filter = bytes([5]) + valid_raw[1:]
+expect_failure("filter", png(bad_filter), "filter type 5")
+expect_failure(
+    "transparent",
+    png(scanlines(image_rows(visible=False))),
+    "visible pixel",
+)
+expect_failure("trailing", valid + b"x", "trailing data")
+expect_failure("missing-iend", valid[:-12], "missing IEND")
+
+valid_header = struct.pack(
+    ">IIBBBBB",
+    WIDTH,
+    HEIGHT,
+    8,
+    6,
+    0,
+    0,
+    0,
+)
+compressed = zlib.compress(valid_raw)
+expect_failure(
+    "zlib-trailing",
+    png_with_idat(valid_header, compressed + zlib.compress(b"x")),
+    "trailing compressed data",
+)
+expect_failure(
+    "zlib-incomplete",
+    png_with_idat(valid_header, compressed[:-2]),
+    "incomplete",
+)
+
+bomb_compressor = zlib.compressobj(level=9)
+bomb_block = bytes(1024 * 1024)
+bomb_parts = [
+    bomb_compressor.compress(bomb_block)
+    for _ in range(64)
+]
+bomb_parts.append(bomb_compressor.flush())
+compressed_bomb = b"".join(bomb_parts)
+expect_failure(
+    "compressed-bomb",
+    png_with_idat(valid_header, compressed_bomb),
+    "output budget",
+)
+
+header = valid[: valid.index(b"IDAT") - 4]
+split = len(compressed) // 2
+noncontiguous = (
+    header
+    + chunk(b"IDAT", compressed[:split])
+    + chunk(b"tEXt", b"gap")
+    + chunk(b"IDAT", compressed[split:])
+    + chunk(b"IEND", b"")
+)
+expect_failure("noncontiguous", noncontiguous, "contiguous")
+
+print("m365 Cowork PNG parser fixtures: OK")
+PY

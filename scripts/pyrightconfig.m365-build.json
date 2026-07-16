@@ -1,0 +1,8 @@
+{
+  "include": [
+    "normalize_m365_cowork_package.py",
+    "validate_m365_cowork_icons.py"
+  ],
+  "pythonVersion": "3.14",
+  "typeCheckingMode": "strict"
+}
