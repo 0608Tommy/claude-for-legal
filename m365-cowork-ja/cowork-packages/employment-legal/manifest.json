@@ -1,0 +1,84 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.28/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.28",
+  "version": "1.0.0",
+  "id": "c00c3d4a-7701-580c-9ee7-ae9bc91633e9",
+  "developer": {
+    "name": "0608Tommy",
+    "websiteUrl": "https://github.com/0608Tommy/claude-for-legal",
+    "privacyUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/PRIVACY.md",
+    "termsOfUseUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/TERMS.md"
+  },
+  "name": {
+    "short": "雇用労務法務",
+    "full": "雇用労務法務 — 日本語版 Microsoft 365 Copilot Cowork"
+  },
+  "description": {
+    "short": "採用、退職、労働者区分、休暇、調査、就業規程を支援します。",
+    "full": "anthropics/claude-for-legalを日本語化し、Microsoft 365向けに変更した派生版です。採用、解雇・雇止め、労働者性、賃金・労働時間、休暇、社内調査、就業規則、海外雇用を日本法レイヤー付きで支援します。すべての出力は有資格者によるレビュー前提のドラフトです。"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#2F6B4F",
+  "localizationInfo": {
+    "defaultLanguageTag": "ja"
+  },
+  "agentSkills": [
+    {
+      "folder": "./skills/cold-start-interview"
+    },
+    {
+      "folder": "./skills/customize"
+    },
+    {
+      "folder": "./skills/expansion-kickoff"
+    },
+    {
+      "folder": "./skills/expansion-update"
+    },
+    {
+      "folder": "./skills/handbook-updates"
+    },
+    {
+      "folder": "./skills/hiring-review"
+    },
+    {
+      "folder": "./skills/investigation-add"
+    },
+    {
+      "folder": "./skills/investigation-memo"
+    },
+    {
+      "folder": "./skills/investigation-open"
+    },
+    {
+      "folder": "./skills/investigation-query"
+    },
+    {
+      "folder": "./skills/investigation-summary"
+    },
+    {
+      "folder": "./skills/leave-tracker"
+    },
+    {
+      "folder": "./skills/log-leave"
+    },
+    {
+      "folder": "./skills/matter-workspace"
+    },
+    {
+      "folder": "./skills/policy-drafting"
+    },
+    {
+      "folder": "./skills/termination-review"
+    },
+    {
+      "folder": "./skills/wage-hour-qa"
+    },
+    {
+      "folder": "./skills/worker-classification"
+    }
+  ]
+}
