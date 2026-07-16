@@ -47,7 +47,7 @@
       "displayNameShort": "知的財産法務",
       "displayNameFull": "知的財産法務 — 日本語版 Microsoft 365 Copilot Cowork",
       "descriptionShort": "商標、特許、侵害、DMCA、OSS、知財条項、台帳を支援します。",
-      "status": "planned"
+      "status": "draft-legal-review"
     },
     "law-student": {
       "appId": "33511356-5b43-570f-a0da-d007fc2d98e2",

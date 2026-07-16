@@ -1,0 +1,6 @@
+# yaml-language-server: $schema=https://aka.ms/m365-agents-toolkits/v1.11/yaml.schema.json
+# Modified from anthropics/claude-for-legal revision 5ceb305b30b4c82653c9b6642499c12e946ec319
+# for Japanese Microsoft 365 Copilot Cowork packaging.
+version: v1.11
+
+environmentFolderPath: ./env

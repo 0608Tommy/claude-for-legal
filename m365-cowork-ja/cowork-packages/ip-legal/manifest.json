@@ -1,0 +1,66 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.28/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.28",
+  "version": "1.0.0",
+  "id": "6061ceab-f42f-55b9-a3cd-e1bc4f896abb",
+  "developer": {
+    "name": "0608Tommy",
+    "websiteUrl": "https://github.com/0608Tommy/claude-for-legal",
+    "privacyUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/PRIVACY.md",
+    "termsOfUseUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/TERMS.md"
+  },
+  "name": {
+    "short": "知的財産法務",
+    "full": "知的財産法務 — 日本語版 Microsoft 365 Copilot Cowork"
+  },
+  "description": {
+    "short": "商標、特許、侵害、DMCA、OSS、知財条項、台帳を支援します。",
+    "full": "anthropics/claude-for-legalを日本語化し、Microsoft 365向けに変更した派生版です。商標、特許・実用新案・意匠、著作権、営業秘密、OSS、知財条項、権利行使、知財台帳を日本法レイヤー付きで支援します。すべての出力は有資格者によるレビュー前提のドラフトです。"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#6B4E16",
+  "localizationInfo": {
+    "defaultLanguageTag": "ja"
+  },
+  "agentSkills": [
+    {
+      "folder": "./skills/cease-desist"
+    },
+    {
+      "folder": "./skills/clearance"
+    },
+    {
+      "folder": "./skills/cold-start-interview"
+    },
+    {
+      "folder": "./skills/customize"
+    },
+    {
+      "folder": "./skills/fto-triage"
+    },
+    {
+      "folder": "./skills/infringement-triage"
+    },
+    {
+      "folder": "./skills/invention-intake"
+    },
+    {
+      "folder": "./skills/ip-clause-review"
+    },
+    {
+      "folder": "./skills/matter-workspace"
+    },
+    {
+      "folder": "./skills/oss-review"
+    },
+    {
+      "folder": "./skills/portfolio"
+    },
+    {
+      "folder": "./skills/takedown"
+    }
+  ]
+}
