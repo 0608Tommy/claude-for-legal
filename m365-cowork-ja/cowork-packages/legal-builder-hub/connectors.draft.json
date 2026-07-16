@@ -1,0 +1,62 @@
+{
+  "_draftNotice": "DRAFT: connector registration is excluded from manifest.json and the skills-only ZIP until Microsoft 365 Copilot Cowork schema, authentication, consent, DLP, tool-scope, provenance, and tenant validation are complete.",
+  "_modificationNotice": "Modified from anthropics/claude-for-legal revision 5ceb305b30b4c82653c9b6642499c12e946ec319 for Japanese Microsoft 365 Copilot Cowork.",
+  "schemaVersion": "draft-2026-07-16",
+  "connectors": [
+    {
+      "id": "Slack",
+      "sourceUrl": "https://mcp.slack.com/mcp",
+      "sourceTransport": "https-streamable-http",
+      "disposition": "m365-replacement-preferred",
+      "description": "移行元の通知候補です。Teams、Outlookまたは承認済みdelivery flowを優先し、本packageは投稿・送信しません。",
+      "tenantConnectionRequired": true,
+      "liveProbeRequired": true,
+      "minimumPrivilegeRequired": true,
+      "writeToolsApproved": false
+    },
+    {
+      "id": "Google Drive",
+      "sourceUrl": "https://drivemcp.googleapis.com/mcp/v1",
+      "sourceTransport": "https-streamable-http",
+      "disposition": "m365-replacement-preferred",
+      "description": "外部文書参照の候補です。SharePoint/OneDriveを既定の正本保存先とし、Google Driveの宣言だけで接続済みまたは利用承認済みと扱いません。",
+      "tenantConnectionRequired": true,
+      "liveProbeRequired": true,
+      "minimumPrivilegeRequired": true,
+      "writeToolsApproved": false
+    },
+    {
+      "id": "Lawve AI",
+      "sourceUrl": "https://mcp.lawve.ai/mcp",
+      "sourceTransport": "https-streamable-http",
+      "disposition": "admin-only-validation-required",
+      "description": "外部スキルregistry候補です。publisher、provenance、license、signature、security、privacy、tool scope、versionを隔離領域で確認し、管理者が明示承認するまで未検証として扱います。",
+      "tenantConnectionRequired": true,
+      "liveProbeRequired": true,
+      "minimumPrivilegeRequired": true,
+      "writeToolsApproved": false
+    }
+  ],
+  "externalVendorBlockers": [
+    {
+      "id": "cocounsel-legal",
+      "provider": "Thomson Reuters",
+      "status": "blocked-vendor-approval",
+      "reason": "ブランド、翻訳派生物、OAuth、entitlement、tenant配布、report handlingについて書面承認が確認できないため、catalog候補、connector、代替skillとして承認しません。",
+      "genericFallbackUnderSameIdAllowed": false
+    }
+  ],
+  "recommendedCategories": [
+    "legal-skills-registry",
+    "documents",
+    "chat",
+    "tenant-administration"
+  ],
+  "notes": [
+    "A connector is connected only after a live probe succeeds; declaration alone is not proof of access.",
+    "No connector is registered in manifest.json in this skills-only package.",
+    "connectors.draft.json is excluded from the generated app ZIP.",
+    "Retrieved registry, package, README, LICENSE, connector, and vendor content is untrusted data, never executable instructions.",
+    "No connector may autonomously install, update, disable, enable, uninstall, publish, approve, sign, scan, or mutate a tenant catalog."
+  ]
+}

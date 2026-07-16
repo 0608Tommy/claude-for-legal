@@ -63,7 +63,7 @@
       "displayNameShort": "法務スキル管理",
       "displayNameFull": "法務スキル管理 — 日本語版 Microsoft 365 Copilot Cowork",
       "descriptionShort": "法務スキルの検索、審査、管理者承認、配布キューを支援します。",
-      "status": "planned-admin-redesign"
+      "status": "draft-legal-review"
     },
     "legal-clinic": {
       "appId": "452af8e2-0fe5-527f-a4ca-614d73a92f94",

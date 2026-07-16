@@ -1,0 +1,57 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.28/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.28",
+  "version": "1.0.0",
+  "id": "c46832ff-f835-5909-92db-81fc3c0fec0f",
+  "developer": {
+    "name": "0608Tommy",
+    "websiteUrl": "https://github.com/0608Tommy/claude-for-legal",
+    "privacyUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/PRIVACY.md",
+    "termsOfUseUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/TERMS.md"
+  },
+  "name": {
+    "short": "法務スキル管理",
+    "full": "法務スキル管理 — 日本語版 Microsoft 365 Copilot Cowork"
+  },
+  "description": {
+    "short": "法務スキルの検索、審査、管理者承認、配布キューを支援します。",
+    "full": "anthropics/claude-for-legalを日本語化し、Microsoft 365向けに変更した派生版です。承認済み法務スキルの検索、隔離候補の品質・安全性評価、テナント管理者向け承認要求と配布キュー下書きを支援します。Coworkはテナントアプリやカタログを直接変更せず、すべての実操作は分離された管理者ワークフローで行います。日本向けgovernance注記は有資格者レビュー待ちです。"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#4F46E5",
+  "localizationInfo": {
+    "defaultLanguageTag": "ja"
+  },
+  "agentSkills": [
+    {
+      "folder": "./skills/auto-updater"
+    },
+    {
+      "folder": "./skills/cold-start-interview"
+    },
+    {
+      "folder": "./skills/customize"
+    },
+    {
+      "folder": "./skills/disable"
+    },
+    {
+      "folder": "./skills/registry-browser"
+    },
+    {
+      "folder": "./skills/related-skills-surfacer"
+    },
+    {
+      "folder": "./skills/skill-installer"
+    },
+    {
+      "folder": "./skills/skills-qa"
+    },
+    {
+      "folder": "./skills/uninstall"
+    }
+  ]
+}

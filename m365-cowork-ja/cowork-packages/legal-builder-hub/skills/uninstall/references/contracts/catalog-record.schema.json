@@ -1,0 +1,1289 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/claude-for-legal/legal-builder-hub/catalog-record.schema.json",
+  "title": "Legal Builder Hub catalog record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tenantId",
+    "practiceId",
+    "recordType",
+    "recordId",
+    "itemId",
+    "eTag",
+    "version",
+    "status",
+    "createdAt",
+    "createdBy",
+    "updatedAt",
+    "payload"
+  ],
+  "properties": {
+    "tenantId": {
+      "$ref": "#/$defs/boundedId"
+    },
+    "practiceId": {
+      "$ref": "#/$defs/boundedId"
+    },
+    "recordType": {
+      "type": "string",
+      "enum": [
+        "builder-registry",
+        "builder-publisher",
+        "builder-license-policy",
+        "builder-connector-policy",
+        "builder-candidate",
+        "builder-snapshot",
+        "builder-scan-finding",
+        "builder-qa-review",
+        "builder-package",
+        "builder-protected-asset"
+      ]
+    },
+    "recordId": {
+      "$ref": "#/$defs/boundedId"
+    },
+    "itemId": {
+      "$ref": "#/$defs/boundedId"
+    },
+    "eTag": {
+      "$ref": "#/$defs/boundedId"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "status": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "createdBy": {
+      "$ref": "#/$defs/boundedId"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "recordType": {
+            "const": "builder-registry"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": [
+              "proposed",
+              "approved",
+              "paused",
+              "denied"
+            ]
+          },
+          "payload": {
+            "$ref": "#/$defs/registryPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "recordType": {
+            "const": "builder-publisher"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": [
+              "unverified",
+              "review-required",
+              "approved",
+              "denied"
+            ]
+          },
+          "payload": {
+            "$ref": "#/$defs/publisherPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "recordType": {
+            "const": "builder-license-policy"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": [
+              "draft",
+              "active",
+              "expired",
+              "superseded",
+              "denied"
+            ]
+          },
+          "payload": {
+            "$ref": "#/$defs/licensePolicyPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "recordType": {
+            "const": "builder-connector-policy"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": [
+              "draft",
+              "active",
+              "expired",
+              "superseded",
+              "denied"
+            ]
+          },
+          "payload": {
+            "$ref": "#/$defs/connectorPolicyPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "recordType": {
+            "const": "builder-candidate"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": [
+              "draft",
+              "submitted",
+              "source-policy-check",
+              "rejected-source-policy",
+              "quarantine-authorized",
+              "fetching",
+              "quarantined",
+              "deterministic-scan",
+              "refused-malicious",
+              "raw-review-pending",
+              "raw-review-attested",
+              "qa-pending",
+              "qa-complete",
+              "eligible",
+              "remediation-required",
+              "refused",
+              "expired",
+              "superseded"
+            ]
+          },
+          "payload": {
+            "$ref": "#/$defs/candidatePayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "recordType": {
+            "const": "builder-snapshot"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": [
+              "capturing",
+              "quarantined",
+              "scan-pending",
+              "review-pending",
+              "qa-pending",
+              "eligible",
+              "remediation-required",
+              "refused",
+              "expired",
+              "superseded"
+            ]
+          },
+          "payload": {
+            "$ref": "#/$defs/snapshotPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "recordType": {
+            "const": "builder-scan-finding"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": [
+              "open",
+              "confirmed",
+              "false-positive",
+              "remediated"
+            ]
+          },
+          "payload": {
+            "$ref": "#/$defs/scanFindingPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "recordType": {
+            "const": "builder-qa-review"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": [
+              "draft",
+              "complete",
+              "superseded"
+            ]
+          },
+          "payload": {
+            "$ref": "#/$defs/qaReviewPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "recordType": {
+            "const": "builder-package"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": [
+              "proposed",
+              "approved",
+              "active",
+              "disabled",
+              "superseded",
+              "retired",
+              "blocked"
+            ]
+          },
+          "payload": {
+            "$ref": "#/$defs/packagePayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "recordType": {
+            "const": "builder-protected-asset"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": [
+              "active",
+              "retired"
+            ]
+          },
+          "payload": {
+            "$ref": "#/$defs/protectedAssetPayload"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "recordType": {
+            "const": "builder-registry"
+          },
+          "status": {
+            "const": "approved"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "properties": {
+              "sourceAuthType": {
+                "not": {
+                  "const": "unknown"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "recordType": {
+            "const": "builder-publisher"
+          },
+          "status": {
+            "const": "approved"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "properties": {
+              "approvedRegistryIds": {
+                "minItems": 1
+              },
+              "securityContact": {
+                "$ref": "#/$defs/entraObjectId"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "recordType": {
+            "const": "builder-license-policy"
+          },
+          "status": {
+            "const": "active"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "properties": {
+              "approvedBy": {
+                "$ref": "#/$defs/entraObjectId"
+              },
+              "effectiveFrom": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "recordType": {
+            "const": "builder-connector-policy"
+          },
+          "status": {
+            "const": "active"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "properties": {
+              "authModel": {
+                "not": {
+                  "const": "unknown"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "boundedId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "entraObjectId": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "nullableEntraObjectId": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/entraObjectId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "uri": {
+      "type": "string",
+      "format": "uri",
+      "maxLength": 2048
+    },
+    "registryPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "registryId",
+        "canonicalUri",
+        "registryType",
+        "publisherId",
+        "sourceAuthType",
+        "cursor",
+        "enabled"
+      ],
+      "properties": {
+        "registryId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "canonicalUri": {
+          "$ref": "#/$defs/uri"
+        },
+        "registryType": {
+          "type": "string",
+          "enum": [
+            "github-repository",
+            "marketplace-index",
+            "tenant-internal"
+          ]
+        },
+        "publisherId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "sourceAuthType": {
+          "type": "string",
+          "enum": [
+            "public",
+            "oauth-delegated",
+            "oauth-app-only",
+            "managed-identity",
+            "tenant-managed",
+            "custom",
+            "unknown"
+          ]
+        },
+        "cursor": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2048
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "allowedPathPrefixes": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "string",
+            "maxLength": 512
+          }
+        },
+        "lastValidatedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "validationEvidenceId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 256
+        }
+      }
+    },
+    "publisherPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "publisherId",
+        "normalizedName",
+        "approvedRegistryIds",
+        "securityContact"
+      ],
+      "properties": {
+        "publisherId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "normalizedName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "verifiedIdentity": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 512
+        },
+        "approvedRegistryIds": {
+          "type": "array",
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/boundedId"
+          }
+        },
+        "securityContact": {
+          "$ref": "#/$defs/nullableEntraObjectId"
+        },
+        "vendorStatus": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 64
+        },
+        "lastReviewedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+    "licensePolicyPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policyId",
+        "deploymentContext",
+        "spdxId",
+        "disposition",
+        "approvedBy",
+        "effectiveFrom"
+      ],
+      "properties": {
+        "policyId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "deploymentContext": {
+          "type": "string",
+          "enum": [
+            "personal",
+            "firm-internal",
+            "product-embedding",
+            "tenant-wide"
+          ]
+        },
+        "spdxId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "disposition": {
+          "type": "string",
+          "enum": [
+            "allow",
+            "review",
+            "deny"
+          ]
+        },
+        "conditions": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "string",
+            "maxLength": 500
+          }
+        },
+        "approvedBy": {
+          "$ref": "#/$defs/nullableEntraObjectId"
+        },
+        "effectiveFrom": {
+          "anyOf": [
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "expiresAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+    "connectorPolicyPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "connectorPolicyId",
+        "connectorId",
+        "canonicalHost",
+        "transport",
+        "disposition",
+        "authModel",
+        "dataClasses",
+        "destinationPolicy"
+      ],
+      "properties": {
+        "connectorPolicyId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "connectorId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "canonicalHost": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 253
+        },
+        "transport": {
+          "type": "string",
+          "enum": [
+            "https-streamable-http",
+            "sse",
+            "unknown"
+          ]
+        },
+        "disposition": {
+          "type": "string",
+          "enum": [
+            "approved-read-only",
+            "m365-replacement-preferred",
+            "adapter-required",
+            "admin-only-validation-required",
+            "blocked-vendor-approval",
+            "denied"
+          ]
+        },
+        "authModel": {
+          "type": "string",
+          "enum": [
+            "none",
+            "oauth-delegated",
+            "oauth-app-only",
+            "api-key",
+            "managed-identity",
+            "custom",
+            "unknown"
+          ]
+        },
+        "dataClasses": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "public",
+              "internal",
+              "confidential",
+              "privileged",
+              "personal-data",
+              "client-data",
+              "source-code",
+              "credentials"
+            ]
+          }
+        },
+        "destinationPolicy": {
+          "$ref": "#/$defs/destinationPolicy"
+        },
+        "allowedToolNames": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/boundedId"
+          }
+        },
+        "deniedToolNames": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "$ref": "#/$defs/boundedId"
+          }
+        },
+        "lastLiveValidatedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      }
+    },
+    "destinationPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "allowedDestinationIds",
+        "externalSharingAllowed",
+        "retentionPolicyId",
+        "dlpPolicyId"
+      ],
+      "properties": {
+        "allowedDestinationIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/boundedId"
+          }
+        },
+        "externalSharingAllowed": {
+          "type": "boolean"
+        },
+        "retentionPolicyId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "dlpPolicyId": {
+          "$ref": "#/$defs/boundedId"
+        }
+      }
+    },
+    "candidatePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidateId",
+        "requestedSkillId",
+        "registryId",
+        "publisherId",
+        "sourceUriCanonical",
+        "requestedRevision",
+        "requesterObjectId",
+        "correlationId"
+      ],
+      "properties": {
+        "candidateId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "requestedSkillId": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+        },
+        "registryId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "publisherId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "sourceUriCanonical": {
+          "$ref": "#/$defs/uri"
+        },
+        "requestedRevision": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "requesterObjectId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "correlationId": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 128
+        }
+      }
+    },
+    "snapshotPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "snapshotId",
+        "candidateId",
+        "sourceRevision",
+        "capturedAt",
+        "fileCount",
+        "byteLength",
+        "snapshotSha256",
+        "malwareScanStatus",
+        "contentScanStatus",
+        "signatureStatus",
+        "rawReviewStatus",
+        "qaStatus",
+        "licenseSpdx",
+        "licenseMatch"
+      ],
+      "properties": {
+        "snapshotId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "candidateId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "sourceRevision": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "capturedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "fileCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "snapshotSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "fileInventoryItemId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 256
+        },
+        "malwareScanStatus": {
+          "$ref": "#/$defs/scanStatus"
+        },
+        "contentScanStatus": {
+          "$ref": "#/$defs/scanStatus"
+        },
+        "signatureStatus": {
+          "type": "string",
+          "enum": [
+            "not-present",
+            "unverified",
+            "verified",
+            "invalid"
+          ]
+        },
+        "signatureEvidenceId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 256
+        },
+        "rawReviewStatus": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "attested",
+            "rejected"
+          ]
+        },
+        "qaStatus": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "complete",
+            "refused"
+          ]
+        },
+        "licenseSpdx": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "licenseMatch": {
+          "type": "string",
+          "enum": [
+            "match",
+            "mismatch",
+            "absent",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "scanStatus": {
+      "type": "string",
+      "enum": [
+        "not-run",
+        "pending",
+        "passed",
+        "failed",
+        "unavailable"
+      ]
+    },
+    "scanFindingPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "findingId",
+        "snapshotId",
+        "category",
+        "severity",
+        "relativePath",
+        "excerptHash",
+        "detectorId",
+        "detectorVersion"
+      ],
+      "properties": {
+        "findingId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "snapshotId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "blocking",
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "relativePath": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024
+        },
+        "lineStart": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "lineEnd": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "excerptHash": {
+          "$ref": "#/$defs/sha256"
+        },
+        "boundedExcerpt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 500
+        },
+        "detectorId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "detectorVersion": {
+          "$ref": "#/$defs/boundedId"
+        }
+      }
+    },
+    "qaReviewPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "qaReviewId",
+        "snapshotId",
+        "frameworkVersion",
+        "verdict",
+        "coverage",
+        "dependencyMap",
+        "legalFailureModes",
+        "reviewerObjectId",
+        "reportItemId",
+        "completedAt"
+      ],
+      "properties": {
+        "qaReviewId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "snapshotId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "frameworkVersion": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "verdict": {
+          "type": "string",
+          "enum": [
+            "READY",
+            "SOME CONCERN",
+            "MATERIAL CONCERNS",
+            "REFUSE"
+          ]
+        },
+        "coverage": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "dependencyMap": {
+          "$ref": "#/$defs/dependencyMap"
+        },
+        "legalFailureModes": {
+          "$ref": "#/$defs/legalFailureModes"
+        },
+        "reviewerObjectId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "reportItemId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "packagePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "packageId",
+        "appId",
+        "skillIds",
+        "catalogVersion",
+        "sourceSnapshotId",
+        "packageSha256",
+        "manifestVersion",
+        "licenseSpdx",
+        "signatureStatus",
+        "approvalId",
+        "protectionClass"
+      ],
+      "properties": {
+        "packageId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "appId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "skillIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+          }
+        },
+        "catalogVersion": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "sourceSnapshotId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "packageSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "manifestVersion": {
+          "const": "1.28"
+        },
+        "licenseSpdx": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "signatureStatus": {
+          "type": "string",
+          "enum": [
+            "not-present",
+            "unverified",
+            "verified",
+            "invalid"
+          ]
+        },
+        "approvalId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "protectionClass": {
+          "type": "string",
+          "enum": [
+            "community",
+            "first-party-protected",
+            "vendor-blocked"
+          ]
+        },
+        "supersedesPackageId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 256
+        }
+      }
+    },
+    "dependencyMap": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "upstream",
+        "downstream",
+        "automaticTriggers",
+        "breakageRisks",
+        "coverageComplete"
+      ],
+      "properties": {
+        "upstream": {
+          "$ref": "#/$defs/boundedStringArray"
+        },
+        "downstream": {
+          "$ref": "#/$defs/boundedStringArray"
+        },
+        "automaticTriggers": {
+          "$ref": "#/$defs/boundedStringArray"
+        },
+        "breakageRisks": {
+          "$ref": "#/$defs/boundedStringArray"
+        },
+        "coverageComplete": {
+          "type": "boolean"
+        },
+        "missingArtifacts": {
+          "$ref": "#/$defs/boundedStringArray"
+        }
+      }
+    },
+    "legalFailureModes": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "legalAdviceVsSupport",
+        "privilegeConfidentiality",
+        "accountabilityGap"
+      ],
+      "properties": {
+        "legalAdviceVsSupport": {
+          "$ref": "#/$defs/failureModeStatus"
+        },
+        "privilegeConfidentiality": {
+          "$ref": "#/$defs/failureModeStatus"
+        },
+        "accountabilityGap": {
+          "$ref": "#/$defs/failureModeStatus"
+        }
+      }
+    },
+    "failureModeStatus": {
+      "type": "string",
+      "enum": [
+        "addressed",
+        "partially-addressed",
+        "not-addressed",
+        "not-applicable"
+      ]
+    },
+    "boundedStringArray": {
+      "type": "array",
+      "maxItems": 100,
+      "items": {
+        "type": "string",
+        "maxLength": 1000
+      }
+    },
+    "protectedAssetPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "assetType",
+        "assetId",
+        "sourcePlugin",
+        "protectionClass",
+        "solutionManaged",
+        "editableByRequestFlow",
+        "reason"
+      ],
+      "properties": {
+        "assetType": {
+          "type": "string",
+          "enum": [
+            "app",
+            "package",
+            "plugin",
+            "skill",
+            "publisher"
+          ]
+        },
+        "assetId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "sourcePlugin": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+        },
+        "protectionClass": {
+          "type": "string",
+          "enum": [
+            "first-party-protected",
+            "vendor-blocked"
+          ]
+        },
+        "solutionManaged": {
+          "type": "boolean"
+        },
+        "editableByRequestFlow": {
+          "const": false
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    }
+  }
+}

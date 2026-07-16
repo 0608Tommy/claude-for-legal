@@ -1,0 +1,1557 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/claude-for-legal/legal-builder-hub/approval-record.schema.json",
+  "title": "Legal Builder Hub approval request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "approvalRequestId",
+    "tenantId",
+    "practiceId",
+    "requestId",
+    "operation",
+    "requesterObjectId",
+    "submittedAt",
+    "expiresAt",
+    "binding",
+    "evidence",
+    "requiredReviewerRoles",
+    "decisions",
+    "immutableDecisionLog",
+    "state"
+  ],
+  "properties": {
+    "approvalRequestId": {
+      "$ref": "#/$defs/boundedId"
+    },
+    "tenantId": {
+      "$ref": "#/$defs/entraObjectId"
+    },
+    "practiceId": {
+      "$ref": "#/$defs/boundedId"
+    },
+    "requestId": {
+      "$ref": "#/$defs/boundedId"
+    },
+    "operation": {
+      "$ref": "#/$defs/operation"
+    },
+    "requesterObjectId": {
+      "$ref": "#/$defs/entraObjectId"
+    },
+    "requesterGroupIds": {
+      "$ref": "#/$defs/entraIdArray"
+    },
+    "reviewerObjectIds": {
+      "$ref": "#/$defs/entraIdArray"
+    },
+    "approverObjectIds": {
+      "$ref": "#/$defs/entraIdArray"
+    },
+    "deploymentOperatorObjectId": {
+      "$ref": "#/$defs/nullableEntraObjectId"
+    },
+    "submittedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "binding": {
+      "$ref": "#/$defs/bindingBase"
+    },
+    "evidence": {
+      "$ref": "#/$defs/evidence"
+    },
+    "requiredReviewerRoles": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/reviewerRole"
+      },
+      "allOf": [
+        {
+          "contains": {
+            "const": "catalog-reviewer"
+          }
+        },
+        {
+          "contains": {
+            "const": "security-reviewer"
+          }
+        },
+        {
+          "contains": {
+            "const": "privacy-reviewer"
+          }
+        },
+        {
+          "contains": {
+            "const": "legal-reviewer"
+          }
+        },
+        {
+          "contains": {
+            "const": "policy-approver"
+          }
+        }
+      ]
+    },
+    "decisions": {
+      "type": "array",
+      "maxItems": 100,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/decision"
+      }
+    },
+    "immutableDecisionLog": {
+      "const": true
+    },
+    "actorSeparation": {
+      "$ref": "#/$defs/actorSeparation"
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "submitted",
+        "awaiting-review",
+        "awaiting-approval",
+        "approved",
+        "rejected",
+        "expired",
+        "cancelled",
+        "superseded"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "install"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "binding": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/bindingBase"
+              },
+              {
+                "properties": {
+                  "artifact": {
+                    "$ref": "#/$defs/installArtifact"
+                  },
+                  "audience": {
+                    "$ref": "#/$defs/packageAudience"
+                  },
+                  "target": {
+                    "$ref": "#/$defs/installTarget"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "update"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "binding": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/bindingBase"
+              },
+              {
+                "properties": {
+                  "artifact": {
+                    "$ref": "#/$defs/updateArtifact"
+                  },
+                  "audience": {
+                    "$ref": "#/$defs/packageAudience"
+                  },
+                  "target": {
+                    "$ref": "#/$defs/updateTarget"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "disable"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "binding": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/bindingBase"
+              },
+              {
+                "properties": {
+                  "artifact": {
+                    "$ref": "#/$defs/lifecycleArtifact"
+                  },
+                  "audience": {
+                    "$ref": "#/$defs/packageAudience"
+                  },
+                  "target": {
+                    "$ref": "#/$defs/disableTarget"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "enable"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "binding": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/bindingBase"
+              },
+              {
+                "properties": {
+                  "artifact": {
+                    "$ref": "#/$defs/lifecycleArtifact"
+                  },
+                  "audience": {
+                    "$ref": "#/$defs/packageAudience"
+                  },
+                  "target": {
+                    "$ref": "#/$defs/enableTarget"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "remove"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "binding": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/bindingBase"
+              },
+              {
+                "properties": {
+                  "artifact": {
+                    "$ref": "#/$defs/lifecycleArtifact"
+                  },
+                  "audience": {
+                    "$ref": "#/$defs/packageAudience"
+                  },
+                  "target": {
+                    "$ref": "#/$defs/removeTarget"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "registry-add"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "binding": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/bindingBase"
+              },
+              {
+                "properties": {
+                  "artifact": {
+                    "$ref": "#/$defs/registryAddArtifact"
+                  },
+                  "audience": {
+                    "$ref": "#/$defs/registryAudience"
+                  },
+                  "target": {
+                    "$ref": "#/$defs/registryAddTarget"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "registry-pause"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "binding": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/bindingBase"
+              },
+              {
+                "properties": {
+                  "artifact": {
+                    "$ref": "#/$defs/registryPauseArtifact"
+                  },
+                  "audience": {
+                    "$ref": "#/$defs/registryAudience"
+                  },
+                  "target": {
+                    "$ref": "#/$defs/registryPauseTarget"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "policy-change"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "binding": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/bindingBase"
+              },
+              {
+                "properties": {
+                  "artifact": {
+                    "$ref": "#/$defs/policyArtifact"
+                  },
+                  "audience": {
+                    "$ref": "#/$defs/policyAudience"
+                  },
+                  "target": {
+                    "$ref": "#/$defs/policyTarget"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "package-approve"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "binding": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/bindingBase"
+              },
+              {
+                "properties": {
+                  "artifact": {
+                    "$ref": "#/$defs/packageApprovalArtifact"
+                  },
+                  "audience": {
+                    "$ref": "#/$defs/packageAudience"
+                  },
+                  "target": {
+                    "$ref": "#/$defs/packageApprovalTarget"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "approved"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "reviewerObjectIds",
+          "approverObjectIds",
+          "deploymentOperatorObjectId",
+          "actorSeparation"
+        ],
+        "properties": {
+          "reviewerObjectIds": {
+            "$ref": "#/$defs/nonEmptyEntraIdArray"
+          },
+          "approverObjectIds": {
+            "$ref": "#/$defs/nonEmptyEntraIdArray"
+          },
+          "deploymentOperatorObjectId": {
+            "$ref": "#/$defs/entraObjectId"
+          },
+          "decisions": {
+            "type": "array",
+            "minItems": 5,
+            "maxItems": 100,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/decision"
+            },
+            "allOf": [
+              {
+                "contains": {
+                  "$ref": "#/$defs/catalogApprovalDecision"
+                }
+              },
+              {
+                "contains": {
+                  "$ref": "#/$defs/securityApprovalDecision"
+                }
+              },
+              {
+                "contains": {
+                  "$ref": "#/$defs/privacyApprovalDecision"
+                }
+              },
+              {
+                "contains": {
+                  "$ref": "#/$defs/legalApprovalDecision"
+                }
+              },
+              {
+                "contains": {
+                  "$ref": "#/$defs/policyApprovalDecision"
+                }
+              },
+              {
+                "not": {
+                  "contains": {
+                    "properties": {
+                      "decision": {
+                        "enum": [
+                          "reject",
+                          "request-changes"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "decision"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "actorSeparation": {
+            "$ref": "#/$defs/actorSeparation"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "boundedId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "sha256OrNull": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "entraObjectId": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "nullableEntraObjectId": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/entraObjectId"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "entraIdArray": {
+      "type": "array",
+      "maxItems": 100,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/entraObjectId"
+      }
+    },
+    "nonEmptyEntraIdArray": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/entraObjectId"
+      }
+    },
+    "boundedIdArray": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/boundedId"
+      }
+    },
+    "operation": {
+      "type": "string",
+      "enum": [
+        "install",
+        "update",
+        "disable",
+        "enable",
+        "remove",
+        "registry-add",
+        "registry-pause",
+        "policy-change",
+        "package-approve"
+      ]
+    },
+    "reviewerRole": {
+      "type": "string",
+      "enum": [
+        "catalog-reviewer",
+        "security-reviewer",
+        "privacy-reviewer",
+        "legal-reviewer",
+        "policy-approver"
+      ]
+    },
+    "bindingBase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact",
+        "audience",
+        "target",
+        "dependencySnapshotSha256",
+        "bindingSha256"
+      ],
+      "properties": {
+        "artifact": {
+          "type": "object"
+        },
+        "audience": {
+          "type": "object"
+        },
+        "target": {
+          "type": "object"
+        },
+        "dependencySnapshotSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "bindingSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "packageAudience": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tenantId",
+        "targetGroupIds",
+        "destinationIds"
+      ],
+      "properties": {
+        "tenantId": {
+          "$ref": "#/$defs/entraObjectId"
+        },
+        "targetGroupIds": {
+          "$ref": "#/$defs/nonEmptyEntraIdArray"
+        },
+        "destinationIds": {
+          "$ref": "#/$defs/boundedIdArray"
+        }
+      }
+    },
+    "registryAudience": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tenantId",
+        "destinationIds"
+      ],
+      "properties": {
+        "tenantId": {
+          "$ref": "#/$defs/entraObjectId"
+        },
+        "targetGroupIds": {
+          "$ref": "#/$defs/entraIdArray"
+        },
+        "destinationIds": {
+          "$ref": "#/$defs/boundedIdArray"
+        }
+      }
+    },
+    "policyAudience": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tenantId",
+        "targetGroupIds",
+        "destinationIds"
+      ],
+      "properties": {
+        "tenantId": {
+          "$ref": "#/$defs/entraObjectId"
+        },
+        "targetGroupIds": {
+          "$ref": "#/$defs/nonEmptyEntraIdArray"
+        },
+        "destinationIds": {
+          "$ref": "#/$defs/boundedIdArray"
+        }
+      }
+    },
+    "installArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactType",
+        "appId",
+        "packageId",
+        "skillIds",
+        "candidateId",
+        "snapshotId",
+        "sourceRevision",
+        "snapshotSha256",
+        "targetPackageSha256",
+        "targetVersion"
+      ],
+      "properties": {
+        "artifactType": {
+          "const": "package"
+        },
+        "appId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "packageId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "skillIds": {
+          "$ref": "#/$defs/skillIdArray"
+        },
+        "candidateId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "snapshotId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "sourceRevision": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "snapshotSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "targetPackageSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "targetVersion": {
+          "$ref": "#/$defs/boundedId"
+        }
+      }
+    },
+    "updateArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactType",
+        "appId",
+        "packageId",
+        "skillIds",
+        "snapshotId",
+        "sourceRevision",
+        "snapshotSha256",
+        "currentPackageSha256",
+        "targetPackageSha256",
+        "diffSha256",
+        "currentVersion",
+        "targetVersion",
+        "updateMode"
+      ],
+      "properties": {
+        "artifactType": {
+          "const": "package"
+        },
+        "appId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "packageId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "skillIds": {
+          "$ref": "#/$defs/skillIdArray"
+        },
+        "snapshotId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "sourceRevision": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "snapshotSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "currentPackageSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "targetPackageSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "diffSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "currentVersion": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "targetVersion": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "updateMode": {
+          "type": "string",
+          "enum": [
+            "forward",
+            "rollback"
+          ]
+        },
+        "rollbackSourcePackageId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "rollbackSourcePackageSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "rollbackSourceVersion": {
+          "$ref": "#/$defs/boundedId"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "updateMode": {
+                "const": "rollback"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "rollbackSourcePackageId",
+              "rollbackSourcePackageSha256",
+              "rollbackSourceVersion"
+            ]
+          }
+        }
+      ]
+    },
+    "lifecycleArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactType",
+        "appId",
+        "packageId",
+        "skillIds",
+        "currentPackageSha256",
+        "currentVersion"
+      ],
+      "properties": {
+        "artifactType": {
+          "const": "package"
+        },
+        "appId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "packageId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "skillIds": {
+          "$ref": "#/$defs/skillIdArray"
+        },
+        "currentPackageSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "currentVersion": {
+          "$ref": "#/$defs/boundedId"
+        }
+      }
+    },
+    "registryAddArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactType",
+        "registryId",
+        "registryUri",
+        "publisherId",
+        "currentPolicySha256",
+        "targetPolicySha256",
+        "policyDiffSha256"
+      ],
+      "properties": {
+        "artifactType": {
+          "const": "registry-policy"
+        },
+        "registryId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "registryUri": {
+          "type": "string",
+          "format": "uri",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "publisherId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "currentPolicySha256": {
+          "type": "null"
+        },
+        "targetPolicySha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "policyDiffSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "registryPauseArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactType",
+        "registryId",
+        "registryUri",
+        "publisherId",
+        "currentPolicySha256",
+        "targetPolicySha256",
+        "policyDiffSha256"
+      ],
+      "properties": {
+        "artifactType": {
+          "const": "registry-policy"
+        },
+        "registryId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "registryUri": {
+          "type": "string",
+          "format": "uri",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "publisherId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "currentPolicySha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "targetPolicySha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "policyDiffSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "policyArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactType",
+        "policyId",
+        "policyType",
+        "currentPolicySha256",
+        "targetPolicySha256",
+        "policyDiffSha256"
+      ],
+      "properties": {
+        "artifactType": {
+          "const": "tenant-policy"
+        },
+        "policyId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "policyType": {
+          "type": "string",
+          "enum": [
+            "registry",
+            "publisher",
+            "license",
+            "connector",
+            "qa",
+            "security",
+            "privacy",
+            "retention",
+            "dlp",
+            "deployment"
+          ]
+        },
+        "currentPolicySha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "targetPolicySha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "policyDiffSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "packageApprovalArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifactType",
+        "appId",
+        "packageId",
+        "skillIds",
+        "snapshotId",
+        "snapshotSha256",
+        "targetPackageSha256",
+        "targetVersion"
+      ],
+      "properties": {
+        "artifactType": {
+          "const": "package"
+        },
+        "appId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "packageId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "skillIds": {
+          "$ref": "#/$defs/skillIdArray"
+        },
+        "snapshotId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "snapshotSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "targetPackageSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "targetVersion": {
+          "$ref": "#/$defs/boundedId"
+        }
+      }
+    },
+    "skillIdArray": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+      }
+    },
+    "installTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targetCatalogId",
+        "intendedStatus"
+      ],
+      "properties": {
+        "targetCatalogId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "intendedStatus": {
+          "const": "active"
+        }
+      }
+    },
+    "updateTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targetCatalogId",
+        "intendedStatus"
+      ],
+      "properties": {
+        "targetCatalogId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "intendedStatus": {
+          "const": "active"
+        }
+      }
+    },
+    "disableTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targetCatalogId",
+        "intendedStatus"
+      ],
+      "properties": {
+        "targetCatalogId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "intendedStatus": {
+          "const": "disabled"
+        }
+      }
+    },
+    "enableTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targetCatalogId",
+        "intendedStatus"
+      ],
+      "properties": {
+        "targetCatalogId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "intendedStatus": {
+          "const": "active"
+        }
+      }
+    },
+    "removeTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targetCatalogId",
+        "intendedStatus"
+      ],
+      "properties": {
+        "targetCatalogId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "intendedStatus": {
+          "const": "removed"
+        }
+      }
+    },
+    "registryAddTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "registryId",
+        "registryUri",
+        "publisherId",
+        "intendedStatus"
+      ],
+      "properties": {
+        "registryId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "registryUri": {
+          "type": "string",
+          "format": "uri",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "publisherId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "intendedStatus": {
+          "const": "approved"
+        }
+      }
+    },
+    "registryPauseTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "registryId",
+        "registryUri",
+        "publisherId",
+        "intendedStatus"
+      ],
+      "properties": {
+        "registryId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "registryUri": {
+          "type": "string",
+          "format": "uri",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "publisherId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "intendedStatus": {
+          "const": "paused"
+        }
+      }
+    },
+    "policyTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "policyId",
+        "intendedStatus"
+      ],
+      "properties": {
+        "policyId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "intendedStatus": {
+          "const": "active"
+        }
+      }
+    },
+    "packageApprovalTarget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "targetCatalogId",
+        "intendedStatus"
+      ],
+      "properties": {
+        "targetCatalogId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "intendedStatus": {
+          "const": "approved"
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provenanceReviewId",
+        "rawReviewAttestationId",
+        "qaReviewId",
+        "licenseReviewId",
+        "signatureEvidenceId",
+        "securityReviewId",
+        "privacyReviewId",
+        "toolScopeReviewId",
+        "rollbackPlanId"
+      ],
+      "properties": {
+        "provenanceReviewId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "rawReviewAttestationId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "qaReviewId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "licenseReviewId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "signatureEvidenceId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/boundedId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "securityReviewId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "privacyReviewId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "toolScopeReviewId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "rollbackPlanId": {
+          "$ref": "#/$defs/boundedId"
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approvalRequestId",
+        "decisionId",
+        "actorObjectId",
+        "reviewerRole",
+        "decision",
+        "decidedAt",
+        "bindingSha256",
+        "reasonCode",
+        "actorMembership",
+        "immutable",
+        "decisionSha256",
+        "previousDecisionSha256"
+      ],
+      "properties": {
+        "approvalRequestId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "decisionId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "actorObjectId": {
+          "$ref": "#/$defs/entraObjectId"
+        },
+        "reviewerRole": {
+          "$ref": "#/$defs/reviewerRole"
+        },
+        "decision": {
+          "type": "string",
+          "enum": [
+            "approve",
+            "reject",
+            "request-changes",
+            "abstain"
+          ]
+        },
+        "decidedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "bindingSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "reasonCode": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+        },
+        "boundedReason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1000
+        },
+        "evidenceIds": {
+          "type": "array",
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/boundedId"
+          }
+        },
+        "actorMembership": {
+          "$ref": "#/$defs/actorMembership"
+        },
+        "immutable": {
+          "const": true
+        },
+        "decisionSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "previousDecisionSha256": {
+          "$ref": "#/$defs/sha256OrNull"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "reviewerRole": {
+                "enum": [
+                  "catalog-reviewer",
+                  "security-reviewer",
+                  "privacy-reviewer",
+                  "legal-reviewer"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "actorMembership": {
+                "properties": {
+                  "actorSet": {
+                    "const": "reviewerObjectIds"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "reviewerRole": {
+                "const": "policy-approver"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "actorMembership": {
+                "properties": {
+                  "actorSet": {
+                    "const": "approverObjectIds"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "actorMembership": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "actorSet",
+        "membershipEvidenceId",
+        "membershipVerified",
+        "selfApprovalChecked",
+        "roleValidationChecked"
+      ],
+      "properties": {
+        "actorSet": {
+          "type": "string",
+          "enum": [
+            "reviewerObjectIds",
+            "approverObjectIds"
+          ]
+        },
+        "membershipEvidenceId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "membershipVerified": {
+          "const": true
+        },
+        "selfApprovalChecked": {
+          "const": true
+        },
+        "roleValidationChecked": {
+          "const": true
+        }
+      }
+    },
+    "catalogApprovalDecision": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/decision"
+        },
+        {
+          "properties": {
+            "reviewerRole": {
+              "const": "catalog-reviewer"
+            },
+            "decision": {
+              "const": "approve"
+            }
+          }
+        }
+      ]
+    },
+    "securityApprovalDecision": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/decision"
+        },
+        {
+          "properties": {
+            "reviewerRole": {
+              "const": "security-reviewer"
+            },
+            "decision": {
+              "const": "approve"
+            }
+          }
+        }
+      ]
+    },
+    "privacyApprovalDecision": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/decision"
+        },
+        {
+          "properties": {
+            "reviewerRole": {
+              "const": "privacy-reviewer"
+            },
+            "decision": {
+              "const": "approve"
+            }
+          }
+        }
+      ]
+    },
+    "legalApprovalDecision": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/decision"
+        },
+        {
+          "properties": {
+            "reviewerRole": {
+              "const": "legal-reviewer"
+            },
+            "decision": {
+              "const": "approve"
+            }
+          }
+        }
+      ]
+    },
+    "policyApprovalDecision": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/decision"
+        },
+        {
+          "properties": {
+            "reviewerRole": {
+              "const": "policy-approver"
+            },
+            "decision": {
+              "const": "approve"
+            }
+          }
+        }
+      ]
+    },
+    "actorSeparation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requesterObjectId",
+        "reviewerObjectIds",
+        "approverObjectIds",
+        "deploymentOperatorObjectId",
+        "distinctActorIds",
+        "decisionActorIds",
+        "allActorIdsDistinct",
+        "allDecisionActorsIncluded",
+        "selfApprovalAbsent",
+        "roleMembershipValidated",
+        "verificationEvidenceId",
+        "verifiedAt"
+      ],
+      "properties": {
+        "requesterObjectId": {
+          "$ref": "#/$defs/entraObjectId"
+        },
+        "reviewerObjectIds": {
+          "$ref": "#/$defs/nonEmptyEntraIdArray"
+        },
+        "approverObjectIds": {
+          "$ref": "#/$defs/nonEmptyEntraIdArray"
+        },
+        "deploymentOperatorObjectId": {
+          "$ref": "#/$defs/entraObjectId"
+        },
+        "distinctActorIds": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/entraObjectId"
+          }
+        },
+        "decisionActorIds": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/entraObjectId"
+          }
+        },
+        "allActorIdsDistinct": {
+          "const": true
+        },
+        "allDecisionActorsIncluded": {
+          "const": true
+        },
+        "selfApprovalAbsent": {
+          "const": true
+        },
+        "roleMembershipValidated": {
+          "const": true
+        },
+        "verificationEvidenceId": {
+          "$ref": "#/$defs/boundedId"
+        },
+        "verifiedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

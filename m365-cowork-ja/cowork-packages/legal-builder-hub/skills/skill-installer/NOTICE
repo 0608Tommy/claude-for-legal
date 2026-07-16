@@ -1,0 +1,16 @@
+Legal Builder Hub — Japanese Microsoft 365 Copilot Cowork adaptation
+
+This package is a modified derivative of the legal-builder-hub plugin from:
+https://github.com/anthropics/claude-for-legal
+
+The original work is Copyright 2026 Anthropic PBC and is licensed under the
+Apache License, Version 2.0. The Japanese translation, Microsoft 365
+tenant-governed catalog redesign, SharePoint/Dataverse record contracts,
+approval and deployment-queue controls, and administrator automation
+compatibility materials are modifications made for this derivative package.
+
+The Japanese tenant-governance, legal, privacy, and security review materials
+are drafts pending review by qualified Japanese counsel, tenant administrators,
+privacy personnel, and security personnel. Product and company names remain
+the property of their respective owners. No trademark license is granted by
+the Apache License.
