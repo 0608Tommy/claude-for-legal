@@ -48,12 +48,40 @@ required_identities = {
     "spn-legal-deployer",
     "spn-legal-runtime",
     "spn-legal-reader",
+    "spn-legal-verifier",
     "spn-legal-analyzer",
     "spn-legal-writer",
     "spn-legal-delivery",
 }
 if set(identities["identities"]) != required_identities:
     raise SystemExit("identity model does not contain the required tiers")
+
+verifier = identities["identities"]["spn-legal-verifier"]
+if verifier.get("rawSourceAccess") is not True:
+    raise SystemExit("status verifier must independently read official sources")
+if verifier.get("sourceWrite") is not False:
+    raise SystemExit("status verifier must not write to source systems")
+if verifier.get("outputAccess") is not False:
+    raise SystemExit("status verifier must not read or write final outputs")
+if verifier.get("externalDelivery") is not False:
+    raise SystemExit("status verifier must not deliver externally")
+
+regulatory_monitor = next(
+    agent
+    for agent in agents
+    if agent["agentKey"] == "regulatory-reg-change-monitor"
+)
+expected_regulatory_stages = [
+    "official-feed-reader",
+    "official-status-verifier",
+    "materiality-filter",
+    "digest-writer",
+    "approved-delivery",
+]
+if regulatory_monitor["stages"] != expected_regulatory_stages:
+    raise SystemExit(
+        "regulatory monitor must preserve independent status verification"
+    )
 
 if not approval["freshApprovalRequiredFor"]:
     raise SystemExit("approval policy has no consequential actions")

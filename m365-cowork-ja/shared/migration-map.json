@@ -653,6 +653,7 @@
       "resume",
       "quick",
       "full",
+      "redo",
       "redo-section",
       "check-integrations"
     ],

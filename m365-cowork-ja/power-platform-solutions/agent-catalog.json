@@ -130,6 +130,7 @@
       "trigger": "weekly-or-approved-active-period-daily",
       "stages": [
         "official-feed-reader",
+        "official-status-verifier",
         "materiality-filter",
         "digest-writer",
         "approved-delivery"

@@ -15,6 +15,13 @@
       "sourceWrite": false,
       "outputAccess": false
     },
+    "spn-legal-verifier": {
+      "purpose": "Re-fetch official sources and write bounded status, effective-date, and provenance verification records",
+      "rawSourceAccess": true,
+      "sourceWrite": false,
+      "outputAccess": false,
+      "externalDelivery": false
+    },
     "spn-legal-analyzer": {
       "purpose": "Read ingest rows and create bounded analysis records",
       "rawSourceAccess": false,

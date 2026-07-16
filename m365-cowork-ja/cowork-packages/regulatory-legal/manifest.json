@@ -1,0 +1,54 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.28/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.28",
+  "version": "1.0.0",
+  "id": "df610cb5-1b09-5376-a657-d6dc1da5a292",
+  "developer": {
+    "name": "0608Tommy",
+    "websiteUrl": "https://github.com/0608Tommy/claude-for-legal",
+    "privacyUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/PRIVACY.md",
+    "termsOfUseUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/TERMS.md"
+  },
+  "name": {
+    "short": "規制対応法務",
+    "full": "規制対応法務 — 日本語版 Microsoft 365 Copilot Cowork"
+  },
+  "description": {
+    "short": "規制監視、ポリシー差分、ギャップ、意見募集対応を支援します。",
+    "full": "anthropics/claude-for-legalを日本語化し、Microsoft 365向けに変更した派生版です。日本の官報、e-Gov法令・意見公募、国会・内閣法制局、各省庁・取引所・自主規制機関の一次資料を区別し、規制情報の確認、社内ポリシー差分、ギャップ管理、意見募集判断、最小限のポリシー修正文案を支援します。日本法モジュールはDRAFTであり、有資格の日本法弁護士によるレビュー待ちです。本package自体は監視をprovisionまたはrunせず、提出・承認も実行しません。別途承認・構成されたdeploymentのみ、限定されたread-only scheduled monitoringを実行できます。"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#26584C",
+  "localizationInfo": {
+    "defaultLanguageTag": "ja"
+  },
+  "agentSkills": [
+    {
+      "folder": "./skills/cold-start-interview"
+    },
+    {
+      "folder": "./skills/comments"
+    },
+    {
+      "folder": "./skills/customize"
+    },
+    {
+      "folder": "./skills/gaps"
+    },
+    {
+      "folder": "./skills/matter-workspace"
+    },
+    {
+      "folder": "./skills/policy-diff"
+    },
+    {
+      "folder": "./skills/policy-redraft"
+    },
+    {
+      "folder": "./skills/reg-feed-watcher"
+    }
+  ]
+}

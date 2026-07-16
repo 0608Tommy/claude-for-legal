@@ -1,0 +1,2217 @@
+{
+  "_modificationNotice": "Modified from anthropics/claude-for-legal revision 5ceb305b30b4c82653c9b6642499c12e946ec319 for Japanese Microsoft 365 Copilot Cowork.",
+  "schemaVersion": "2026-07-16-final-review-bypasses",
+  "sourceCases": [
+    {
+      "name": "generic-source-identity-and-canonical-force",
+      "expectedValid": true,
+      "record": {
+        "sourceSystem": "e-gov-law-api",
+        "sourceItemId": "405AC0000000088",
+        "sourceVersionOrRevisionId": "405AC0000000088_20260624_508AC0000000046",
+        "canonicalUrl": "https://laws.e-gov.go.jp/api/2/law_data/405AC0000000088_20260624_508AC0000000046",
+        "jurisdictions": ["JP"],
+        "nexus": [{"jurisdiction": "JP", "basis": "territory", "facts": [], "status": "established"}],
+        "instrumentClass": "statute",
+        "normativeForce": "binding",
+        "lifecycleStatus": "current",
+        "applicability": {"status": "applies", "basis": "fixture", "coveredParties": []},
+        "displayTags": ["B"],
+        "isAdministrativeGuidance": false,
+        "administrativeGuidanceBasis": {"basisType": "none", "statute": null, "provisions": []}
+      }
+    },
+    {
+      "name": "future-used-as-normative-force",
+      "expectedValid": false,
+      "record": {
+        "sourceSystem": "e-gov-law-api",
+        "sourceItemId": "405AC0000000088",
+        "sourceVersionOrRevisionId": "20281223",
+        "normativeForce": "future",
+        "lifecycleStatus": "future-effective"
+      }
+    },
+    {
+      "name": "apa-administrative-guidance-classified-by-basis",
+      "expectedValid": true,
+      "record": {
+        "sourceSystem": "e-gov-law-api",
+        "sourceItemId": "405AC0000000088",
+        "sourceVersionOrRevisionId": "405AC0000000088_20260624_508AC0000000046",
+        "canonicalUrl": "https://laws.e-gov.go.jp/api/2/law_data/405AC0000000088_20260624_508AC0000000046",
+        "jurisdictions": ["JP"],
+        "nexus": [{"jurisdiction": "JP", "basis": "administrative-action", "facts": [], "status": "established"}],
+        "instrumentClass": "administrative-guidance",
+        "normativeForce": "nonbinding",
+        "lifecycleStatus": "current",
+        "applicability": {"status": "potentially-applies", "basis": "APA Arts 32-36", "coveredParties": []},
+        "displayTags": ["G"],
+        "isAdministrativeGuidance": true,
+        "administrativeGuidanceBasis": {
+          "basisType": "apa-arts-32-through-36-3",
+          "statute": "Administrative Procedure Act",
+          "provisions": ["32", "33", "34", "35", "36", "36-2", "36-3"]
+        }
+      }
+    },
+    {
+      "name": "generic-guideline-is-not-automatically-administrative-guidance",
+      "expectedValid": true,
+      "record": {
+        "sourceSystem": "agency-site",
+        "sourceItemId": "guideline-1",
+        "sourceVersionOrRevisionId": "20260716",
+        "jurisdictions": ["JP"],
+        "nexus": [{"jurisdiction": "JP", "basis": "issuer", "facts": [], "status": "established"}],
+        "instrumentClass": "official-guideline",
+        "normativeForce": "nonbinding",
+        "lifecycleStatus": "current",
+        "applicability": {"status": "potentially-applies", "basis": "subject matter", "coveredParties": []},
+        "displayTags": ["G"],
+        "isAdministrativeGuidance": false,
+        "administrativeGuidanceBasis": {"basisType": "none", "statute": null, "provisions": []}
+      }
+    },
+    {
+      "name": "foreign-law-can-be-binding-and-future-effective",
+      "expectedValid": true,
+      "record": {
+        "sourceSystem": "foreign-official-register",
+        "sourceItemId": "foreign-law-1",
+        "sourceVersionOrRevisionId": "future-1",
+        "jurisdictions": ["US"],
+        "nexus": [{"jurisdiction": "US", "basis": "covered activity", "facts": [], "status": "potential"}],
+        "instrumentClass": "statute",
+        "normativeForce": "binding",
+        "lifecycleStatus": "future-effective",
+        "applicability": {"status": "potentially-applies", "basis": "foreign nexus", "coveredParties": []},
+        "displayTags": ["X", "B", "F"],
+        "isAdministrativeGuidance": false,
+        "administrativeGuidanceBasis": {"basisType": "none", "statute": null, "provisions": []}
+      }
+    },
+    {
+      "name": "exchange-rule-requires-exact-context",
+      "expectedValid": true,
+      "record": {
+        "sourceSystem": "tse-rules",
+        "sourceItemId": "listing-rule-1",
+        "sourceVersionOrRevisionId": "20260716",
+        "jurisdictions": ["JP"],
+        "nexus": [{"jurisdiction": "JP", "basis": "TSE listing", "facts": [], "status": "established"}],
+        "instrumentClass": "exchange-rule",
+        "normativeForce": "binding-on-covered-parties",
+        "lifecycleStatus": "current",
+        "applicability": {"status": "applies", "basis": "listed issuer", "coveredParties": ["issuer-1"]},
+        "displayTags": ["P"],
+        "isAdministrativeGuidance": false,
+        "administrativeGuidanceBasis": {"basisType": "none", "statute": null, "provisions": []},
+        "marketRuleContext": {
+          "kind": "exchange",
+          "issuerEntity": "Tokyo Stock Exchange",
+          "venue": "Tokyo Stock Exchange",
+          "approvalRequired": "unknown",
+          "approvalAuthority": null,
+          "approvalStatus": "unknown",
+          "approvalBasis": {
+            "sourceSystem": "e-gov-law-api",
+            "sourceItemId": "323AC0000000025",
+            "sourceVersionOrRevisionId": "323AC0000000025_20260525_506AC0000000052",
+            "provisions": ["149"],
+            "exactRuleOrExceptionPinned": false
+          },
+          "coveredParties": ["listed-issuer"]
+        }
+      }
+    },
+    {
+      "name": "completed-session-marked-resumable",
+      "expectedValid": false,
+      "record": {
+        "scopeType": "user",
+        "scopeId": "user-1",
+        "recordType": "setup-session",
+        "recordId": "regulatory-legal:setup-complete",
+        "payload": {
+          "pluginId": "regulatory-legal",
+          "setupSessionId": "setup-complete",
+          "userObjectId": "user-1",
+          "conversationState": "full",
+          "setupStatus": "complete",
+          "operation": "update",
+          "itemId": "SETUP-C",
+          "eTag": "\"5\"",
+          "idempotencyKey": "complete-1",
+          "pendingQuestions": ["should-be-empty"],
+          "resumeState": {
+            "resumable": true,
+            "pausedAt": "2026-07-16T18:00:00+09:00",
+            "lastCompletedStep": "done"
+          },
+          "redoState": {
+            "parentSetupSessionId": null,
+            "targetSections": [],
+            "baseProfilePins": [],
+            "proposedPatchHash": null
+          }
+        }
+      }
+    },
+    {
+      "name": "redo-parent-equals-new-session",
+      "expectedValid": false,
+      "record": {
+        "scopeType": "user",
+        "scopeId": "user-1",
+        "recordType": "setup-session",
+        "recordId": "regulatory-legal:setup-same",
+        "payload": {
+          "pluginId": "regulatory-legal",
+          "setupSessionId": "setup-same",
+          "userObjectId": "user-1",
+          "conversationState": "redo",
+          "setupStatus": "in-progress",
+          "operation": "create",
+          "expectedAbsent": true,
+          "idempotencyKey": "redo-same",
+          "pendingQuestions": [],
+          "resumeState": {"resumable": false, "pausedAt": null, "lastCompletedStep": null},
+          "redoState": {
+            "parentSetupSessionId": "setup-same",
+            "targetSections": ["all"],
+            "baseProfilePins": [
+              {"profileItemId": "PROFILE-1", "profileVersion": "3", "profileETag": "etag-1"}
+            ],
+            "proposedPatchHash": null
+          }
+        }
+      }
+    },
+    {
+      "name": "redo-profile-pin-missing-version",
+      "expectedValid": false,
+      "record": {
+        "scopeType": "user",
+        "scopeId": "user-1",
+        "recordType": "setup-session",
+        "recordId": "regulatory-legal:setup-pin",
+        "payload": {
+          "pluginId": "regulatory-legal",
+          "setupSessionId": "setup-pin",
+          "userObjectId": "user-1",
+          "conversationState": "redo-section",
+          "setupStatus": "in-progress",
+          "operation": "create",
+          "expectedAbsent": true,
+          "idempotencyKey": "redo-pin",
+          "pendingQuestions": [],
+          "resumeState": {"resumable": false, "pausedAt": null, "lastCompletedStep": null},
+          "redoState": {
+            "parentSetupSessionId": "setup-old",
+            "targetSections": ["watchlist"],
+            "baseProfilePins": [
+              {"profileItemId": "PROFILE-1", "profileVersion": "", "profileETag": "etag-1"}
+            ],
+            "proposedPatchHash": null
+          }
+        }
+      }
+    },
+    {
+      "name": "redo-uses-update-fields",
+      "expectedValid": false,
+      "record": {
+        "scopeType": "user",
+        "scopeId": "user-1",
+        "recordType": "setup-session",
+        "recordId": "regulatory-legal:setup-redo-update",
+        "payload": {
+          "pluginId": "regulatory-legal",
+          "setupSessionId": "setup-redo-update",
+          "userObjectId": "user-1",
+          "conversationState": "redo",
+          "setupStatus": "in-progress",
+          "operation": "update",
+          "itemId": "SETUP-X",
+          "eTag": "\"1\"",
+          "idempotencyKey": "redo-update",
+          "pendingQuestions": [],
+          "resumeState": {"resumable": false, "pausedAt": null, "lastCompletedStep": null},
+          "redoState": {
+            "parentSetupSessionId": "setup-old",
+            "targetSections": ["all"],
+            "baseProfilePins": [
+              {"profileItemId": "PROFILE-1", "profileVersion": "3", "profileETag": "etag-1"}
+            ],
+            "proposedPatchHash": null
+          }
+        }
+      }
+    },
+    {
+      "name": "resume-uses-create-fields",
+      "expectedValid": false,
+      "record": {
+        "scopeType": "user",
+        "scopeId": "user-1",
+        "recordType": "setup-session",
+        "recordId": "regulatory-legal:setup-resume-create",
+        "payload": {
+          "pluginId": "regulatory-legal",
+          "setupSessionId": "setup-resume-create",
+          "userObjectId": "user-1",
+          "conversationState": "resume",
+          "setupStatus": "paused",
+          "operation": "create",
+          "expectedAbsent": true,
+          "idempotencyKey": "resume-create",
+          "pendingQuestions": ["watchlist"],
+          "resumeState": {
+            "resumable": true,
+            "pausedAt": "2026-07-16T17:00:00+09:00",
+            "lastCompletedStep": "role"
+          },
+          "redoState": {
+            "parentSetupSessionId": null,
+            "targetSections": [],
+            "baseProfilePins": [],
+            "proposedPatchHash": null
+          }
+        }
+      }
+    }
+  ],
+  "classificationProbeCases": [
+    {
+      "name": "administrative-guidance-class-flag-mismatch",
+      "expectedValid": false,
+      "jurisdictions": ["JP"],
+      "nexus": [],
+      "instrumentClass": "administrative-guidance",
+      "normativeForce": "nonbinding",
+      "lifecycleStatus": "current",
+      "applicability": {"status": "potentially-applies"},
+      "displayTags": ["G"],
+      "isAdministrativeGuidance": false,
+      "administrativeGuidanceBasis": {"basisType": "none"}
+    },
+    {
+      "name": "administrative-guidance-cannot-be-binding",
+      "expectedValid": false,
+      "jurisdictions": ["JP"],
+      "nexus": [],
+      "instrumentClass": "administrative-guidance",
+      "normativeForce": "binding",
+      "lifecycleStatus": "current",
+      "applicability": {"status": "potentially-applies"},
+      "displayTags": ["G"],
+      "isAdministrativeGuidance": true,
+      "administrativeGuidanceBasis": {"basisType": "apa-arts-32-through-36-3", "statute": "APA", "provisions": ["32"]}
+    },
+    {
+      "name": "administrative-guidance-requires-basis",
+      "expectedValid": false,
+      "jurisdictions": ["JP"],
+      "nexus": [],
+      "instrumentClass": "administrative-guidance",
+      "normativeForce": "nonbinding",
+      "lifecycleStatus": "current",
+      "applicability": {"status": "potentially-applies"},
+      "displayTags": ["G"],
+      "isAdministrativeGuidance": true,
+      "administrativeGuidanceBasis": {"basisType": "none"}
+    },
+    {
+      "name": "non-guidance-rejects-apa-basis",
+      "expectedValid": false,
+      "jurisdictions": ["JP"],
+      "nexus": [],
+      "instrumentClass": "official-guideline",
+      "normativeForce": "nonbinding",
+      "lifecycleStatus": "current",
+      "applicability": {"status": "potentially-applies"},
+      "displayTags": ["G"],
+      "isAdministrativeGuidance": false,
+      "administrativeGuidanceBasis": {"basisType": "apa-arts-32-through-36-3", "statute": "APA", "provisions": ["32"]}
+    },
+    {
+      "name": "sector-statute-guidance-exact-basis",
+      "expectedValid": true,
+      "jurisdictions": ["JP"],
+      "nexus": [],
+      "instrumentClass": "administrative-guidance",
+      "normativeForce": "nonbinding",
+      "lifecycleStatus": "current",
+      "applicability": {"status": "potentially-applies"},
+      "displayTags": ["G"],
+      "isAdministrativeGuidance": true,
+      "administrativeGuidanceBasis": {
+        "basisType": "sector-statute",
+        "statute": "Telecommunications Business Act",
+        "provisions": ["27-12"]
+      }
+    },
+    {
+      "name": "sector-statute-guidance-missing-provisions",
+      "expectedValid": false,
+      "jurisdictions": ["JP"],
+      "nexus": [],
+      "instrumentClass": "administrative-guidance",
+      "normativeForce": "nonbinding",
+      "lifecycleStatus": "current",
+      "applicability": {"status": "potentially-applies"},
+      "displayTags": ["G"],
+      "isAdministrativeGuidance": true,
+      "administrativeGuidanceBasis": {
+        "basisType": "sector-statute",
+        "statute": "Telecommunications Business Act",
+        "provisions": []
+      }
+    },
+    {
+      "name": "valid-non-exchange-sro-context",
+      "expectedValid": true,
+      "jurisdictions": ["JP"],
+      "nexus": [],
+      "instrumentClass": "sro-rule",
+      "normativeForce": "binding-on-covered-parties",
+      "lifecycleStatus": "current",
+      "applicability": {"status": "applies"},
+      "displayTags": ["P"],
+      "isAdministrativeGuidance": false,
+      "administrativeGuidanceBasis": {"basisType": "none"},
+      "marketRuleContext": {
+        "kind": "non-exchange-sro",
+        "issuerEntity": "Japan Securities Dealers Association",
+        "venue": null,
+        "approvalRequired": false,
+        "approvalAuthority": null,
+        "approvalStatus": "not-required",
+        "coveredParties": ["member-firm"]
+      }
+    },
+    {
+      "name": "exchange-rule-requires-venue",
+      "expectedValid": false,
+      "jurisdictions": ["JP"],
+      "nexus": [],
+      "instrumentClass": "exchange-rule",
+      "normativeForce": "binding-on-covered-parties",
+      "lifecycleStatus": "current",
+      "applicability": {"status": "applies"},
+      "displayTags": ["P"],
+      "isAdministrativeGuidance": false,
+      "administrativeGuidanceBasis": {"basisType": "none"},
+      "marketRuleContext": {
+        "kind": "exchange",
+        "issuerEntity": "Tokyo Stock Exchange",
+        "venue": null,
+        "approvalRequired": false,
+        "approvalAuthority": null,
+        "approvalStatus": "not-required",
+        "coveredParties": ["listed-issuer"]
+      }
+    },
+    {
+      "name": "non-exchange-sro-rejects-venue",
+      "expectedValid": false,
+      "jurisdictions": ["JP"],
+      "nexus": [],
+      "instrumentClass": "sro-rule",
+      "normativeForce": "binding-on-covered-parties",
+      "lifecycleStatus": "current",
+      "applicability": {"status": "applies"},
+      "displayTags": ["P"],
+      "isAdministrativeGuidance": false,
+      "administrativeGuidanceBasis": {"basisType": "none"},
+      "marketRuleContext": {
+        "kind": "non-exchange-sro",
+        "issuerEntity": "Japan Securities Dealers Association",
+        "venue": "source-specific",
+        "approvalRequired": false,
+        "approvalAuthority": null,
+        "approvalStatus": "not-required",
+        "coveredParties": ["member-firm"]
+      }
+    },
+    {
+      "name": "market-rule-rejects-placeholder-approval",
+      "expectedValid": false,
+      "jurisdictions": ["JP"],
+      "nexus": [],
+      "instrumentClass": "exchange-rule",
+      "normativeForce": "binding-on-covered-parties",
+      "lifecycleStatus": "current",
+      "applicability": {"status": "applies"},
+      "displayTags": ["P"],
+      "isAdministrativeGuidance": false,
+      "administrativeGuidanceBasis": {"basisType": "none"},
+      "marketRuleContext": {
+        "kind": "exchange",
+        "issuerEntity": "Tokyo Stock Exchange",
+        "venue": "Tokyo Stock Exchange",
+        "approvalRequired": true,
+        "approvalAuthority": "source-specific",
+        "approvalStatus": "approved",
+        "approvalBasis": {
+          "sourceSystem": "tse-rulebook",
+          "sourceItemId": "rule-approval-1",
+          "sourceVersionOrRevisionId": "20260716",
+          "provisions": ["approval-clause"],
+          "exactRuleOrExceptionPinned": true
+        },
+        "coveredParties": ["listed-issuer"]
+      }
+    },
+    {
+      "name": "tse-approval-cannot-default-not-required",
+      "expectedValid": false,
+      "jurisdictions": ["JP"],
+      "nexus": [],
+      "instrumentClass": "exchange-rule",
+      "normativeForce": "binding-on-covered-parties",
+      "lifecycleStatus": "current",
+      "applicability": {"status": "applies"},
+      "displayTags": ["P"],
+      "isAdministrativeGuidance": false,
+      "administrativeGuidanceBasis": {"basisType": "none"},
+      "marketRuleContext": {
+        "kind": "exchange",
+        "issuerEntity": "Tokyo Stock Exchange",
+        "venue": "Tokyo Stock Exchange",
+        "approvalRequired": false,
+        "approvalAuthority": null,
+        "approvalStatus": "not-required",
+        "approvalBasis": {
+          "sourceSystem": "e-gov-law-api",
+          "sourceItemId": "323AC0000000025",
+          "sourceVersionOrRevisionId": "323AC0000000025_20260525_506AC0000000052",
+          "provisions": ["149"],
+          "exactRuleOrExceptionPinned": false
+        },
+        "coveredParties": ["listed-issuer"]
+      }
+    },
+    {
+      "name": "tse-fiea-149-rejects-pseudo-version",
+      "expectedValid": false,
+      "jurisdictions": ["JP"],
+      "nexus": [],
+      "instrumentClass": "exchange-rule",
+      "normativeForce": "binding-on-covered-parties",
+      "lifecycleStatus": "current",
+      "applicability": {"status": "applies"},
+      "displayTags": ["P"],
+      "isAdministrativeGuidance": false,
+      "administrativeGuidanceBasis": {"basisType": "none"},
+      "marketRuleContext": {
+        "kind": "exchange",
+        "issuerEntity": "Tokyo Stock Exchange",
+        "venue": "Tokyo Stock Exchange",
+        "approvalRequired": "unknown",
+        "approvalAuthority": null,
+        "approvalStatus": "unknown",
+        "approvalBasis": {
+          "sourceSystem": "e-gov-law-api",
+          "sourceItemId": "323AC0000000025",
+          "sourceVersionOrRevisionId": "current-20260716",
+          "provisions": ["149"],
+          "exactRuleOrExceptionPinned": false
+        },
+        "coveredParties": ["listed-issuer"]
+      }
+    },
+    {
+      "name": "tse-exact-pinned-exception-can-be-not-required",
+      "expectedValid": true,
+      "jurisdictions": ["JP"],
+      "nexus": [],
+      "instrumentClass": "exchange-rule",
+      "normativeForce": "binding-on-covered-parties",
+      "lifecycleStatus": "current",
+      "applicability": {"status": "applies"},
+      "displayTags": ["P"],
+      "isAdministrativeGuidance": false,
+      "administrativeGuidanceBasis": {"basisType": "none"},
+      "marketRuleContext": {
+        "kind": "exchange",
+        "issuerEntity": "Tokyo Stock Exchange",
+        "venue": "Tokyo Stock Exchange",
+        "approvalRequired": false,
+        "approvalAuthority": null,
+        "approvalStatus": "not-required",
+        "approvalBasis": {
+          "sourceSystem": "tse-rulebook",
+          "sourceItemId": "exact-exception-1",
+          "sourceVersionOrRevisionId": "20260716",
+          "provisions": ["exception-1"],
+          "exactRuleOrExceptionPinned": true
+        },
+        "coveredParties": ["listed-issuer"]
+      }
+    }
+  ],
+  "gapCases": [
+    {
+      "name": "open-gap-with-required-scope-coverage",
+      "expectedValid": true,
+      "record": {
+        "status": "open",
+        "sourceSystem": "e-gov-law-api",
+        "sourceItemId": "405AC0000000088",
+        "sourceVersionOrRevisionId": "20260624",
+        "jurisdictions": ["JP"],
+        "nexus": [],
+        "instrumentClass": "statute",
+        "normativeForce": "binding",
+        "lifecycleStatus": "current",
+        "applicability": {"status": "applies", "basis": "fixture", "coveredParties": []},
+        "displayTags": ["B"],
+        "isAdministrativeGuidance": false,
+        "administrativeGuidanceBasis": {"basisType": "none"},
+        "scope": {
+          "jurisdictionCodes": ["JP"],
+          "authorityIds": ["MIC"],
+          "regulatedEntityIds": [],
+          "businessUnitIds": [],
+          "productsOrServices": [],
+          "activities": [],
+          "provisions": ["Article-1"],
+          "excludedScope": []
+        },
+        "coverage": {
+          "source": {
+            "expectedAttachmentCount": 1,
+            "reviewedAttachmentCount": 1,
+            "complete": true,
+            "truncated": false,
+            "failures": []
+          },
+          "policy": {
+            "policyItemIds": ["POL-1"],
+            "sectionsExpected": ["2.1"],
+            "sectionsReviewed": ["2.1"],
+            "sectionsExcluded": [],
+            "complete": true
+          },
+          "timeWindow": {
+            "from": "2026-07-01T00:00:00+09:00",
+            "through": "2026-07-16T18:00:00+09:00"
+          }
+        },
+        "closureEvidence": null
+      }
+    },
+    {
+      "name": "closed-gap-missing-complete-coverage",
+      "expectedValid": false,
+      "record": {
+        "status": "closed",
+        "sourceSystem": "e-gov-law-api",
+        "sourceItemId": "405AC0000000088",
+        "sourceVersionOrRevisionId": "20260624",
+        "jurisdictions": ["JP"],
+        "nexus": [],
+        "instrumentClass": "statute",
+        "normativeForce": "binding",
+        "lifecycleStatus": "current",
+        "applicability": {"status": "applies", "basis": "fixture", "coveredParties": []},
+        "displayTags": ["B"],
+        "isAdministrativeGuidance": false,
+        "administrativeGuidanceBasis": {"basisType": "none"},
+        "scope": {
+          "jurisdictionCodes": ["JP"],
+          "authorityIds": [],
+          "regulatedEntityIds": [],
+          "businessUnitIds": [],
+          "productsOrServices": [],
+          "activities": [],
+          "provisions": [],
+          "excludedScope": []
+        },
+        "coverage": {
+          "source": {
+            "expectedAttachmentCount": 2,
+            "reviewedAttachmentCount": 1,
+            "complete": false,
+            "truncated": true,
+            "failures": ["attachment-2"]
+          },
+          "policy": {
+            "policyItemIds": ["POL-1"],
+            "sectionsExpected": ["2.1"],
+            "sectionsReviewed": ["2.1"],
+            "sectionsExcluded": [],
+            "complete": true
+          },
+          "timeWindow": {
+            "from": "2026-07-01T00:00:00+09:00",
+            "through": "2026-07-16T18:00:00+09:00"
+          }
+        },
+        "closureEvidence": {
+          "closureBasis": "policy-applied",
+          "internalArtifact": {
+            "itemId": "OUT-1",
+            "versionOrRevisionId": "3",
+            "contentHash": "sha256:internal",
+            "approvedByObjectId": "user-1",
+            "approvedAt": "2026-07-16T17:00:00+09:00",
+            "effectiveAt": "2026-07-16T17:30:00+09:00"
+          },
+          "regulatorFacingArtifact": null,
+          "implementationEvidence": [
+            {
+              "itemId": "EVID-1",
+              "versionOrRevisionId": "1",
+              "contentHash": "sha256:evidence"
+            }
+          ],
+          "verifiedByObjectId": "lawyer-1",
+          "verifiedAt": "2026-07-16T18:00:00+09:00",
+          "submissionEvidence": null
+        }
+      }
+    },
+    {
+      "name": "closed-gap-with-regulator-submission",
+      "expectedValid": true,
+      "record": {
+        "status": "closed",
+        "sourceSystem": "e-gov-public-comment",
+        "sourceItemId": "240000127",
+        "sourceVersionOrRevisionId": "proposal-20260716",
+        "jurisdictions": ["JP"],
+        "nexus": [],
+        "instrumentClass": "consultation",
+        "normativeForce": "nonbinding",
+        "lifecycleStatus": "proposed",
+        "applicability": {"status": "potentially-applies", "basis": "proposal subject", "coveredParties": ["entity-1"]},
+        "displayTags": ["F"],
+        "isAdministrativeGuidance": false,
+        "administrativeGuidanceBasis": {"basisType": "none"},
+        "scope": {
+          "jurisdictionCodes": ["JP"],
+          "authorityIds": ["PPC"],
+          "regulatedEntityIds": ["entity-1"],
+          "businessUnitIds": [],
+          "productsOrServices": [],
+          "activities": ["public-comment"],
+          "provisions": [],
+          "excludedScope": []
+        },
+        "coverage": {
+          "source": {
+            "expectedAttachmentCount": 2,
+            "reviewedAttachmentCount": 2,
+            "complete": true,
+            "truncated": false,
+            "failures": []
+          },
+          "policy": {
+            "policyItemIds": ["POL-2"],
+            "sectionsExpected": ["comment-position"],
+            "sectionsReviewed": ["comment-position"],
+            "sectionsExcluded": [],
+            "complete": true
+          },
+          "timeWindow": {
+            "from": "2026-07-16T00:00:00+09:00",
+            "through": "2026-08-14T23:59:00+09:00"
+          }
+        },
+        "closureEvidence": {
+          "closureBasis": "regulator-submission",
+          "internalArtifact": {
+            "itemId": "INT-1",
+            "versionOrRevisionId": "4",
+            "contentHash": "sha256:internal-analysis",
+            "approvedByObjectId": "lawyer-1",
+            "approvedAt": "2026-08-10T10:00:00+09:00",
+            "effectiveAt": null
+          },
+          "regulatorFacingArtifact": {
+            "itemId": "EXT-1",
+            "versionOrRevisionId": "7",
+            "contentHash": "sha256:submitted"
+          },
+          "implementationEvidence": [
+            {
+              "itemId": "REC-1",
+              "versionOrRevisionId": "1",
+              "contentHash": "sha256:receipt"
+            }
+          ],
+          "verifiedByObjectId": "lawyer-1",
+          "verifiedAt": "2026-08-12T11:00:00+09:00",
+          "submissionRoute": {
+            "routeId": "240000127-egov-form",
+            "method": "web-form",
+            "canonicalCaseEntryUrl": "https://public-comment.e-gov.go.jp/pcm/detail?CLASSNAME=PCMMSTDETAIL&id=240000127",
+            "formAction": "https://public-comment.e-gov.go.jp/pcm/2010",
+            "httpMethod": "POST",
+            "formClassName": "PCMIKENINPUT",
+            "caseId": "240000127",
+            "destinationSystem": "e-Gov 意見提出フォーム",
+            "destinationAddressOrEndpoint": "https://public-comment.e-gov.go.jp/pcm/2010",
+            "instructionUrl": "https://public-comment.e-gov.go.jp/pcm/download?seqNo=0000318027",
+            "instructionContentHash": "sha256:e7bb3a9145c11b02f31c2b223a91d3c3b0a3f6168e060f1995fef0dcd93d5035",
+            "deadlineAt": "2026-08-14T23:59:00+09:00",
+            "receiptOrPostmark": "not-applicable",
+            "verifiedAt": "2026-07-16T20:20:55+09:00"
+          },
+          "submissionEvidence": {
+            "routeId": "240000127-egov-form",
+            "submissionMethod": "web-form",
+            "canonicalCaseEntryUrl": "https://public-comment.e-gov.go.jp/pcm/detail?CLASSNAME=PCMMSTDETAIL&id=240000127",
+            "formAction": "https://public-comment.e-gov.go.jp/pcm/2010",
+            "httpMethod": "POST",
+            "formClassName": "PCMIKENINPUT",
+            "destinationSystem": "e-Gov 意見提出フォーム",
+            "destinationAddressOrEndpoint": "https://public-comment.e-gov.go.jp/pcm/2010",
+            "instructionUrl": "https://public-comment.e-gov.go.jp/pcm/download?seqNo=0000318027",
+            "instructionContentHash": "sha256:e7bb3a9145c11b02f31c2b223a91d3c3b0a3f6168e060f1995fef0dcd93d5035",
+            "routeDeadlineAt": "2026-08-14T23:59:00+09:00",
+            "receiptOrPostmark": "not-applicable",
+            "routeVerifiedAt": "2026-07-16T20:20:55+09:00",
+            "caseId": "240000127",
+            "submittedArtifactItemId": "EXT-1",
+            "submittedArtifactVersionOrRevisionId": "7",
+            "submittedArtifactHash": "sha256:submitted",
+            "submittedByObjectId": "submitter-1",
+            "submittedAt": "2026-08-12T10:30:00+09:00",
+            "officialDeadlineVerifiedAt": "2026-08-12T10:00:00+09:00",
+            "receiptOrReferenceId": "receipt-240000127",
+            "receiptArtifactItemId": "REC-1",
+            "receiptArtifactVersionOrRevisionId": "1",
+            "receiptArtifactHash": "sha256:receipt"
+          }
+        }
+      }
+    }
+  ],
+  "gapStatusProbeCases": [
+    {
+      "name": "gap-status-open",
+      "expectedValid": true,
+      "status": "open"
+    },
+    {
+      "name": "gap-status-invalid-value",
+      "expectedValid": false,
+      "status": "resolved"
+    },
+    {
+      "name": "gap-status-null",
+      "expectedValid": false,
+      "status": null
+    },
+    {
+      "name": "gap-status-non-string",
+      "expectedValid": false,
+      "status": 1
+    }
+  ],
+  "commentCases": [
+    {
+      "name": "filed-comment-with-exact-external-artifact-and-receipt",
+      "expectedValid": true,
+      "record": {
+        "recordKind": "consultation",
+        "decision": "filed",
+        "caseId": "240000127",
+        "sourceSystem": "e-gov-public-comment",
+        "sourceItemId": "240000127",
+        "sourceVersionOrRevisionId": "proposal-20260716",
+        "proposalSnapshotId": "SNAP-PROP-240000127",
+        "proposalPublishedAt": "2026-07-16T00:00:00+09:00",
+        "commentOpenAt": "2026-07-16T00:00:00+09:00",
+        "commentCloseAt": "2026-08-14T23:59:00+09:00",
+        "exceptionBasis": null,
+        "noPriorConsultationProven": false,
+        "finalDisposition": null,
+        "submissionRoutes": [
+          {
+            "routeId": "240000127-egov-form",
+            "method": "web-form",
+            "canonicalCaseEntryUrl": "https://public-comment.e-gov.go.jp/pcm/detail?CLASSNAME=PCMMSTDETAIL&id=240000127",
+            "formAction": "https://public-comment.e-gov.go.jp/pcm/2010",
+            "httpMethod": "POST",
+            "formClassName": "PCMIKENINPUT",
+            "caseId": "240000127",
+            "destinationSystem": "e-Gov 意見提出フォーム",
+            "destinationAddressOrEndpoint": "https://public-comment.e-gov.go.jp/pcm/2010",
+            "instructionUrl": "https://public-comment.e-gov.go.jp/pcm/download?seqNo=0000318027",
+            "instructionContentHash": "sha256:e7bb3a9145c11b02f31c2b223a91d3c3b0a3f6168e060f1995fef0dcd93d5035",
+            "deadlineAt": "2026-08-14T23:59:00+09:00",
+            "receiptOrPostmark": "not-applicable",
+            "verifiedAt": "2026-07-16T20:20:55+09:00"
+          }
+        ],
+        "artifacts": {
+          "internalAnalysis": {
+            "itemId": "INT-2",
+            "versionOrRevisionId": "2",
+            "contentHash": "sha256:internal",
+            "audience": "internal"
+          },
+          "regulatorFacing": {
+            "itemId": "EXT-2",
+            "versionOrRevisionId": "5",
+            "contentHash": "sha256:external",
+            "audience": "regulator-facing"
+          }
+        },
+        "submissionEvidence": {
+          "routeId": "240000127-egov-form",
+          "submissionMethod": "web-form",
+          "canonicalCaseEntryUrl": "https://public-comment.e-gov.go.jp/pcm/detail?CLASSNAME=PCMMSTDETAIL&id=240000127",
+          "formAction": "https://public-comment.e-gov.go.jp/pcm/2010",
+          "httpMethod": "POST",
+          "formClassName": "PCMIKENINPUT",
+          "destinationSystem": "e-Gov 意見提出フォーム",
+          "destinationAddressOrEndpoint": "https://public-comment.e-gov.go.jp/pcm/2010",
+          "instructionUrl": "https://public-comment.e-gov.go.jp/pcm/download?seqNo=0000318027",
+          "instructionContentHash": "sha256:e7bb3a9145c11b02f31c2b223a91d3c3b0a3f6168e060f1995fef0dcd93d5035",
+          "routeDeadlineAt": "2026-08-14T23:59:00+09:00",
+          "receiptOrPostmark": "not-applicable",
+          "routeVerifiedAt": "2026-07-16T20:20:55+09:00",
+          "submittedArtifactItemId": "EXT-2",
+          "submittedArtifactVersionOrRevisionId": "5",
+          "submittedArtifactHash": "sha256:external",
+          "submittedByObjectId": "submitter-1",
+          "submittedAt": "2026-08-12T10:30:00+09:00",
+          "receiptOrReferenceId": "receipt-2",
+          "receiptArtifactItemId": "REC-2",
+          "receiptArtifactVersionOrRevisionId": "1",
+          "receiptArtifactHash": "sha256:receipt-2",
+          "caseId": "240000127",
+          "officialDeadlineVerifiedAt": "2026-08-12T10:00:00+09:00"
+        }
+      }
+    },
+    {
+      "name": "filed-comment-using-internal-artifact",
+      "expectedValid": false,
+      "record": {
+        "recordKind": "consultation",
+        "decision": "filed",
+        "caseId": "240000127",
+        "sourceSystem": "e-gov-public-comment",
+        "sourceItemId": "240000127",
+        "sourceVersionOrRevisionId": "proposal-20260716",
+        "proposalSnapshotId": "SNAP-PROP-240000127",
+        "proposalPublishedAt": "2026-07-16T00:00:00+09:00",
+        "commentOpenAt": "2026-07-16T00:00:00+09:00",
+        "commentCloseAt": "2026-08-14T23:59:00+09:00",
+        "exceptionBasis": null,
+        "noPriorConsultationProven": false,
+        "finalDisposition": null,
+        "submissionRoutes": [],
+        "artifacts": {
+          "internalAnalysis": {
+            "itemId": "INT-3",
+            "versionOrRevisionId": "2",
+            "contentHash": "sha256:internal",
+            "audience": "internal"
+          },
+          "regulatorFacing": null
+        },
+        "submissionEvidence": {
+          "submittedArtifactItemId": "INT-3",
+          "submittedArtifactVersionOrRevisionId": "2",
+          "submittedArtifactHash": "sha256:internal",
+          "caseId": "240000127"
+        }
+      }
+    },
+    {
+      "name": "result-only-with-generic-source-identity",
+      "expectedValid": true,
+      "record": {
+        "recordKind": "result-only",
+        "decision": "not_filing",
+        "caseId": "495260046",
+        "sourceSystem": "e-gov-public-comment-result",
+        "sourceItemId": "495260046",
+        "sourceVersionOrRevisionId": "result-20260715",
+        "proposalSnapshotId": null,
+        "proposalPublishedAt": null,
+        "commentOpenAt": null,
+        "commentCloseAt": null,
+        "exceptionBasis": null,
+        "noPriorConsultationProven": false,
+        "resultSnapshotId": "RESULT-495260046",
+        "resultPublishedAt": "2026-07-15T00:00:00+09:00",
+        "finalDisposition": "adopted",
+        "artifacts": {
+          "internalAnalysis": null,
+          "regulatorFacing": null
+        },
+        "submissionEvidence": null
+      }
+    },
+    {
+      "name": "result-only-missing-result-snapshot",
+      "expectedValid": false,
+      "record": {
+        "recordKind": "result-only",
+        "decision": "not_filing",
+        "caseId": "495260046",
+        "sourceSystem": "e-gov-public-comment-result",
+        "sourceItemId": "495260046",
+        "sourceVersionOrRevisionId": "result-20260715",
+        "proposalSnapshotId": null,
+        "proposalPublishedAt": null,
+        "commentOpenAt": null,
+        "commentCloseAt": null,
+        "exceptionBasis": null,
+        "noPriorConsultationProven": false,
+        "resultSnapshotId": "",
+        "resultPublishedAt": "2026-07-15T00:00:00+09:00",
+        "finalDisposition": "adopted"
+      }
+    },
+    {
+      "name": "consultation-cannot-carry-exception-basis",
+      "expectedValid": false,
+      "record": {
+        "recordKind": "consultation",
+        "decision": "undecided",
+        "caseId": "CASE-X",
+        "sourceSystem": "e-gov-public-comment",
+        "sourceItemId": "CASE-X",
+        "sourceVersionOrRevisionId": "proposal-1",
+        "proposalSnapshotId": "PROP-X",
+        "proposalPublishedAt": "2026-07-01T00:00:00+09:00",
+        "commentOpenAt": "2026-07-01T00:00:00+09:00",
+        "commentCloseAt": "2026-07-31T23:59:00+09:00",
+        "exceptionBasis": {"statute": "APA", "provision": "39(4)(8)", "reason": "wrong"},
+        "noPriorConsultationProven": false,
+        "finalDisposition": null
+      }
+    },
+    {
+      "name": "exception-notice-must-prove-no-prior-consultation",
+      "expectedValid": false,
+      "record": {
+        "recordKind": "exception-notice",
+        "decision": "not_filing",
+        "caseId": "CASE-Y",
+        "sourceSystem": "e-gov-public-comment-result",
+        "sourceItemId": "CASE-Y",
+        "sourceVersionOrRevisionId": "result-1",
+        "proposalSnapshotId": null,
+        "proposalPublishedAt": null,
+        "commentOpenAt": null,
+        "commentCloseAt": null,
+        "exceptionBasis": {"statute": "APA", "provision": "39(4)(8)", "reason": "claimed"},
+        "noPriorConsultationProven": false,
+        "resultSnapshotId": "RESULT-Y",
+        "resultPublishedAt": "2026-07-16T00:00:00+09:00",
+        "finalDisposition": "adopted"
+      }
+    }
+  ],
+  "coverageProbeCases": [
+    {
+      "name": "complete-nonempty-gap-coverage",
+      "expectedValid": true,
+      "scope": {
+        "jurisdictionCodes": ["JP"],
+        "authorityIds": ["PPC"],
+        "regulatedEntityIds": [],
+        "businessUnitIds": [],
+        "productsOrServices": [],
+        "activities": ["policy-review"],
+        "provisions": ["Article-1"],
+        "excludedScope": []
+      },
+      "coverage": {
+        "source": {
+          "expectedAttachmentCount": 1,
+          "reviewedAttachmentCount": 1,
+          "complete": true,
+          "truncated": false,
+          "failures": []
+        },
+        "policy": {
+          "policyItemIds": ["POL-1"],
+          "sectionsExpected": ["2.1"],
+          "sectionsReviewed": ["2.1"],
+          "sectionsExcluded": [],
+          "complete": true
+        },
+        "timeWindow": {
+          "from": "2026-07-01T00:00:00+09:00",
+          "through": "2026-07-16T18:00:00+09:00"
+        }
+      }
+    },
+    {
+      "name": "empty-scope",
+      "expectedValid": false,
+      "scope": {
+        "jurisdictionCodes": [],
+        "authorityIds": [],
+        "regulatedEntityIds": [],
+        "businessUnitIds": [],
+        "productsOrServices": [],
+        "activities": [],
+        "provisions": [],
+        "excludedScope": []
+      },
+      "coverage": {
+        "source": {"expectedAttachmentCount": 0, "reviewedAttachmentCount": 0, "complete": true, "truncated": false, "failures": []},
+        "policy": {"policyItemIds": ["POL-1"], "sectionsExpected": ["2.1"], "sectionsReviewed": ["2.1"], "sectionsExcluded": [], "complete": true},
+        "timeWindow": {"from": "2026-07-01T00:00:00+09:00", "through": "2026-07-16T18:00:00+09:00"}
+      }
+    },
+    {
+      "name": "incomplete-source-coverage",
+      "expectedValid": false,
+      "scope": {
+        "jurisdictionCodes": ["JP"],
+        "authorityIds": ["PPC"],
+        "regulatedEntityIds": [],
+        "businessUnitIds": [],
+        "productsOrServices": [],
+        "activities": [],
+        "provisions": ["Article-1"],
+        "excludedScope": []
+      },
+      "coverage": {
+        "source": {"expectedAttachmentCount": 2, "reviewedAttachmentCount": 1, "complete": false, "truncated": true, "failures": ["attachment-2"]},
+        "policy": {"policyItemIds": ["POL-1"], "sectionsExpected": ["2.1"], "sectionsReviewed": ["2.1"], "sectionsExcluded": [], "complete": true},
+        "timeWindow": {"from": "2026-07-01T00:00:00+09:00", "through": "2026-07-16T18:00:00+09:00"}
+      }
+    },
+    {
+      "name": "empty-policy-coverage",
+      "expectedValid": false,
+      "scope": {
+        "jurisdictionCodes": ["JP"],
+        "authorityIds": ["PPC"],
+        "regulatedEntityIds": [],
+        "businessUnitIds": [],
+        "productsOrServices": [],
+        "activities": [],
+        "provisions": ["Article-1"],
+        "excludedScope": []
+      },
+      "coverage": {
+        "source": {"expectedAttachmentCount": 0, "reviewedAttachmentCount": 0, "complete": true, "truncated": false, "failures": []},
+        "policy": {"policyItemIds": [], "sectionsExpected": [], "sectionsReviewed": [], "sectionsExcluded": [], "complete": true},
+        "timeWindow": {"from": "2026-07-01T00:00:00+09:00", "through": "2026-07-16T18:00:00+09:00"}
+      }
+    },
+    {
+      "name": "missing-time-window-start",
+      "expectedValid": false,
+      "scope": {
+        "jurisdictionCodes": ["JP"],
+        "authorityIds": ["PPC"],
+        "regulatedEntityIds": [],
+        "businessUnitIds": [],
+        "productsOrServices": [],
+        "activities": [],
+        "provisions": ["Article-1"],
+        "excludedScope": []
+      },
+      "coverage": {
+        "source": {"expectedAttachmentCount": 0, "reviewedAttachmentCount": 0, "complete": true, "truncated": false, "failures": []},
+        "policy": {"policyItemIds": ["POL-1"], "sectionsExpected": ["2.1"], "sectionsReviewed": ["2.1"], "sectionsExcluded": [], "complete": true},
+        "timeWindow": {"from": "", "through": "2026-07-16T18:00:00+09:00"}
+      }
+    },
+    {
+      "name": "missing-failures-list",
+      "expectedValid": false,
+      "scope": {
+        "jurisdictionCodes": ["JP"],
+        "authorityIds": ["PPC"],
+        "regulatedEntityIds": [],
+        "businessUnitIds": [],
+        "productsOrServices": [],
+        "activities": [],
+        "provisions": ["Article-1"],
+        "excludedScope": []
+      },
+      "coverage": {
+        "source": {"expectedAttachmentCount": 0, "reviewedAttachmentCount": 0, "complete": true, "truncated": false},
+        "policy": {"policyItemIds": ["POL-1"], "sectionsExpected": ["2.1"], "sectionsReviewed": ["2.1"], "sectionsExcluded": [], "complete": true},
+        "timeWindow": {"from": "2026-07-01T00:00:00+09:00", "through": "2026-07-16T18:00:00+09:00"}
+      }
+    },
+    {
+      "name": "failures-not-list",
+      "expectedValid": false,
+      "scope": {
+        "jurisdictionCodes": ["JP"],
+        "authorityIds": ["PPC"],
+        "regulatedEntityIds": [],
+        "businessUnitIds": [],
+        "productsOrServices": [],
+        "activities": [],
+        "provisions": ["Article-1"],
+        "excludedScope": []
+      },
+      "coverage": {
+        "source": {"expectedAttachmentCount": 0, "reviewedAttachmentCount": 0, "complete": true, "truncated": false, "failures": ""},
+        "policy": {"policyItemIds": ["POL-1"], "sectionsExpected": ["2.1"], "sectionsReviewed": ["2.1"], "sectionsExcluded": [], "complete": true},
+        "timeWindow": {"from": "2026-07-01T00:00:00+09:00", "through": "2026-07-16T18:00:00+09:00"}
+      }
+    }
+  ],
+  "closureProbeCases": [
+    {
+      "name": "valid-closure-basis-and-evidence",
+      "expectedValid": true,
+      "closureBasis": "policy-applied",
+      "implementationEvidence": [
+        {"itemId": "E-1", "versionOrRevisionId": "1", "contentHash": "sha256:e"}
+      ]
+    },
+    {
+      "name": "missing-closure-basis",
+      "expectedValid": false,
+      "closureBasis": "",
+      "implementationEvidence": [
+        {"itemId": "E-1", "versionOrRevisionId": "1", "contentHash": "sha256:e"}
+      ]
+    },
+    {
+      "name": "invalid-closure-basis",
+      "expectedValid": false,
+      "closureBasis": "waived",
+      "implementationEvidence": [
+        {"itemId": "E-1", "versionOrRevisionId": "1", "contentHash": "sha256:e"}
+      ]
+    },
+    {
+      "name": "empty-implementation-evidence",
+      "expectedValid": false,
+      "closureBasis": "control-implemented",
+      "implementationEvidence": []
+    },
+    {
+      "name": "blank-implementation-evidence-field",
+      "expectedValid": false,
+      "closureBasis": "control-implemented",
+      "implementationEvidence": [
+        {"itemId": "E-1", "versionOrRevisionId": "", "contentHash": "sha256:e"}
+      ]
+    }
+  ],
+  "submissionProbeCases": [
+    {
+      "name": "exact-route-submission-match",
+      "expectedValid": true,
+      "route": {
+        "routeId": "route-1",
+        "method": "web-form",
+        "destinationSystem": "e-Gov",
+        "destinationAddressOrEndpoint": "https://example.invalid/route",
+        "instructionUrl": "https://example.invalid/instructions",
+        "instructionContentHash": "sha256:i",
+        "deadlineAt": "2026-08-14T23:59:00+09:00",
+        "receiptOrPostmark": "receipt",
+        "verifiedAt": "2026-08-01T00:00:00+09:00"
+      },
+      "submission": {
+        "routeId": "route-1",
+        "submissionMethod": "web-form",
+        "destinationSystem": "e-Gov",
+        "destinationAddressOrEndpoint": "https://example.invalid/route",
+        "instructionUrl": "https://example.invalid/instructions",
+        "instructionContentHash": "sha256:i",
+        "routeDeadlineAt": "2026-08-14T23:59:00+09:00",
+        "receiptOrPostmark": "receipt",
+        "routeVerifiedAt": "2026-08-01T00:00:00+09:00",
+        "caseId": "CASE-1",
+        "submittedArtifactItemId": "EXT-1",
+        "submittedArtifactVersionOrRevisionId": "1",
+        "submittedArtifactHash": "sha256:a",
+        "submittedByObjectId": "user-1",
+        "submittedAt": "2026-08-02T00:00:00+09:00",
+        "officialDeadlineVerifiedAt": "2026-08-01T00:00:00+09:00",
+        "receiptOrReferenceId": "R-1",
+        "receiptArtifactItemId": "REC-1",
+        "receiptArtifactVersionOrRevisionId": "1",
+        "receiptArtifactHash": "sha256:r"
+      }
+    },
+    {
+      "name": "blank-submission-field",
+      "expectedValid": false,
+      "route": {
+        "routeId": "route-1",
+        "method": "web-form",
+        "destinationSystem": "e-Gov",
+        "destinationAddressOrEndpoint": "https://example.invalid/route",
+        "instructionUrl": "https://example.invalid/instructions",
+        "instructionContentHash": "sha256:i",
+        "deadlineAt": "2026-08-14T23:59:00+09:00",
+        "receiptOrPostmark": "receipt",
+        "verifiedAt": "2026-08-01T00:00:00+09:00"
+      },
+      "submission": {
+        "routeId": "route-1",
+        "submissionMethod": "",
+        "destinationSystem": "e-Gov",
+        "destinationAddressOrEndpoint": "https://example.invalid/route",
+        "instructionUrl": "https://example.invalid/instructions",
+        "instructionContentHash": "sha256:i",
+        "routeDeadlineAt": "2026-08-14T23:59:00+09:00",
+        "receiptOrPostmark": "receipt",
+        "routeVerifiedAt": "2026-08-01T00:00:00+09:00",
+        "caseId": "CASE-1",
+        "submittedArtifactItemId": "EXT-1",
+        "submittedArtifactVersionOrRevisionId": "1",
+        "submittedArtifactHash": "sha256:a",
+        "submittedByObjectId": "user-1",
+        "submittedAt": "2026-08-02T00:00:00+09:00",
+        "officialDeadlineVerifiedAt": "2026-08-01T00:00:00+09:00",
+        "receiptOrReferenceId": "R-1",
+        "receiptArtifactItemId": "REC-1",
+        "receiptArtifactVersionOrRevisionId": "1",
+        "receiptArtifactHash": "sha256:r"
+      }
+    },
+    {
+      "name": "route-method-mismatch",
+      "expectedValid": false,
+      "route": {
+        "routeId": "route-1",
+        "method": "web-form",
+        "destinationSystem": "e-Gov",
+        "destinationAddressOrEndpoint": "https://example.invalid/route",
+        "instructionUrl": "https://example.invalid/instructions",
+        "instructionContentHash": "sha256:i",
+        "deadlineAt": "2026-08-14T23:59:00+09:00",
+        "receiptOrPostmark": "receipt",
+        "verifiedAt": "2026-08-01T00:00:00+09:00"
+      },
+      "submission": {
+        "routeId": "route-1",
+        "submissionMethod": "email",
+        "destinationSystem": "e-Gov",
+        "destinationAddressOrEndpoint": "https://example.invalid/route",
+        "instructionUrl": "https://example.invalid/instructions",
+        "instructionContentHash": "sha256:i",
+        "routeDeadlineAt": "2026-08-14T23:59:00+09:00",
+        "receiptOrPostmark": "receipt",
+        "routeVerifiedAt": "2026-08-01T00:00:00+09:00",
+        "caseId": "CASE-1",
+        "submittedArtifactItemId": "EXT-1",
+        "submittedArtifactVersionOrRevisionId": "1",
+        "submittedArtifactHash": "sha256:a",
+        "submittedByObjectId": "user-1",
+        "submittedAt": "2026-08-02T00:00:00+09:00",
+        "officialDeadlineVerifiedAt": "2026-08-01T00:00:00+09:00",
+        "receiptOrReferenceId": "R-1",
+        "receiptArtifactItemId": "REC-1",
+        "receiptArtifactVersionOrRevisionId": "1",
+        "receiptArtifactHash": "sha256:r"
+      }
+    },
+    {
+      "name": "route-destination-mismatch",
+      "expectedValid": false,
+      "route": {
+        "routeId": "route-1",
+        "method": "web-form",
+        "destinationSystem": "e-Gov",
+        "destinationAddressOrEndpoint": "https://example.invalid/route",
+        "instructionUrl": "https://example.invalid/instructions",
+        "instructionContentHash": "sha256:i",
+        "deadlineAt": "2026-08-14T23:59:00+09:00",
+        "receiptOrPostmark": "receipt",
+        "verifiedAt": "2026-08-01T00:00:00+09:00"
+      },
+      "submission": {
+        "routeId": "route-1",
+        "submissionMethod": "web-form",
+        "destinationSystem": "Other",
+        "destinationAddressOrEndpoint": "https://example.invalid/other",
+        "instructionUrl": "https://example.invalid/instructions",
+        "instructionContentHash": "sha256:i",
+        "routeDeadlineAt": "2026-08-14T23:59:00+09:00",
+        "receiptOrPostmark": "receipt",
+        "routeVerifiedAt": "2026-08-01T00:00:00+09:00",
+        "caseId": "CASE-1",
+        "submittedArtifactItemId": "EXT-1",
+        "submittedArtifactVersionOrRevisionId": "1",
+        "submittedArtifactHash": "sha256:a",
+        "submittedByObjectId": "user-1",
+        "submittedAt": "2026-08-02T00:00:00+09:00",
+        "officialDeadlineVerifiedAt": "2026-08-01T00:00:00+09:00",
+        "receiptOrReferenceId": "R-1",
+        "receiptArtifactItemId": "REC-1",
+        "receiptArtifactVersionOrRevisionId": "1",
+        "receiptArtifactHash": "sha256:r"
+      }
+    }
+  ],
+  "publicCommentAuditCases": [
+    {
+      "name": "155260508-apa-40-1-shortened-period",
+      "expectedValid": true,
+      "caseId": "155260508",
+      "recordKind": "consultation",
+      "commentOpenAt": "2026-07-16T00:00:00+09:00",
+      "commentCloseAt": "2026-07-29T23:59:00+09:00",
+      "shortenedPeriodBasis": {
+        "statute": "Administrative Procedure Act",
+        "provision": "40(1)",
+        "reasonClass": "unavoidable-disaster-preparedness-and-rapid-commencement",
+        "reason": "第221回国会で成立した「下水道法等の一部を改正する法律」の改正規定のうち、下水道法（昭和33年法律第79号）第14条の２は、災害発生時における復旧を迅速に行うための措置である。同規定を災害に備え可能な限り速やかに施行する観点から、本政令を速やかに定める必要があるため、意見募集期間を短縮することとする。"
+      },
+      "forbiddenBasis": "39(4)(1)"
+    },
+    {
+      "name": "155260717-no-prior-consultation-late-result-anomaly",
+      "expectedValid": true,
+      "caseId": "155260717",
+      "recordKind": "exception-notice",
+      "proposalPublishedAt": null,
+      "commentOpenAt": null,
+      "commentCloseAt": null,
+      "exceptionBasis": {
+        "statute": "Administrative Procedure Act",
+        "provision": "39(4)(8)",
+        "reason": "no-prior-consultation exception"
+      },
+      "promulgatedAt": "2026-05-20T00:00:00+09:00",
+      "resultPublishedAt": "2026-07-16T00:00:00+09:00",
+      "sourceControlFinding": "apparent-late-result-publication-contrary-to-43(5)"
+    },
+    {
+      "name": "240000127-exact-egov-form-route",
+      "expectedValid": true,
+      "caseId": "240000127",
+      "recordKind": "consultation",
+      "commentOpenAt": "2026-07-16T00:00:00+09:00",
+      "commentCloseAt": "2026-08-14T23:59:00+09:00",
+      "route": {
+        "routeId": "240000127-egov-form",
+        "method": "web-form",
+        "canonicalCaseEntryUrl": "https://public-comment.e-gov.go.jp/pcm/detail?CLASSNAME=PCMMSTDETAIL&id=240000127",
+        "formAction": "https://public-comment.e-gov.go.jp/pcm/2010",
+        "httpMethod": "POST",
+        "formClassName": "PCMIKENINPUT",
+        "caseId": "240000127",
+        "destinationSystem": "e-Gov 意見提出フォーム",
+        "destinationAddressOrEndpoint": "https://public-comment.e-gov.go.jp/pcm/2010",
+        "instructionUrl": "https://public-comment.e-gov.go.jp/pcm/download?seqNo=0000318027",
+        "instructionContentHash": "sha256:e7bb3a9145c11b02f31c2b223a91d3c3b0a3f6168e060f1995fef0dcd93d5035",
+        "deadlineAt": "2026-08-14T23:59:00+09:00",
+        "receiptOrPostmark": "not-applicable",
+        "verifiedAt": "2026-07-16T20:20:55+09:00"
+      }
+    },
+    {
+      "name": "240000127-reject-servlet-public-as-form-action",
+      "expectedValid": false,
+      "caseId": "240000127",
+      "recordKind": "consultation",
+      "commentOpenAt": "2026-07-16T00:00:00+09:00",
+      "commentCloseAt": "2026-08-14T23:59:00+09:00",
+      "route": {
+        "routeId": "240000127-egov-form",
+        "method": "web-form",
+        "canonicalCaseEntryUrl": "https://public-comment.e-gov.go.jp/pcm/detail?CLASSNAME=PCMMSTDETAIL&id=240000127",
+        "formAction": "https://public-comment.e-gov.go.jp/servlet/Public",
+        "httpMethod": "POST",
+        "formClassName": "PCMIKENINPUT",
+        "caseId": "240000127",
+        "destinationSystem": "e-Gov 意見提出フォーム",
+        "destinationAddressOrEndpoint": "https://public-comment.e-gov.go.jp/servlet/Public",
+        "instructionUrl": "https://public-comment.e-gov.go.jp/pcm/download?seqNo=0000318027",
+        "instructionContentHash": "sha256:e7bb3a9145c11b02f31c2b223a91d3c3b0a3f6168e060f1995fef0dcd93d5035",
+        "deadlineAt": "2026-08-14T23:59:00+09:00",
+        "receiptOrPostmark": "not-applicable",
+        "verifiedAt": "2026-07-16T20:20:55+09:00"
+      }
+    },
+    {
+      "name": "495260109-midnight-deadline",
+      "expectedValid": true,
+      "caseId": "495260109",
+      "recordKind": "consultation",
+      "commentOpenAt": "2026-07-14T10:20:00+09:00",
+      "commentCloseAt": "2026-08-14T00:00:00+09:00"
+    },
+    {
+      "name": "495260046-result-and-promulgation",
+      "expectedValid": true,
+      "caseId": "495260046",
+      "recordKind": "result-only",
+      "proposalPublishedAt": "2026-05-01",
+      "commentCloseAt": "2026-06-01T12:00:00+09:00",
+      "resultPublishedAt": "2026-07-15",
+      "promulgatedAt": "2026-07-15",
+      "finalDisposition": "adopted"
+    },
+    {
+      "name": "495250498-proposal-final-version-separation",
+      "expectedValid": true,
+      "caseId": "495250498",
+      "recordKind": "consultation",
+      "proposalTitleVersion": "6.1",
+      "finalArtifactVersion": "7.0",
+      "snapshotsSeparate": true
+    }
+  ],
+  "authorityCases": [
+    {
+      "name": "consumer-affairs-agency-structured-authority",
+      "expectedValid": true,
+      "authorityId": "caa",
+      "displayName": "消費者庁",
+      "authorityType": "agency",
+      "mandate": {
+        "sourceSystem": "e-gov-law-api",
+        "sourceItemId": "421AC0000000048",
+        "sourceVersionOrRevisionId": "421AC0000000048_20240401_505AC0000000036",
+        "provisions": ["2", "3", "4"],
+        "description": "消費者庁の設置及び所掌"
+      }
+    },
+    {
+      "name": "consumer-commission-distinct-authority",
+      "expectedValid": true,
+      "authorityId": "consumer-commission",
+      "displayName": "消費者委員会",
+      "authorityType": "cabinet-office-commission",
+      "mandate": {
+        "sourceSystem": "e-gov-law-api",
+        "sourceItemId": "421AC0000000048",
+        "sourceVersionOrRevisionId": "421AC0000000048_20240401_505AC0000000036",
+        "provisions": ["6", "7", "8"],
+        "description": "消費者委員会の設置及び所掌"
+      }
+    },
+    {
+      "name": "conflated-caa-consumer-commission",
+      "expectedValid": false,
+      "authorityId": "caa-consumer-commission",
+      "displayName": "消費者庁・消費者委員会",
+      "authorityType": "agency",
+      "mandate": {
+        "sourceSystem": "",
+        "sourceItemId": "421AC0000000048",
+        "sourceVersionOrRevisionId": "current-20260716",
+        "provisions": [],
+        "description": ""
+      }
+    },
+    {
+      "name": "caa-mandate-must-use-pinned-revision-and-arts-2-4",
+      "expectedValid": false,
+      "authorityId": "caa",
+      "displayName": "消費者庁",
+      "authorityType": "agency",
+      "mandate": {
+        "sourceSystem": "e-gov-law-api",
+        "sourceItemId": "421AC0000000048",
+        "sourceVersionOrRevisionId": "current",
+        "provisions": ["3"],
+        "description": "incomplete mandate"
+      }
+    }
+  ],
+  "sourceHealthCases": [
+    {
+      "name": "jftc-adapter-required-mixed-page",
+      "expectedValid": true,
+      "sourceSystem": "jftc-guidelines",
+      "displayNameJa": "公正取引委員会",
+      "retrievalMode": "adapter-required",
+      "encoding": "UTF-8",
+      "expectedContentClasses": ["guideline", "consultation", "result", "press", "enforcement"],
+      "itemLevelClassificationRequired": true
+    },
+    {
+      "name": "meti-manual-fallback",
+      "expectedValid": true,
+      "sourceSystem": "meti-web",
+      "displayNameJa": "経済産業省",
+      "retrievalMode": "manual",
+      "encoding": "UTF-8",
+      "expectedContentClasses": ["law", "guideline", "council", "press"],
+      "itemLevelClassificationRequired": true
+    },
+    {
+      "name": "maff-adapter-required",
+      "expectedValid": true,
+      "sourceSystem": "maff-web",
+      "displayNameJa": "農林水産省",
+      "retrievalMode": "adapter-required",
+      "encoding": "UTF-8",
+      "expectedContentClasses": ["council", "consultation", "press"],
+      "itemLevelClassificationRequired": true
+    },
+    {
+      "name": "house-bill-shift-jis",
+      "expectedValid": true,
+      "sourceSystem": "house-of-representatives-bills",
+      "displayNameJa": "衆議院 議案",
+      "retrievalMode": "adapter-required",
+      "encoding": "Shift_JIS",
+      "expectedContentClasses": ["bill", "bill-status"],
+      "itemLevelClassificationRequired": true
+    },
+    {
+      "name": "mixed-fsa-single-authority-class",
+      "expectedValid": false,
+      "sourceSystem": "fsa-mixed-page",
+      "displayNameJa": "金融庁",
+      "retrievalMode": "direct",
+      "encoding": "UTF-8",
+      "authorityClass": "G",
+      "expectedContentClasses": [],
+      "itemLevelClassificationRequired": false
+    },
+    {
+      "name": "current-cyber-office-name",
+      "expectedValid": true,
+      "sourceSystem": "cyber-go-jp",
+      "displayNameJa": "国家サイバー統括室",
+      "canonicalUrl": "https://www.cyber.go.jp/",
+      "historicalAliases": ["NISC"],
+      "retrievalMode": "direct",
+      "encoding": "UTF-8",
+      "expectedContentClasses": ["law", "policy", "guideline", "press"],
+      "itemLevelClassificationRequired": true
+    },
+    {
+      "name": "exchange-rule-exact-context",
+      "expectedValid": true,
+      "sourceSystem": "jpx-rule",
+      "displayNameJa": "取引所規則",
+      "retrievalMode": "direct",
+      "encoding": "UTF-8",
+      "expectedContentClasses": ["exchange-rule"],
+      "itemLevelClassificationRequired": true,
+      "marketRuleContext": {
+        "kind": "exchange",
+        "issuerEntity": "Tokyo Stock Exchange",
+        "venue": "Tokyo Stock Exchange",
+        "approvalRequired": "unknown",
+        "approvalAuthority": null,
+        "approvalStatus": "unknown",
+        "approvalBasis": {
+          "sourceSystem": "e-gov-law-api",
+          "sourceItemId": "323AC0000000025",
+          "sourceVersionOrRevisionId": "323AC0000000025_20260525_506AC0000000052",
+          "provisions": ["149"],
+          "exactRuleOrExceptionPinned": false
+        },
+        "coveredParties": ["listed-issuer"]
+      }
+    },
+    {
+      "name": "cabinet-decisions-item-level",
+      "expectedValid": true,
+      "sourceSystem": "kantei-cabinet-decisions",
+      "displayNameJa": "首相官邸 閣議",
+      "retrievalMode": "direct",
+      "encoding": "UTF-8",
+      "expectedContentClasses": ["cabinet-decision", "bill-decision", "policy-plan", "other"],
+      "itemLevelClassificationRequired": true
+    },
+    {
+      "name": "pmda-mixed-new-information",
+      "expectedValid": true,
+      "sourceSystem": "pmda-new-information",
+      "displayNameJa": "PMDA 新着情報",
+      "retrievalMode": "direct",
+      "encoding": "UTF-8",
+      "expectedContentClasses": ["safety", "notice", "guideline", "press", "other"],
+      "itemLevelClassificationRequired": true
+    }
+  ],
+  "gazetteCases": [
+    {
+      "name": "all-records-database-for-others-requires-article-16-approval",
+      "expectedApprovalRequired": true,
+      "containsAllElectronicGazetteRecords": true,
+      "intendedForOthers": true
+    },
+    {
+      "name": "partial-internal-dataset-not-automatically-article-16-database",
+      "expectedApprovalRequired": false,
+      "containsAllElectronicGazetteRecords": false,
+      "intendedForOthers": false
+    },
+    {
+      "name": "site-terms-prohibit-burdening-crawler-not-all-automation",
+      "expectedValid": true,
+      "burdeningRobotCrawlerProhibited": true,
+      "allAutomationProhibited": false
+    }
+  ],
+  "jurisdictionSourceCases": [
+    {
+      "name": "federal-register-us-only",
+      "expectedValid": true,
+      "sourceSystem": "federal-register",
+      "jurisdiction": "US"
+    },
+    {
+      "name": "federal-register-not-eu-source",
+      "expectedValid": false,
+      "sourceSystem": "federal-register",
+      "jurisdiction": "EU"
+    },
+    {
+      "name": "eur-lex-for-eu",
+      "expectedValid": true,
+      "sourceSystem": "eur-lex-official-journal",
+      "jurisdiction": "EU"
+    }
+  ],
+  "setupSessionCases": [
+    {
+      "name": "user-scoped-resume",
+      "expectedValid": true,
+      "record": {
+        "tenantId": "tenant-1",
+        "practiceId": "practice-1",
+        "scopeType": "user",
+        "scopeId": "user-1",
+        "recordType": "setup-session",
+        "recordId": "regulatory-legal:setup-1",
+        "payload": {
+          "tenantId": "tenant-1",
+          "practiceId": "practice-1",
+          "pluginId": "regulatory-legal",
+          "setupSessionId": "setup-1",
+          "userObjectId": "user-1",
+          "conversationState": "resume",
+          "setupStatus": "paused",
+          "operation": "update",
+          "itemId": "SETUP-1",
+          "eTag": "\"2\"",
+          "idempotencyKey": "resume-setup-1",
+          "pendingQuestions": ["watchlist"],
+          "resumeState": {
+            "resumable": true,
+            "pausedAt": "2026-07-16T17:00:00+09:00",
+            "lastCompletedStep": "role"
+          },
+          "redoState": {
+            "parentSetupSessionId": null,
+            "targetSections": [],
+            "baseProfilePins": [],
+            "proposedPatchHash": null
+          }
+        }
+      }
+    },
+    {
+      "name": "user-scoped-redo",
+      "expectedValid": true,
+      "record": {
+        "tenantId": "tenant-1",
+        "practiceId": "practice-1",
+        "scopeType": "user",
+        "scopeId": "user-1",
+        "recordType": "setup-session",
+        "recordId": "regulatory-legal:setup-2",
+        "payload": {
+          "tenantId": "tenant-1",
+          "practiceId": "practice-1",
+          "pluginId": "regulatory-legal",
+          "setupSessionId": "setup-2",
+          "userObjectId": "user-1",
+          "conversationState": "redo",
+          "setupStatus": "in-progress",
+          "operation": "create",
+          "expectedAbsent": true,
+          "idempotencyKey": "redo-setup-2",
+          "pendingQuestions": [],
+          "resumeState": {
+            "resumable": false,
+            "pausedAt": null,
+            "lastCompletedStep": null
+          },
+          "redoState": {
+            "parentSetupSessionId": "setup-1",
+            "targetSections": ["all"],
+            "baseProfilePins": [
+              {
+                "profileItemId": "PROFILE-1",
+                "profileVersion": "3",
+                "profileETag": "etag-1"
+              }
+            ],
+            "proposedPatchHash": null
+          }
+        }
+      }
+    },
+    {
+      "name": "setup-session-cross-user",
+      "expectedValid": false,
+      "record": {
+        "scopeType": "user",
+        "scopeId": "user-2",
+        "recordType": "setup-session",
+        "recordId": "regulatory-legal:setup-1",
+        "payload": {
+          "pluginId": "regulatory-legal",
+          "setupSessionId": "setup-1",
+          "userObjectId": "user-1",
+          "conversationState": "resume",
+          "setupStatus": "paused",
+          "operation": "update",
+          "itemId": "SETUP-1",
+          "eTag": "\"2\"",
+          "idempotencyKey": "resume-cross-user",
+          "pendingQuestions": ["watchlist"],
+          "resumeState": {
+            "resumable": true,
+            "pausedAt": "2026-07-16T17:00:00+09:00",
+            "lastCompletedStep": "role"
+          },
+          "redoState": {
+            "parentSetupSessionId": null,
+            "targetSections": [],
+            "baseProfilePins": [],
+            "proposedPatchHash": null
+          }
+        }
+      }
+    }
+  ],
+  "writeCases": [
+    {
+      "name": "canonical-create",
+      "expectedValid": true,
+      "operation": "create",
+      "canonicalKey": {
+        "tenantId": "tenant-1",
+        "practiceId": "practice-1",
+        "scopeType": "practice",
+        "scopeId": "practice-1",
+        "recordType": "regulatory-gap",
+        "recordId": "GAP-1"
+      },
+      "expectedAbsent": true,
+      "idempotencyKey": "create-gap-0001"
+    },
+    {
+      "name": "create-with-invented-item-etag",
+      "expectedValid": false,
+      "operation": "create",
+      "canonicalKey": {
+        "tenantId": "tenant-1",
+        "practiceId": "practice-1",
+        "scopeType": "practice",
+        "scopeId": "practice-1",
+        "recordType": "regulatory-gap",
+        "recordId": "GAP-1"
+      },
+      "expectedAbsent": true,
+      "idempotencyKey": "create-gap-0002",
+      "itemId": "invented",
+      "eTag": "invented"
+    },
+    {
+      "name": "exact-update",
+      "expectedValid": true,
+      "operation": "update",
+      "canonicalKey": {
+        "tenantId": "tenant-1",
+        "practiceId": "practice-1",
+        "scopeType": "practice",
+        "scopeId": "practice-1",
+        "recordType": "regulatory-gap",
+        "recordId": "GAP-1"
+      },
+      "itemId": "SP-123",
+      "eTag": "\"7\"",
+      "idempotencyKey": "update-gap-0001"
+    },
+    {
+      "name": "update-with-expected-absent",
+      "expectedValid": false,
+      "operation": "update",
+      "canonicalKey": {
+        "tenantId": "tenant-1",
+        "practiceId": "practice-1",
+        "scopeType": "practice",
+        "scopeId": "practice-1",
+        "recordType": "regulatory-gap",
+        "recordId": "GAP-1"
+      },
+      "itemId": "SP-123",
+      "eTag": "\"7\"",
+      "idempotencyKey": "update-gap-0002",
+      "expectedAbsent": true
+    },
+    {
+      "name": "create-with-blank-record-id",
+      "expectedValid": false,
+      "operation": "create",
+      "canonicalKey": {
+        "tenantId": "tenant-1",
+        "practiceId": "practice-1",
+        "scopeType": "practice",
+        "scopeId": "practice-1",
+        "recordType": "regulatory-gap",
+        "recordId": ""
+      },
+      "expectedAbsent": true,
+      "idempotencyKey": "create-blank-record"
+    },
+    {
+      "name": "update-with-blank-scope-id",
+      "expectedValid": false,
+      "operation": "update",
+      "canonicalKey": {
+        "tenantId": "tenant-1",
+        "practiceId": "practice-1",
+        "scopeType": "practice",
+        "scopeId": "",
+        "recordType": "regulatory-gap",
+        "recordId": "GAP-1"
+      },
+      "itemId": "SP-123",
+      "eTag": "\"7\"",
+      "idempotencyKey": "update-blank-scope"
+    }
+  ],
+  "cursorCases": [
+    {
+      "name": "complete-zero-qualifying",
+      "expectedAdvance": true,
+      "scanStatus": "succeeded",
+      "coverageStatus": "complete",
+      "itemsQualified": 0,
+      "pagesExpected": 3,
+      "pagesProcessed": 3,
+      "attachmentsExpected": 1,
+      "attachmentsProcessed": 1,
+      "failures": [],
+      "sourceHealth": "healthy",
+      "auditedStages": ["official-feed-reader", "official-status-verifier", "materiality-filter", "digest-writer"]
+    },
+    {
+      "name": "truncated-scan",
+      "expectedAdvance": false,
+      "scanStatus": "partial",
+      "coverageStatus": "truncated",
+      "itemsQualified": 4,
+      "pagesExpected": 3,
+      "pagesProcessed": 2,
+      "attachmentsExpected": 1,
+      "attachmentsProcessed": 1,
+      "failures": [],
+      "sourceHealth": "healthy",
+      "auditedStages": ["official-feed-reader", "official-status-verifier", "materiality-filter", "digest-writer"]
+    },
+    {
+      "name": "failed-scan",
+      "expectedAdvance": false,
+      "scanStatus": "failed",
+      "coverageStatus": "failed",
+      "itemsQualified": 0,
+      "pagesExpected": 3,
+      "pagesProcessed": 0,
+      "attachmentsExpected": 1,
+      "attachmentsProcessed": 0,
+      "failures": ["source-error"],
+      "sourceHealth": "failed",
+      "auditedStages": ["official-feed-reader"]
+    },
+    {
+      "name": "missing-page-counters",
+      "expectedAdvance": false,
+      "scanStatus": "succeeded",
+      "coverageStatus": "complete",
+      "itemsQualified": 0,
+      "attachmentsExpected": 0,
+      "attachmentsProcessed": 0,
+      "failures": [],
+      "sourceHealth": "healthy",
+      "auditedStages": ["official-feed-reader", "official-status-verifier", "materiality-filter", "digest-writer"]
+    },
+    {
+      "name": "nonempty-cursor-failures",
+      "expectedAdvance": false,
+      "scanStatus": "succeeded",
+      "coverageStatus": "complete",
+      "itemsQualified": 0,
+      "pagesExpected": 1,
+      "pagesProcessed": 1,
+      "attachmentsExpected": 0,
+      "attachmentsProcessed": 0,
+      "failures": ["verification-warning"],
+      "sourceHealth": "healthy",
+      "auditedStages": ["official-feed-reader", "official-status-verifier", "materiality-filter", "digest-writer"]
+    },
+    {
+      "name": "negative-cursor-counter",
+      "expectedAdvance": false,
+      "scanStatus": "succeeded",
+      "coverageStatus": "complete",
+      "itemsQualified": 0,
+      "pagesExpected": -1,
+      "pagesProcessed": -1,
+      "attachmentsExpected": 0,
+      "attachmentsProcessed": 0,
+      "failures": [],
+      "sourceHealth": "healthy",
+      "auditedStages": ["official-feed-reader", "official-status-verifier", "materiality-filter", "digest-writer"]
+    }
+  ],
+  "directMutationCases": [
+    {"name": "scalar-jurisdictionCodes", "mutation": "scalar-jurisdiction"},
+    {"name": "blank-only-jurisdictionCodes", "mutation": "blank-jurisdiction"},
+    {"name": "blank-only-authorityIds", "mutation": "blank-authority"},
+    {"name": "risk-accepted-without-riskAcceptance", "mutation": "missing-risk-acceptance"},
+    {"name": "regulator-submission-identical-artifacts", "mutation": "identical-closure-artifacts"},
+    {"name": "comment-decision-approved", "mutation": "invalid-comment-decision"},
+    {"name": "filed-egov-missing-entry-url", "mutation": "missing-egov-entry"},
+    {"name": "filed-egov-missing-form-action", "mutation": "missing-egov-action"},
+    {"name": "filed-egov-missing-http-method", "mutation": "missing-egov-method"},
+    {"name": "filed-egov-missing-form-class", "mutation": "missing-egov-class"},
+    {"name": "filed-egov-missing-route-id", "mutation": "missing-egov-route-id"},
+    {"name": "240000127-mutated-open", "mutation": "mutate-240-open"},
+    {"name": "240000127-mutated-close", "mutation": "mutate-240-close"},
+    {"name": "240000127-mutated-route-id", "mutation": "mutate-240-route"},
+    {"name": "240000127-mutated-deadline", "mutation": "mutate-240-deadline"},
+    {"name": "240000127-mutated-verification-time", "mutation": "mutate-240-verified"},
+    {"name": "setup-blank-tenant", "mutation": "blank-setup-tenant"},
+    {"name": "setup-wrong-practice", "mutation": "wrong-setup-practice"},
+    {"name": "setup-wrong-plugin", "mutation": "wrong-setup-plugin"},
+    {"name": "setup-invalid-status", "mutation": "invalid-setup-status"},
+    {"name": "scheduled-with-userObjectId", "mutation": "scheduled-user"},
+    {"name": "scheduled-with-human-session", "mutation": "scheduled-session"},
+    {"name": "caa-swapped-display-name", "mutation": "swap-caa-display"},
+    {"name": "consumer-commission-swapped-display-name", "mutation": "swap-commission-display"},
+    {"name": "cursor-missing-both-page-counters", "mutation": "cursor-missing-counters"},
+    {"name": "cursor-nonempty-failures", "mutation": "cursor-failures"},
+    {"name": "fiea-pseudo-version-exact-pin-true", "mutation": "fiea-pseudo-exact-pin"}
+  ],
+  "scopeCases": [
+    {
+      "name": "interactive-matter",
+      "expectedValid": true,
+      "mode": "interactive-matter",
+      "actorType": "human",
+      "tenantId": "tenant-1",
+      "practiceId": "practice-1",
+      "scopeType": "matter",
+      "scopeId": "matter-1",
+      "status": "active",
+      "access": "authorized",
+      "now": "2026-07-16T20:00:00+09:00",
+      "binding": {
+        "matterId": "matter-1",
+        "status": "active",
+        "access": "authorized",
+        "expiresAt": "2099-01-01T00:00:00Z"
+      }
+    },
+    {
+      "name": "interactive-practice",
+      "expectedValid": true,
+      "mode": "interactive-practice",
+      "actorType": "human",
+      "tenantId": "tenant-1",
+      "practiceId": "practice-1",
+      "scopeType": "practice",
+      "scopeId": "practice-1",
+      "status": "active",
+      "access": "authorized",
+      "binding": null,
+      "session": {
+        "sessionId": "session-1",
+        "fresh": true,
+        "bindingLookupVerified": true,
+        "status": "active",
+        "access": "authorized"
+      }
+    },
+    {
+      "name": "scheduled-practice",
+      "expectedValid": true,
+      "mode": "scheduled-practice",
+      "actorType": "service-principal",
+      "tenantId": "tenant-1",
+      "practiceId": "practice-1",
+      "scopeType": "practice",
+      "scopeId": "practice-1",
+      "status": "active",
+      "access": "authorized",
+      "binding": null,
+      "servicePrincipalObjectId": "spn-legal-runtime",
+      "automationRunId": "run-1",
+      "solutionVersion": "1.0.0",
+      "connectionReference": "reg-monitor-reader",
+      "sourceAllowlist": ["e-gov-law-api"],
+      "practiceProfileKey": {
+        "tenantId": "tenant-1",
+        "practiceId": "practice-1",
+        "pluginId": "regulatory-legal",
+        "profileType": "practice-profile"
+      }
+    },
+    {
+      "name": "scheduled-practice-with-null-matter-binding",
+      "expectedValid": false,
+      "mode": "scheduled-practice",
+      "actorType": "service-principal",
+      "tenantId": "tenant-1",
+      "practiceId": "practice-1",
+      "scopeType": "practice",
+      "scopeId": "practice-1",
+      "status": "active",
+      "access": "authorized",
+      "binding": {
+        "matterId": null,
+        "status": "active",
+        "expiresAt": "2099-01-01T00:00:00Z"
+      },
+      "servicePrincipalObjectId": "spn-legal-runtime",
+      "automationRunId": "run-2",
+      "solutionVersion": "1.0.0",
+      "connectionReference": "reg-monitor-reader",
+      "sourceAllowlist": ["e-gov-law-api"],
+      "practiceProfileKey": {
+        "tenantId": "tenant-1",
+        "practiceId": "practice-1",
+        "pluginId": "regulatory-legal",
+        "profileType": "practice-profile"
+      }
+    },
+    {
+      "name": "expired-interactive-matter-binding",
+      "expectedValid": false,
+      "mode": "interactive-matter",
+      "actorType": "human",
+      "tenantId": "tenant-1",
+      "practiceId": "practice-1",
+      "scopeType": "matter",
+      "scopeId": "matter-1",
+      "status": "active",
+      "access": "authorized",
+      "now": "2026-07-16T20:00:00+09:00",
+      "binding": {
+        "matterId": "matter-1",
+        "status": "active",
+        "access": "authorized",
+        "expiresAt": "2026-07-16T19:59:59+09:00"
+      }
+    },
+    {
+      "name": "empty-scope-id",
+      "expectedValid": false,
+      "mode": "interactive-practice",
+      "actorType": "human",
+      "tenantId": "tenant-1",
+      "practiceId": "practice-1",
+      "scopeType": "practice",
+      "scopeId": "",
+      "status": "active",
+      "access": "authorized",
+      "binding": null,
+      "session": {"sessionId": "session-2", "fresh": true, "bindingLookupVerified": true, "status": "active", "access": "authorized"}
+    },
+    {
+      "name": "practice-session-not-fresh",
+      "expectedValid": false,
+      "mode": "interactive-practice",
+      "actorType": "human",
+      "tenantId": "tenant-1",
+      "practiceId": "practice-1",
+      "scopeType": "practice",
+      "scopeId": "practice-1",
+      "status": "active",
+      "access": "authorized",
+      "binding": null,
+      "session": {"sessionId": "session-3", "fresh": false, "bindingLookupVerified": true, "status": "active", "access": "authorized"}
+    },
+    {
+      "name": "practice-binding-lookup-unverified",
+      "expectedValid": false,
+      "mode": "interactive-practice",
+      "actorType": "human",
+      "tenantId": "tenant-1",
+      "practiceId": "practice-1",
+      "scopeType": "practice",
+      "scopeId": "practice-1",
+      "status": "active",
+      "access": "authorized",
+      "binding": null,
+      "session": {"sessionId": "session-4", "fresh": true, "bindingLookupVerified": false, "status": "active", "access": "authorized"}
+    },
+    {
+      "name": "practice-access-denied",
+      "expectedValid": false,
+      "mode": "interactive-practice",
+      "actorType": "human",
+      "tenantId": "tenant-1",
+      "practiceId": "practice-1",
+      "scopeType": "practice",
+      "scopeId": "practice-1",
+      "status": "active",
+      "access": "denied",
+      "binding": null,
+      "session": {"sessionId": "session-5", "fresh": true, "bindingLookupVerified": true, "status": "active", "access": "denied"}
+    },
+    {
+      "name": "scheduled-missing-source-allowlist",
+      "expectedValid": false,
+      "mode": "scheduled-practice",
+      "actorType": "service-principal",
+      "tenantId": "tenant-1",
+      "practiceId": "practice-1",
+      "scopeType": "practice",
+      "scopeId": "practice-1",
+      "status": "active",
+      "access": "authorized",
+      "binding": null,
+      "servicePrincipalObjectId": "spn-legal-runtime",
+      "automationRunId": "run-3",
+      "solutionVersion": "1.0.0",
+      "connectionReference": "reg-monitor-reader",
+      "sourceAllowlist": [],
+      "practiceProfileKey": {
+        "tenantId": "tenant-1",
+        "practiceId": "practice-1",
+        "pluginId": "regulatory-legal",
+        "profileType": "practice-profile"
+      }
+    },
+    {
+      "name": "scheduled-profile-key-mismatch",
+      "expectedValid": false,
+      "mode": "scheduled-practice",
+      "actorType": "service-principal",
+      "tenantId": "tenant-1",
+      "practiceId": "practice-1",
+      "scopeType": "practice",
+      "scopeId": "practice-1",
+      "status": "active",
+      "access": "authorized",
+      "binding": null,
+      "servicePrincipalObjectId": "spn-legal-runtime",
+      "automationRunId": "run-4",
+      "solutionVersion": "1.0.0",
+      "connectionReference": "reg-monitor-reader",
+      "sourceAllowlist": ["e-gov-law-api"],
+      "practiceProfileKey": {
+        "tenantId": "tenant-1",
+        "practiceId": "practice-other",
+        "pluginId": "regulatory-legal",
+        "profileType": "practice-profile"
+      }
+    }
+  ]
+}

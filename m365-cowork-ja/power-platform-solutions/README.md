@@ -46,6 +46,8 @@ agents/regulatory-reg-change-monitor/
 ## 実行境界
 
 - readerはsource readとrestricted staging writeだけ。
+- verifierはofficial sourceを独立再取得し、status、effective date、provenanceの
+  bounded verification recordだけを作る。materiality判断やdeliveryを行わない。
 - analyzerはstaging readとanalysis writeだけ。
 - writerはapproved analysisからdraft/output/auditを作り、raw sourceを読まない。
 - deliveryはexact artifact hash、destination、approvalを受けて送信する。

@@ -103,7 +103,7 @@
       "displayNameShort": "規制対応法務",
       "displayNameFull": "規制対応法務 — 日本語版 Microsoft 365 Copilot Cowork",
       "descriptionShort": "規制監視、ポリシー差分、ギャップ、意見募集対応を支援します。",
-      "status": "planned"
+      "status": "draft-legal-review"
     },
     "cocounsel-legal": {
       "appId": "af6da462-c6e2-5a05-850e-558a133eb045",
