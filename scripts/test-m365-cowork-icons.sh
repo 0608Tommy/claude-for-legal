@@ -182,6 +182,28 @@ valid_header = struct.pack(
     0,
 )
 compressed = zlib.compress(valid_raw)
+known_plte = (
+    SIGNATURE
+    + chunk(b"IHDR", valid_header)
+    + chunk(b"PLTE", b"\x00\x00\x00")
+    + chunk(b"IDAT", compressed)
+    + chunk(b"IEND", b"")
+)
+validate_png_bytes(known_plte, (WIDTH, HEIGHT), "known-critical-plte")
+
+unknown_critical = (
+    SIGNATURE
+    + chunk(b"IHDR", valid_header)
+    + chunk(b"ABCD", b"crc-valid-unknown-critical")
+    + chunk(b"IDAT", compressed)
+    + chunk(b"IEND", b"")
+)
+expect_failure(
+    "unknown-critical",
+    unknown_critical,
+    "unsupported critical PNG chunk ABCD",
+)
+
 expect_failure(
     "zlib-trailing",
     png_with_idat(valid_header, compressed + zlib.compress(b"x")),

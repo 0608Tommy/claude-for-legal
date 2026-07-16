@@ -16,6 +16,16 @@ PNG_SIGNATURE: Final = b"\x89PNG\r\n\x1a\n"
 IHDR_FORMAT: Final = ">IIBBBBB"
 IHDR_LENGTH: Final = 13
 RGBA_BYTES_PER_PIXEL: Final = 4
+PNG_ANCILLARY_BIT: Final = 0x20
+MAX_PLTE_LENGTH: Final = 256 * 3
+SUPPORTED_CRITICAL_CHUNKS: Final = frozenset(
+    {
+        b"IHDR",
+        b"PLTE",
+        b"IDAT",
+        b"IEND",
+    },
+)
 FILTER_NONE: Final = 0
 FILTER_SUB: Final = 1
 FILTER_UP: Final = 2
@@ -365,6 +375,28 @@ def _validate_iend(
         raise _error(context, "IEND must be empty")
 
 
+def _is_critical_chunk(chunk_type: bytes) -> bool:
+    """Return whether the PNG chunk's ancillary bit marks it critical."""
+    return chunk_type[0] & PNG_ANCILLARY_BIT == 0
+
+
+def _validate_critical_chunks(
+    chunks: list[PngChunk],
+    context: str,
+) -> None:
+    """Reject every critical chunk outside the supported PNG profile."""
+    for chunk in chunks:
+        if (
+            _is_critical_chunk(chunk.chunk_type)
+            and chunk.chunk_type not in SUPPORTED_CRITICAL_CHUNKS
+        ):
+            label = chunk.chunk_type.decode("ascii", errors="replace")
+            raise _error(
+                context,
+                f"unsupported critical PNG chunk {label}",
+            )
+
+
 def _contiguous_idat_indices(
     chunk_types: list[bytes],
     context: str,
@@ -383,14 +415,54 @@ def _contiguous_idat_indices(
     return indices
 
 
+def _validate_plte_payload(chunk: PngChunk, context: str) -> None:
+    """Validate the optional truecolor suggested-palette payload."""
+    payload_length = len(chunk.payload)
+    invalid_lengths = (
+        payload_length == 0,
+        payload_length % 3 != 0,
+        payload_length > MAX_PLTE_LENGTH,
+    )
+    if any(invalid_lengths):
+        raise _error(context, "PLTE must contain 1 to 256 RGB entries")
+
+
+def _plte_indices(chunks: list[PngChunk]) -> list[int]:
+    """Return indexes of optional PLTE chunks."""
+    return [
+        index
+        for index, chunk in enumerate(chunks)
+        if chunk.chunk_type == b"PLTE"
+    ]
+
+
+def _validate_plte(
+    chunks: list[PngChunk],
+    first_idat_index: int,
+    context: str,
+) -> None:
+    """Validate the optional single PLTE chunk before IDAT."""
+    indices = _plte_indices(chunks)
+    if len(indices) > 1:
+        raise _error(context, "PNG must contain at most one PLTE")
+    if not indices:
+        return
+    plte_index = indices[0]
+    if plte_index > first_idat_index:
+        raise _error(context, "PLTE must precede IDAT")
+    _validate_plte_payload(chunks[plte_index], context)
+
+
 def _validate_chunk_structure(
     chunks: list[PngChunk],
     expected_dimensions: tuple[int, int],
     context: str,
 ) -> tuple[PngHeader, bytes]:
     """Validate PNG chunk ordering and return its header and IDAT bytes."""
+    _validate_critical_chunks(chunks, context)
     chunk_types = _validate_boundary_chunks(chunks, context)
     idat_indices = _contiguous_idat_indices(chunk_types, context)
+    _validate_plte(chunks, idat_indices[0], context)
     header = _parse_header(
         chunks[0].payload,
         expected_dimensions,
