@@ -140,24 +140,31 @@ matter作成・切替・終了、event/deadline/preservation更新、cursor更�
 
 ## Scope別cursor
 
-```yaml
-tenantId: "[tenant id]"
-practiceId: "[practice id]"
-scopeType: practice | matter
-scopeId: "[practiceId or matterId]"
-recordType: workflow-cursor
-recordId: "[workflow]:[sourceSystem]:[queryFingerprint]"
-sourceSystem: "[SharePoint or approved connector]"
-queryFingerprint: "[stable hash of filters and ordering]"
-payload:
-  timestamp: "[ISO-8601]"
-  itemId: "[last item ID]"
-  sourceVersion: "[opaque continuation token or version]"
-itemId: "[SharePoint state item ID]"
-eTag: "[eTag]"
-version: 1
-updatedAt: "[ISO-8601]"
+```json
+{
+  "tenantId": "tenant-example",
+  "practiceId": "litigation-legal",
+  "scopeType": "matter",
+  "scopeId": "matter-example-1",
+  "recordType": "workflow-cursor",
+  "recordId": "deadline-sweep:sharepoint:673b0bc62a2ec16cd0de4fd809f664e83a86b366be82dc53ab8dbccd664595ad",
+  "itemId": "state-cursor-item-1",
+  "eTag": "\"1\"",
+  "version": 1,
+  "payload": {
+    "sourceSystem": "sharepoint",
+    "queryFingerprint": "673b0bc62a2ec16cd0de4fd809f664e83a86b366be82dc53ab8dbccd664595ad",
+    "timestamp": "2026-07-16T09:00:00+09:00",
+    "lastSourceItemId": "source-item-100",
+    "sourceVersion": "v100"
+  },
+  "updatedAt": "2026-07-16T09:05:00+09:00"
+}
 ```
+
+`queryFingerprint`はcanonicalized filter/orderのSHA-256 lowercase hexとし、`:`を
+含めない。`recordId`の最後のcolon-delimited componentは
+`payload.queryFingerprint`と完全一致させる。
 
 scope、source、filter、sort、queryが変われば別cursor。同時刻は`itemId`で順序を
 確定し、別matterのcursorを使わない。cursor更新はresultを人がacknowledgeした後の

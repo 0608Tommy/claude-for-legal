@@ -39,7 +39,7 @@ canonical label:
    client notice、matter closeは別operation。
 9. semester endをclose/archive/delete triggerにしない。
 10. Cowork内DLPが必須ならconfidential contentを投入しない。
-11. handoff writeは`tracker-record` + `trackerType: handoff`へvalidateし、outer
+11. handoff writeは`tracker-record` + `payload.trackerType: handoff`へvalidateし、outer
     `scopeType: matter`、`scopeId == payload.matterId`、duplicated tenant/practice
     identityの一致をsemantic validateする。
 

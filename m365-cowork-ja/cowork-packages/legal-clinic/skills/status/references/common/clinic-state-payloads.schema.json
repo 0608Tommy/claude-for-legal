@@ -1464,7 +1464,6 @@
       "additionalProperties": false,
       "required": [
         "recordType",
-        "trackerType",
         "tenantId",
         "practiceId",
         "scopeType",
@@ -1479,15 +1478,6 @@
       "properties": {
         "recordType": {
           "const": "tracker-record"
-        },
-        "trackerType": {
-          "type": "string",
-          "enum": [
-            "communication",
-            "deadline",
-            "review",
-            "handoff"
-          ]
         },
         "tenantId": {
           "$ref": "#/$defs/nonEmptyString"
@@ -1518,91 +1508,30 @@
           "$ref": "#/$defs/isoDateTime"
         },
         "payload": {
-          "type": "object"
+          "oneOf": [
+            {
+              "$ref": "#/$defs/communicationPayload"
+            },
+            {
+              "$ref": "#/$defs/deadlinePayload"
+            },
+            {
+              "$ref": "#/$defs/reviewPayload"
+            },
+            {
+              "$ref": "#/$defs/handoffPayload"
+            }
+          ]
         }
       },
-      "allOf": [
-        {
-          "if": {
-            "properties": {
-              "trackerType": {
-                "const": "communication"
-              }
-            },
-            "required": [
-              "trackerType"
-            ]
-          },
-          "then": {
-            "properties": {
-              "payload": {
-                "$ref": "#/$defs/communicationPayload"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "trackerType": {
-                "const": "deadline"
-              }
-            },
-            "required": [
-              "trackerType"
-            ]
-          },
-          "then": {
-            "properties": {
-              "payload": {
-                "$ref": "#/$defs/deadlinePayload"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "trackerType": {
-                "const": "review"
-              }
-            },
-            "required": [
-              "trackerType"
-            ]
-          },
-          "then": {
-            "properties": {
-              "payload": {
-                "$ref": "#/$defs/reviewPayload"
-              }
-            }
-          }
-        },
-        {
-          "if": {
-            "properties": {
-              "trackerType": {
-                "const": "handoff"
-              }
-            },
-            "required": [
-              "trackerType"
-            ]
-          },
-          "then": {
-            "properties": {
-              "payload": {
-                "$ref": "#/$defs/handoffPayload"
-              }
-            }
-          }
-        }
-      ],
       "x-semantic-invariants": [
         {
           "id": "matter-scope-coherence",
           "rule": "scopeType == matter; scopeId == payload.matterId; payload.tenantId and payload.practiceId, when present, equal the outer values"
+        },
+        {
+          "id": "strict-tracker-discriminator",
+          "rule": "payload.trackerType is required and selects exactly one strict tracker payload schema"
         }
       ]
     },
@@ -1610,6 +1539,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "trackerType",
         "entryId",
         "matterId",
         "direction",
@@ -1632,6 +1562,9 @@
         "legalAndLanguageReview"
       ],
       "properties": {
+        "trackerType": {
+          "const": "communication"
+        },
         "tenantId": {
           "$ref": "#/$defs/nonEmptyString"
         },
@@ -1759,6 +1692,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "trackerType",
         "deadlineId",
         "matterId",
         "deadlineClass",
@@ -1782,6 +1716,9 @@
         "calendarEntry"
       ],
       "properties": {
+        "trackerType": {
+          "const": "deadline"
+        },
         "tenantId": {
           "$ref": "#/$defs/nonEmptyString"
         },
@@ -2475,6 +2412,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "trackerType",
         "reviewId",
         "matterId",
         "artifactType",
@@ -2496,6 +2434,9 @@
         "legalAndLanguageReview"
       ],
       "properties": {
+        "trackerType": {
+          "const": "review"
+        },
         "tenantId": {
           "$ref": "#/$defs/nonEmptyString"
         },
@@ -2825,6 +2766,7 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
+        "trackerType",
         "termId",
         "matterId",
         "outgoingStudentObjectId",
@@ -2841,6 +2783,9 @@
         "status"
       ],
       "properties": {
+        "trackerType": {
+          "const": "handoff"
+        },
         "tenantId": {
           "$ref": "#/$defs/nonEmptyString"
         },

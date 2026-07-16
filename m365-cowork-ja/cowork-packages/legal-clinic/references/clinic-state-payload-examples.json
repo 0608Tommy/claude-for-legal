@@ -251,7 +251,6 @@
   },
   "trackerRecordCommunication": {
     "recordType": "tracker-record",
-    "trackerType": "communication",
     "tenantId": "tenant-example",
     "practiceId": "practice-example",
     "scopeType": "matter",
@@ -262,6 +261,7 @@
     "version": 1,
     "updatedAt": "2026-07-16T12:00:00+09:00",
     "payload": {
+      "trackerType": "communication",
       "entryId": "comm-1",
       "matterId": "matter-example-1",
       "direction": "outbound",
@@ -298,7 +298,6 @@
   },
   "trackerRecordDeadline": {
     "recordType": "tracker-record",
-    "trackerType": "deadline",
     "tenantId": "tenant-example",
     "practiceId": "practice-example",
     "scopeType": "matter",
@@ -309,6 +308,7 @@
     "version": 2,
     "updatedAt": "2026-07-16T12:30:00+09:00",
     "payload": {
+      "trackerType": "deadline",
       "deadlineId": "deadline-1",
       "matterId": "matter-example-1",
       "deadlineClass": "statutory-invariable",
@@ -400,7 +400,6 @@
   },
   "trackerRecordReview": {
     "recordType": "tracker-record",
-    "trackerType": "review",
     "tenantId": "tenant-example",
     "practiceId": "practice-example",
     "scopeType": "matter",
@@ -411,6 +410,7 @@
     "version": 1,
     "updatedAt": "2026-07-16T13:00:00+09:00",
     "payload": {
+      "trackerType": "review",
       "reviewId": "review-1",
       "matterId": "matter-example-1",
       "artifactType": "client-safe-draft",
@@ -455,7 +455,6 @@
   },
   "trackerRecordHandoff": {
     "recordType": "tracker-record",
-    "trackerType": "handoff",
     "tenantId": "tenant-example",
     "practiceId": "practice-example",
     "scopeType": "matter",
@@ -466,6 +465,7 @@
     "version": 1,
     "updatedAt": "2026-07-16T14:00:00+09:00",
     "payload": {
+      "trackerType": "handoff",
       "termId": "2026-fall",
       "matterId": "matter-example-1",
       "outgoingStudentObjectId": "student-object-1",

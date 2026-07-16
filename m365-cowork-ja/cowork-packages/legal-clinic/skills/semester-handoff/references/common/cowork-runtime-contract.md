@@ -50,10 +50,10 @@ local path、home directory、cache、working directoryを正本又はfallback�
 | `practice-guide` | `guide:[practiceAreaId]` |
 | `conflict-prescreen` | `prospect:[prospectId]:conflict` |
 | `clinic-matter` | `matter:[matterId]` |
-| `tracker-record` + `trackerType: communication` | `matter:[matterId]:comm:[entryId]` |
-| `tracker-record` + `trackerType: deadline` | `matter:[matterId]:deadline:[deadlineId]` |
-| `tracker-record` + `trackerType: review` | `matter:[matterId]:review:[reviewId]` |
-| `tracker-record` + `trackerType: handoff` | `matter:[matterId]:handoff:[termId]` |
+| `tracker-record` + `payload.trackerType: communication` | `matter:[matterId]:comm:[entryId]` |
+| `tracker-record` + `payload.trackerType: deadline` | `matter:[matterId]:deadline:[deadlineId]` |
+| `tracker-record` + `payload.trackerType: review` | `matter:[matterId]:review:[reviewId]` |
+| `tracker-record` + `payload.trackerType: handoff` | `matter:[matterId]:handoff:[termId]` |
 | `workflow-cursor` | `[workflow]:[sourceSystem]:[queryFingerprint]` |
 
 氏名、電話番号、住所、診断、在留資格、犯罪事実、子の情報、相談内容をIDに入れない。

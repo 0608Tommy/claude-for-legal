@@ -66,7 +66,7 @@ defaultは`report`。
 ### `matter-mode`
 
 one active bindingのexact `matterId`だけを読む。`tracker-record` +
-`trackerType: deadline`のstrict payloadでwriteし、outer `scopeId`とpayload
+`payload.trackerType: deadline`のstrict payloadでwriteし、outer `scopeId`とpayload
 `matterId`の一致、duplicated tenant/practice identityをsemantic validateする。
 別matter候補、bindingなし、
 複数bindingではfail closed。

@@ -19,10 +19,17 @@ type JsonObject = dict[str, JsonValue]
 type JsonContainer = list[JsonValue] | JsonObject
 
 ROOT: Final = Path(__file__).resolve().parent
+PACKAGE_ROOT: Final = ROOT.parent
 SCHEMA_PATH: Final = ROOT / "clinic-state-payloads.schema.json"
 EXAMPLES_PATH: Final = ROOT / "clinic-state-payload-examples.json"
 NEGATIVE_PATH: Final = (
     ROOT / "clinic-state-payload-negative-examples.json"
+)
+STATE_ENVELOPE_SCHEMA_PATH: Final = (
+    ROOT.parents[2]
+    / "state-service"
+    / "schemas"
+    / "state-envelope.schema.json"
 )
 
 
@@ -319,6 +326,60 @@ def _schema_errors(
     ]
 
 
+def _parity_failures() -> tuple[list[str], list[Path]]:
+    failures: list[str] = []
+    example_paths = [EXAMPLES_PATH]
+    for canonical_path in (SCHEMA_PATH, EXAMPLES_PATH, NEGATIVE_PATH):
+        copy_paths = sorted(
+            PACKAGE_ROOT.glob(
+                f"skills/*/references/common/{canonical_path.name}",
+            ),
+        )
+        if not copy_paths:
+            failures.append(
+                f"{canonical_path.name}: no skill-local copies",
+            )
+            continue
+        canonical_bytes = canonical_path.read_bytes()
+        failures.extend(
+            f"byte parity mismatch: {copy_path}"
+            for copy_path in copy_paths
+            if copy_path.read_bytes() != canonical_bytes
+        )
+        if canonical_path == EXAMPLES_PATH:
+            example_paths.extend(copy_paths)
+    return failures, example_paths
+
+
+def _tracker_envelope_failures(
+    validator: Draft202012Validator,
+    example_paths: list[Path],
+) -> tuple[list[str], int]:
+    failures: list[str] = []
+    tracker_count = 0
+    for example_path in example_paths:
+        examples = _expand_examples(_load_object(example_path))
+        path_tracker_count = 0
+        for name, document in examples.items():
+            if (
+                not isinstance(document, dict)
+                or document.get("recordType") != "tracker-record"
+            ):
+                continue
+            path_tracker_count += 1
+            errors = _schema_errors(validator, document)
+            if errors:
+                failures.append(
+                    f"shared envelope {example_path}:{name}: {errors[0]}",
+                )
+        if path_tracker_count == 0:
+            failures.append(
+                f"shared envelope {example_path}: no tracker examples",
+            )
+        tracker_count += path_tracker_count
+    return failures, tracker_count
+
+
 def _example_object(
     examples: dict[str, JsonValue],
     name: str,
@@ -431,6 +492,7 @@ def _synthetic_examples(
 
 def _positive_failures(
     validator: Draft202012Validator,
+    state_envelope_validator: Draft202012Validator,
     examples: dict[str, JsonValue],
 ) -> list[str]:
     positives = {**examples, **_synthetic_examples(examples)}
@@ -440,6 +502,13 @@ def _positive_failures(
             *_schema_errors(validator, document),
             *_semantic_errors(document),
         ]
+        if (
+            isinstance(document, dict)
+            and document.get("recordType") == "tracker-record"
+        ):
+            errors.extend(
+                _schema_errors(state_envelope_validator, document),
+            )
         if errors:
             failures.append(f"positive {name}: {errors[0]}")
     return failures
@@ -496,14 +565,33 @@ def main() -> int:
 
     """
     schema = _load_object(SCHEMA_PATH)
+    state_envelope_schema = _load_object(STATE_ENVELOPE_SCHEMA_PATH)
     examples = _expand_examples(_load_object(EXAMPLES_PATH))
     negative = _load_object(NEGATIVE_PATH)
     Draft202012Validator.check_schema(schema)
+    Draft202012Validator.check_schema(state_envelope_schema)
     validator = Draft202012Validator(
         schema,
         format_checker=FormatChecker(),
     )
-    failures = _positive_failures(validator, examples)
+    state_envelope_validator = Draft202012Validator(
+        state_envelope_schema,
+        format_checker=FormatChecker(),
+    )
+    parity_failures, example_paths = _parity_failures()
+    failures = [
+        *parity_failures,
+        *_positive_failures(
+            validator,
+            state_envelope_validator,
+            examples,
+        ),
+    ]
+    tracker_failures, tracker_count = _tracker_envelope_failures(
+        state_envelope_validator,
+        example_paths,
+    )
+    failures.extend(tracker_failures)
     negative_failures, negative_count = _negative_failures(
         validator,
         examples,
@@ -519,7 +607,8 @@ def main() -> int:
     sys.stdout.write(
         "clinic state payload validation: "
         f"{positive_count} positive, "
-        f"{negative_count} bypass-negative OK\n",
+        f"{negative_count} bypass-negative, "
+        f"{tracker_count} shared-envelope tracker copies OK\n",
     )
     return 0
 

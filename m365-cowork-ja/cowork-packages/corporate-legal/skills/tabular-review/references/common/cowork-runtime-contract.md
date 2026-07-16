@@ -109,24 +109,31 @@ gateway provisionの証拠ではない。local fallbackを作らない。
 
 一覧、同期、sweep、approved flowでglobal cursorを共有しない。
 
-```yaml
-tenantId: "[tenant id]"
-practiceId: "[practice id]"
-scopeType: practice | matter
-scopeId: "[practiceId or matterId]"
-recordType: workflow-cursor
-recordId: "[workflow]:[sourceSystem]:[queryFingerprint]"
-sourceSystem: "[SharePoint or approved connector]"
-queryFingerprint: "[stable hash of filters and ordering]"
-payload:
-  timestamp: "[ISO-8601]"
-  itemId: "[last item ID]"
-  sourceVersion: "[opaque continuation token or version]"
-itemId: "[SharePoint state item ID]"
-eTag: "[eTag]"
-version: 1
-updatedAt: "[ISO-8601]"
+```json
+{
+  "tenantId": "tenant-example",
+  "practiceId": "corporate-legal",
+  "scopeType": "practice",
+  "scopeId": "corporate-legal",
+  "recordType": "workflow-cursor",
+  "recordId": "entity-sweep:sharepoint:effa39deee6e376d0ae1cea6ddc8d56fba6a87412ea0c5bc340b835b21b23d14",
+  "itemId": "state-cursor-item-1",
+  "eTag": "\"1\"",
+  "version": 1,
+  "payload": {
+    "sourceSystem": "sharepoint",
+    "queryFingerprint": "effa39deee6e376d0ae1cea6ddc8d56fba6a87412ea0c5bc340b835b21b23d14",
+    "timestamp": "2026-07-16T09:00:00+09:00",
+    "lastSourceItemId": "source-item-100",
+    "sourceVersion": "v100"
+  },
+  "updatedAt": "2026-07-16T09:05:00+09:00"
+}
 ```
+
+`queryFingerprint`はcanonicalized filter/orderのSHA-256 lowercase hexとし、`:`を
+含めない。`recordId`の最後のcolon-delimited componentは
+`payload.queryFingerprint`と完全一致させる。
 
 初回create requestは同じtop-level keyと`expectedAbsent: true`、
 `idempotencyKey`を使い、updateはexact`itemId`/`eTag`を使う。

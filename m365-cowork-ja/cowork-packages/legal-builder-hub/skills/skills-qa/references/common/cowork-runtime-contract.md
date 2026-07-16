@@ -180,28 +180,33 @@ https://learn.microsoft.com/en-us/purview/ai-copilot-cowork
 
 ## Canonical audit event
 
-```yaml
-tenantId: "[tenant ID]"
-practiceId: "[practice ID]"
-matterId: "[matter ID or null]"
-eventType: "[lowercase-kebab-case]"
-correlationId: "[16-128 characters]"
-idempotencyKey: "[key or null]"
-actorObjectId: "[Microsoft Entra object ID]"
-actorRole: requester | reviewer | security-reviewer | legal-reviewer | approver | deployment-operator | auditor | service
-timestamp: "[ISO-8601]"
-outcome: succeeded | failed | rejected | partial
-itemIds:
-  - "[exact item/row ID]"
-details:
-  requestId: "[request ID or null]"
-  packageId: "[package ID or null]"
-  snapshotSha256: "[hash or null]"
-  packageSha256: "[hash or null]"
-  eTagBefore: "[eTag or null]"
-  eTagAfter: "[eTag or null]"
-  decisionId: "[immutable decision ID or null]"
-  evidenceId: "[admin evidence ID or null]"
+```json
+{
+  "tenantId": "tenant-example",
+  "practiceId": "legal-builder-hub",
+  "matterId": null,
+  "eventType": "package-review-requested",
+  "correlationId": "correlation-package-review-0001",
+  "idempotencyKey": "package-review-request-0001",
+  "actorObjectId": "requester-object-1",
+  "timestamp": "2026-07-16T15:00:00+09:00",
+  "outcome": "succeeded",
+  "itemIds": [
+    "request-item-1"
+  ],
+  "details": {
+    "actorRole": "requester",
+    "requestId": "request-0001",
+    "packageId": "community-package-1",
+    "packageVersion": "1.0.0",
+    "snapshotSha256": "sha256:snapshot-example",
+    "packageSha256": "sha256:package-example",
+    "eTagBefore": null,
+    "eTagAfter": "\"2\"",
+    "decisionId": null,
+    "evidenceId": "evidence-0001"
+  }
+}
 ```
 
 audit/decision eventはupdate/deleteしない。secret、raw package、client document、

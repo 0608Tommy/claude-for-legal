@@ -129,6 +129,53 @@
       ]
     },
     {
+      "id": "tracker-discriminator-forbidden-at-envelope",
+      "baseExample": "trackerRecordCommunication",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "add",
+          "path": "/trackerType",
+          "value": "communication"
+        }
+      ]
+    },
+    {
+      "id": "tracker-discriminator-missing-from-payload",
+      "baseExample": "trackerRecordCommunication",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "remove",
+          "path": "/payload/trackerType"
+        }
+      ]
+    },
+    {
+      "id": "tracker-discriminator-unknown",
+      "baseExample": "trackerRecordCommunication",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/payload/trackerType",
+          "value": "unknown"
+        }
+      ]
+    },
+    {
+      "id": "tracker-discriminator-cross-type",
+      "baseExample": "trackerRecordCommunication",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/payload/trackerType",
+          "value": "deadline"
+        }
+      ]
+    },
+    {
       "id": "closed-deadline-without-closure-source",
       "baseExample": "trackerRecordDeadline",
       "expectedFailure": "schema",

@@ -1,0 +1,8 @@
+{
+  "include": [
+    "references/validate_shared_envelope_examples.py"
+  ],
+  "pythonVersion": "3.14",
+  "stubPath": "references",
+  "typeCheckingMode": "strict"
+}

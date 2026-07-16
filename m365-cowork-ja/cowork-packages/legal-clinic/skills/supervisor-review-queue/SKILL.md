@@ -57,7 +57,7 @@ formal queueがoffならpending workを既存supervision routeへdraft package�
 ### `matter-mode`
 
 one active bindingのexact matterだけでlist/review/decisionを行う。writeは
-`recordType: tracker-record`, `trackerType: review`のstrict payload。outer
+`recordType: tracker-record`, `payload.trackerType: review`のstrict payload。outer
 `scopeId == payload.matterId`とduplicated tenant/practice identityをsemantic validate。
 
 ### `portfolio-mode`

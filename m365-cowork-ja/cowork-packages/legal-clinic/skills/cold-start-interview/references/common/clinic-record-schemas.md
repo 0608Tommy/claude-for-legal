@@ -81,16 +81,17 @@ shipped statusはDRAFT/pendingであり、setup interview完了をlegal approval
 ## One state wrapper
 
 communication、deadline、review、handoffのcanonical `recordType`はすべて
-`tracker-record`。`trackerType`でpayloadをdiscriminateする。
+`tracker-record`。`payload.trackerType`でstrict payload schemaをdiscriminateする。
 
 ```text
 recordType: tracker-record
-trackerType: communication | deadline | review | handoff
 scopeType: matter
 scopeId: matterId
 recordId: stable ASCII ID
 itemId / eTag / version / updatedAt
-payload: strict tracker-specific payload
+payload:
+  trackerType: communication | deadline | review | handoff
+  ... strict tracker-specific fields
 ```
 
 全`tracker-record`はtracker typeにかかわらずsemantic invariantを共有する。
@@ -185,7 +186,8 @@ package validationでは:
 
 1. JSON parse
 2. `Draft202012Validator.check_schema`
-3. `FormatChecker`付きで全fixtureをtop-level schemaへvalidate
+3. `FormatChecker`付きで全fixtureをtop-level schemaへvalidateし、全
+   `tracker-record`をshared state-envelope schemaへもvalidate
 4. package-source build validatorでcross-array/cross-field semantic invariantをvalidate
 5. `clinic-state-payload-negative-examples.json`のbypassを全件reject
 6. root schema/examples/validatorと全skill-local common copyのbyte parity
