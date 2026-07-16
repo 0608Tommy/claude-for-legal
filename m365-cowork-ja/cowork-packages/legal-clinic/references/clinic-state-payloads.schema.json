@@ -1,0 +1,2948 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/0608Tommy/claude-for-legal/m365-cowork-ja/legal-clinic/clinic-state-payloads.schema.json",
+  "title": "Legal Clinic Cowork Canonical State Payloads",
+  "description": "Authoritative strict schemas for the Japanese legal-clinic Cowork package. All objects reject undeclared fields.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/clinicPracticeProfile"
+    },
+    {
+      "$ref": "#/$defs/setupSession"
+    },
+    {
+      "$ref": "#/$defs/sessionMatterBinding"
+    },
+    {
+      "$ref": "#/$defs/bindingRevocationBatch"
+    },
+    {
+      "$ref": "#/$defs/clinicMatter"
+    },
+    {
+      "$ref": "#/$defs/trackerRecord"
+    }
+  ],
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nullableString": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "isoDateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "nullableIsoDateTime": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "legalReviewStatus": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in-review",
+        "approved",
+        "blocked"
+      ]
+    },
+    "sourceEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceItemId",
+        "sourceVersion",
+        "authorityType",
+        "officialUrl",
+        "effectiveDate",
+        "retrievedAt",
+        "reviewStatus"
+      ],
+      "properties": {
+        "sourceItemId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sourceVersion": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "authorityType": {
+          "type": "string",
+          "enum": [
+            "binding-law",
+            "binding-rule",
+            "professional-rule",
+            "official-guidance",
+            "official-database",
+            "official-reference",
+            "case-sensitive",
+            "future-law",
+            "internal-control",
+            "matter-document"
+          ]
+        },
+        "officialUrl": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri"
+        },
+        "effectiveDate": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "retrievedAt": {
+          "$ref": "#/$defs/isoDateTime"
+        },
+        "reviewStatus": {
+          "$ref": "#/$defs/legalReviewStatus"
+        }
+      }
+    },
+    "legalAndLanguageReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "required",
+        "status",
+        "responsibleLawyerObjectId",
+        "responsibleLawyerReviewedAt",
+        "languageReviewerObjectId",
+        "languageReviewerCompetenceRecordId",
+        "languageReviewedAt"
+      ],
+      "properties": {
+        "required": {
+          "type": "boolean"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "not-required",
+            "pending",
+            "in-review",
+            "approved",
+            "blocked"
+          ]
+        },
+        "responsibleLawyerObjectId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "responsibleLawyerReviewedAt": {
+          "$ref": "#/$defs/nullableIsoDateTime"
+        },
+        "languageReviewerObjectId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "languageReviewerCompetenceRecordId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "languageReviewedAt": {
+          "$ref": "#/$defs/nullableIsoDateTime"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "required": {
+                "const": true
+              }
+            },
+            "required": [
+              "required"
+            ]
+          },
+          "then": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "pending",
+                  "in-review",
+                  "approved",
+                  "blocked"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "approved"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "responsibleLawyerObjectId": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "responsibleLawyerReviewedAt": {
+                "$ref": "#/$defs/isoDateTime"
+              },
+              "languageReviewerObjectId": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "languageReviewerCompetenceRecordId": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "languageReviewedAt": {
+                "$ref": "#/$defs/isoDateTime"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "clinicPracticeProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recordType",
+        "tenantId",
+        "practiceId",
+        "pluginId",
+        "itemId",
+        "eTag",
+        "version",
+        "profileStatus",
+        "payload"
+      ],
+      "properties": {
+        "recordType": {
+          "const": "clinic-practice-profile"
+        },
+        "tenantId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "practiceId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "pluginId": {
+          "const": "legal-clinic"
+        },
+        "itemId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "eTag": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "profileStatus": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "review-pending",
+            "active",
+            "blocked",
+            "superseded"
+          ]
+        },
+        "payload": {
+          "$ref": "#/$defs/clinicPracticeProfilePayload"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "profileStatus": {
+                "const": "active"
+              }
+            },
+            "required": [
+              "profileStatus"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "allOf": [
+                  {
+                    "$ref": "#/$defs/clinicPracticeProfilePayload"
+                  },
+                  {
+                    "properties": {
+                      "legalReview": {
+                        "properties": {
+                          "japanCounselStatus": {
+                            "const": "approved"
+                          },
+                          "clinicSupervisorStatus": {
+                            "const": "approved"
+                          }
+                        }
+                      },
+                      "activationApprovalIds": {
+                        "minItems": 2
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "clinicPracticeProfilePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "clinic",
+        "authority",
+        "conflicts",
+        "engagement",
+        "studentParticipation",
+        "supervision",
+        "pedagogy",
+        "data",
+        "urgentRouting",
+        "sourceCards",
+        "houterasuPrograms",
+        "semester",
+        "integrations",
+        "legalReview",
+        "activationApprovalIds"
+      ],
+      "properties": {
+        "clinic": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "hostModel",
+            "jurisdictions",
+            "practiceAreas"
+          ],
+          "properties": {
+            "name": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "hostModel": {
+              "type": "string",
+              "enum": [
+                "university-clinic",
+                "law-office",
+                "bar-consultation",
+                "houterasu-contracted",
+                "court-appointed-criminal",
+                "other"
+              ]
+            },
+            "jurisdictions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "practiceAreas": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          }
+        },
+        "authority": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "responsibleLawyerObjectIds",
+            "supervisorObjectIds",
+            "registrationVerificationSourceIds",
+            "clinicModelLegalReviewStatus"
+          ],
+          "properties": {
+            "responsibleLawyerObjectIds": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "supervisorObjectIds": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "registrationVerificationSourceIds": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "clinicModelLegalReviewStatus": {
+              "$ref": "#/$defs/legalReviewStatus"
+            }
+          }
+        },
+        "conflicts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "ownerObjectIds",
+            "processItemId",
+            "informationBarrierPolicyItemId",
+            "barrierIsNotClearance",
+            "clearanceStatuses"
+          ],
+          "properties": {
+            "ownerObjectIds": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "processItemId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "informationBarrierPolicyItemId": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "barrierIsNotClearance": {
+              "const": true
+            },
+            "clearanceStatuses": {
+              "type": "array",
+              "prefixItems": [
+                {
+                  "const": "pending"
+                },
+                {
+                  "const": "clear"
+                },
+                {
+                  "const": "restricted"
+                },
+                {
+                  "const": "blocked"
+                }
+              ],
+              "items": false,
+              "minItems": 4,
+              "maxItems": 4
+            }
+          }
+        },
+        "engagement": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "decisionOwnerObjectIds",
+            "agreementSourceRequired",
+            "scopeRecordRequired",
+            "disclaimerNotDeterminative",
+            "conductMayCreateOrExpandEngagement",
+            "conductEscalationRequired"
+          ],
+          "properties": {
+            "decisionOwnerObjectIds": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "agreementSourceRequired": {
+              "const": true
+            },
+            "scopeRecordRequired": {
+              "const": true
+            },
+            "disclaimerNotDeterminative": {
+              "const": true
+            },
+            "conductMayCreateOrExpandEngagement": {
+              "const": true
+            },
+            "conductEscalationRequired": {
+              "const": true
+            }
+          }
+        },
+        "studentParticipation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "matrixItemId",
+            "classification",
+            "createsLegalAuthority",
+            "curesAttorneyAct72Risk",
+            "competenceSignoffRequired"
+          ],
+          "properties": {
+            "matrixItemId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "classification": {
+              "const": "internal-policy"
+            },
+            "createsLegalAuthority": {
+              "const": false
+            },
+            "curesAttorneyAct72Risk": {
+              "const": false
+            },
+            "competenceSignoffRequired": {
+              "const": true
+            }
+          }
+        },
+        "supervision": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "workflowPreference",
+            "substantiveLawyerReviewRequired",
+            "versionSpecificApprovalRequired"
+          ],
+          "properties": {
+            "workflowPreference": {
+              "type": "string",
+              "enum": [
+                "formal-queue",
+                "configurable-flags",
+                "existing-structure"
+              ]
+            },
+            "substantiveLawyerReviewRequired": {
+              "const": true
+            },
+            "versionSpecificApprovalRequired": {
+              "const": true
+            }
+          }
+        },
+        "pedagogy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "defaultMode"
+          ],
+          "properties": {
+            "defaultMode": {
+              "type": "string",
+              "enum": [
+                "assist",
+                "guide",
+                "teach"
+              ]
+            }
+          }
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "appiAssessmentItemId",
+            "appiHostRegime",
+            "article58AssessmentItemId",
+            "restrictedCategoriesNotEquivalentToStatutorySensitiveData",
+            "myNumberControlItemId",
+            "storageDlpStatus",
+            "coworkPromptDlpRequired",
+            "retentionPolicyItemId",
+            "incidentRouteItemId",
+            "restrictedDataCategories"
+          ],
+          "properties": {
+            "appiAssessmentItemId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "appiHostRegime": {
+              "type": "string",
+              "enum": [
+                "private-sector-chapter4",
+                "public-sector-chapter5",
+                "article58-private-treatment",
+                "mixed",
+                "unresolved"
+              ]
+            },
+            "article58AssessmentItemId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "restrictedCategoriesNotEquivalentToStatutorySensitiveData": {
+              "const": true
+            },
+            "myNumberControlItemId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "storageDlpStatus": {
+              "$ref": "#/$defs/legalReviewStatus"
+            },
+            "coworkPromptDlpRequired": {
+              "type": "boolean"
+            },
+            "retentionPolicyItemId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "incidentRouteItemId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "restrictedDataCategories": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "identity-contact",
+                  "safe-contact",
+                  "health-capacity",
+                  "immigration",
+                  "criminal",
+                  "child-family-dv",
+                  "interpreter-accessibility",
+                  "my-number"
+                ]
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            }
+          }
+        },
+        "urgentRouting": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "routeItemId",
+            "docketOwnerObjectIds",
+            "childSafetyHumanReviewRequired",
+            "responsePromiseProhibited"
+          ],
+          "properties": {
+            "routeItemId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "docketOwnerObjectIds": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "minItems": 1,
+              "uniqueItems": true
+            },
+            "childSafetyHumanReviewRequired": {
+              "const": true
+            },
+            "responsePromiseProhibited": {
+              "const": true
+            }
+          }
+        },
+        "sourceCards": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "domain",
+              "sourceCardItemId",
+              "status",
+              "effectiveAsOf",
+              "approvedByResponsibleLawyer"
+            ],
+            "properties": {
+              "domain": {
+                "type": "string",
+                "enum": [
+                  "criminal",
+                  "immigration",
+                  "housing",
+                  "benefits",
+                  "family",
+                  "dv",
+                  "general-civil",
+                  "administrative",
+                  "labor",
+                  "transactional"
+                ]
+              },
+              "sourceCardItemId": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "status": {
+                "$ref": "#/$defs/legalReviewStatus"
+              },
+              "effectiveAsOf": {
+                "type": "string",
+                "format": "date"
+              },
+              "approvedByResponsibleLawyer": {
+                "$ref": "#/$defs/nullableString"
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "status": {
+                      "const": "approved"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                },
+                "then": {
+                  "properties": {
+                    "approvedByResponsibleLawyer": {
+                      "$ref": "#/$defs/nonEmptyString"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "minItems": 1
+        },
+        "houterasuPrograms": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "consultationAid",
+            "representationAdvancement",
+            "documentPreparationAdvancement",
+            "appointedCriminalCounsel"
+          ],
+          "properties": {
+            "consultationAid": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "representationAdvancement": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "documentPreparationAdvancement": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "appointedCriminalCounsel": {
+              "$ref": "#/$defs/nonEmptyString"
+            }
+          }
+        },
+        "semester": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "currentTermId",
+            "accessReviewAt"
+          ],
+          "properties": {
+            "currentTermId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "accessReviewAt": {
+              "$ref": "#/$defs/isoDateTime"
+            }
+          }
+        },
+        "integrations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "integrationId",
+              "status",
+              "testedAt",
+              "testedOperation",
+              "scope",
+              "failure"
+            ],
+            "properties": {
+              "integrationId": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "connected",
+                  "configured-unverified",
+                  "unavailable",
+                  "blocked"
+                ]
+              },
+              "testedAt": {
+                "$ref": "#/$defs/nullableIsoDateTime"
+              },
+              "testedOperation": {
+                "$ref": "#/$defs/nullableString"
+              },
+              "scope": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "failure": {
+                "$ref": "#/$defs/nullableString"
+              }
+            }
+          }
+        },
+        "legalReview": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "japanCounselStatus",
+            "clinicSupervisorStatus"
+          ],
+          "properties": {
+            "japanCounselStatus": {
+              "$ref": "#/$defs/legalReviewStatus"
+            },
+            "clinicSupervisorStatus": {
+              "$ref": "#/$defs/legalReviewStatus"
+            }
+          }
+        },
+        "activationApprovalIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "setupSession": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recordType",
+        "tenantId",
+        "practiceId",
+        "userObjectId",
+        "sessionId",
+        "itemId",
+        "eTag",
+        "version",
+        "payload"
+      ],
+      "properties": {
+        "recordType": {
+          "const": "setup-session"
+        },
+        "tenantId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "practiceId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "userObjectId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sessionId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "itemId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "eTag": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "completedSections",
+            "pendingQuestions",
+            "sources",
+            "status",
+            "profileItemId",
+            "profileVersion",
+            "profileETag",
+            "legalReview",
+            "updatedAt"
+          ],
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "initial",
+                "resume",
+                "quick",
+                "full",
+                "redo-section",
+                "check-integrations"
+              ]
+            },
+            "completedSections": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "uniqueItems": true
+            },
+            "pendingQuestions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "questionId",
+                  "sectionId",
+                  "prompt",
+                  "blocking"
+                ],
+                "properties": {
+                  "questionId": {
+                    "$ref": "#/$defs/nonEmptyString"
+                  },
+                  "sectionId": {
+                    "$ref": "#/$defs/nonEmptyString"
+                  },
+                  "prompt": {
+                    "$ref": "#/$defs/nonEmptyString"
+                  },
+                  "blocking": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "sources": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/sourceEvidence"
+              }
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "paused",
+                "review-pending",
+                "interview-complete",
+                "superseded"
+              ]
+            },
+            "profileItemId": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "profileVersion": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 1
+            },
+            "profileETag": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "legalReview": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "japanCounselStatus",
+                "clinicSupervisorStatus"
+              ],
+              "properties": {
+                "japanCounselStatus": {
+                  "$ref": "#/$defs/legalReviewStatus"
+                },
+                "clinicSupervisorStatus": {
+                  "$ref": "#/$defs/legalReviewStatus"
+                }
+              }
+            },
+            "updatedAt": {
+              "$ref": "#/$defs/isoDateTime"
+            }
+          },
+          "oneOf": [
+            {
+              "properties": {
+                "profileItemId": {
+                  "type": "null"
+                },
+                "profileVersion": {
+                  "type": "null"
+                },
+                "profileETag": {
+                  "type": "null"
+                }
+              }
+            },
+            {
+              "properties": {
+                "profileItemId": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "profileVersion": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "profileETag": {
+                  "$ref": "#/$defs/nonEmptyString"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "sessionMatterBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recordType",
+        "tenantId",
+        "practiceId",
+        "userObjectId",
+        "sessionId",
+        "matterId",
+        "matterBindingGeneration",
+        "status",
+        "boundAt",
+        "boundBy",
+        "expiresAt",
+        "revokedAt",
+        "revokedBy",
+        "revocationReason",
+        "itemId",
+        "eTag",
+        "version"
+      ],
+      "properties": {
+        "recordType": {
+          "const": "session-matter-binding"
+        },
+        "tenantId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "practiceId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "userObjectId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sessionId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "matterId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "matterBindingGeneration": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "revoked"
+          ]
+        },
+        "boundAt": {
+          "$ref": "#/$defs/isoDateTime"
+        },
+        "boundBy": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "expiresAt": {
+          "$ref": "#/$defs/isoDateTime"
+        },
+        "revokedAt": {
+          "$ref": "#/$defs/nullableIsoDateTime"
+        },
+        "revokedBy": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "revocationReason": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "itemId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "eTag": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "active"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "revokedAt": {
+                "type": "null"
+              },
+              "revokedBy": {
+                "type": "null"
+              },
+              "revocationReason": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "revoked"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "revokedAt": {
+                "$ref": "#/$defs/isoDateTime"
+              },
+              "revokedBy": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "revocationReason": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "bindingRevocationBatch": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recordType",
+        "tenantId",
+        "practiceId",
+        "matterId",
+        "transition",
+        "targetMatterStatus",
+        "targetBindingGeneration",
+        "bindingItemIds",
+        "results",
+        "atomicOutcome",
+        "blockTransitionOnAnyFailure",
+        "reactivationRequiresFreshBinding",
+        "correlationId",
+        "approvalId",
+        "executedAt"
+      ],
+      "properties": {
+        "recordType": {
+          "const": "binding-revocation-batch"
+        },
+        "tenantId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "practiceId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "matterId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "transition": {
+          "type": "string",
+          "enum": [
+            "archive",
+            "close"
+          ]
+        },
+        "targetMatterStatus": {
+          "type": "string",
+          "enum": [
+            "archived",
+            "closed"
+          ]
+        },
+        "targetBindingGeneration": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "bindingItemIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          },
+          "uniqueItems": true
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "bindingItemId",
+              "outcome",
+              "eTagBefore",
+              "eTagAfter"
+            ],
+            "properties": {
+              "bindingItemId": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "outcome": {
+                "type": "string",
+                "enum": [
+                  "revoked",
+                  "failed",
+                  "not-applicable"
+                ]
+              },
+              "eTagBefore": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "eTagAfter": {
+                "$ref": "#/$defs/nullableString"
+              },
+              "uniqueItems": true
+            }
+          }
+        },
+        "atomicOutcome": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "succeeded",
+            "failed"
+          ]
+        },
+        "blockTransitionOnAnyFailure": {
+          "const": true
+        },
+        "reactivationRequiresFreshBinding": {
+          "const": true
+        },
+        "correlationId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "approvalId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "executedAt": {
+          "$ref": "#/$defs/isoDateTime"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "atomicOutcome": {
+                "const": "succeeded"
+              }
+            },
+            "required": [
+              "atomicOutcome"
+            ]
+          },
+          "then": {
+            "properties": {
+              "results": {
+                "items": {
+                  "properties": {
+                    "outcome": {
+                      "const": "revoked"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "transition": {
+                "const": "archive"
+              }
+            },
+            "required": [
+              "transition"
+            ]
+          },
+          "then": {
+            "properties": {
+              "targetMatterStatus": {
+                "const": "archived"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "transition": {
+                "const": "close"
+              }
+            },
+            "required": [
+              "transition"
+            ]
+          },
+          "then": {
+            "properties": {
+              "targetMatterStatus": {
+                "const": "closed"
+              }
+            }
+          }
+        }
+      ],
+      "x-semantic-invariants": [
+        {
+          "id": "successful-binding-results-one-to-one",
+          "when": "atomicOutcome == succeeded",
+          "left": "bindingItemIds",
+          "right": "results[*].bindingItemId",
+          "rule": "same-length-unique-exact-set"
+        }
+      ]
+    },
+    "clinicMatter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recordType",
+        "tenantId",
+        "practiceId",
+        "matterId",
+        "itemId",
+        "eTag",
+        "version",
+        "status",
+        "bindingGeneration",
+        "lastBindingRevocationBatchId",
+        "freshBindingRequired",
+        "conflictStatus",
+        "engagementStatus",
+        "scopeSourceItemId",
+        "responsibleLawyerObjectId"
+      ],
+      "properties": {
+        "recordType": {
+          "const": "clinic-matter"
+        },
+        "tenantId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "practiceId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "matterId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "itemId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "eTag": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "active",
+            "archive-pending",
+            "archived",
+            "close-pending",
+            "closed",
+            "reactivation-pending"
+          ]
+        },
+        "bindingGeneration": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lastBindingRevocationBatchId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "freshBindingRequired": {
+          "type": "boolean"
+        },
+        "conflictStatus": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "clear",
+            "restricted",
+            "blocked"
+          ]
+        },
+        "engagementStatus": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "active",
+            "limited",
+            "declined",
+            "closed"
+          ]
+        },
+        "scopeSourceItemId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "responsibleLawyerObjectId": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "archived",
+                  "closed",
+                  "reactivation-pending"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "lastBindingRevocationBatchId": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "freshBindingRequired": {
+                "const": true
+              }
+            }
+          }
+        }
+      ]
+    },
+    "trackerRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "recordType",
+        "trackerType",
+        "tenantId",
+        "practiceId",
+        "scopeType",
+        "scopeId",
+        "recordId",
+        "itemId",
+        "eTag",
+        "version",
+        "updatedAt",
+        "payload"
+      ],
+      "properties": {
+        "recordType": {
+          "const": "tracker-record"
+        },
+        "trackerType": {
+          "type": "string",
+          "enum": [
+            "communication",
+            "deadline",
+            "review",
+            "handoff"
+          ]
+        },
+        "tenantId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "practiceId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "scopeType": {
+          "const": "matter"
+        },
+        "scopeId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "recordId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "itemId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "eTag": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "updatedAt": {
+          "$ref": "#/$defs/isoDateTime"
+        },
+        "payload": {
+          "type": "object"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "trackerType": {
+                "const": "communication"
+              }
+            },
+            "required": [
+              "trackerType"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/communicationPayload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "trackerType": {
+                "const": "deadline"
+              }
+            },
+            "required": [
+              "trackerType"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/deadlinePayload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "trackerType": {
+                "const": "review"
+              }
+            },
+            "required": [
+              "trackerType"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/reviewPayload"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "trackerType": {
+                "const": "handoff"
+              }
+            },
+            "required": [
+              "trackerType"
+            ]
+          },
+          "then": {
+            "properties": {
+              "payload": {
+                "$ref": "#/$defs/handoffPayload"
+              }
+            }
+          }
+        }
+      ],
+      "x-semantic-invariants": [
+        {
+          "id": "matter-scope-coherence",
+          "rule": "scopeType == matter; scopeId == payload.matterId; payload.tenantId and payload.practiceId, when present, equal the outer values"
+        }
+      ]
+    },
+    "communicationPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entryId",
+        "matterId",
+        "direction",
+        "medium",
+        "occurredAt",
+        "participantPseudonymousIds",
+        "actorObjectId",
+        "language",
+        "interpreterUsed",
+        "summary",
+        "actionItems",
+        "followUpCandidateAt",
+        "artifactItemId",
+        "artifactVersion",
+        "artifactHash",
+        "destination",
+        "reviewerObjectId",
+        "deliveryEvidenceItemId",
+        "correctionOfEntryId",
+        "legalAndLanguageReview"
+      ],
+      "properties": {
+        "tenantId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "practiceId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "entryId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "matterId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "inbound",
+            "outbound"
+          ]
+        },
+        "medium": {
+          "type": "string",
+          "enum": [
+            "call",
+            "email",
+            "text",
+            "letter",
+            "in-person",
+            "video",
+            "voicemail",
+            "other"
+          ]
+        },
+        "occurredAt": {
+          "$ref": "#/$defs/isoDateTime"
+        },
+        "participantPseudonymousIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "actorObjectId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "language": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "interpreterUsed": {
+          "type": "boolean"
+        },
+        "summary": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "actionItems": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "followUpCandidateAt": {
+          "$ref": "#/$defs/nullableIsoDateTime"
+        },
+        "artifactItemId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "artifactVersion": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "artifactHash": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "destination": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "reviewerObjectId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "deliveryEvidenceItemId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "correctionOfEntryId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "legalAndLanguageReview": {
+          "$ref": "#/$defs/legalAndLanguageReview"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "direction": {
+                "const": "outbound"
+              }
+            },
+            "required": [
+              "direction"
+            ]
+          },
+          "then": {
+            "properties": {
+              "artifactItemId": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "artifactVersion": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "artifactHash": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "destination": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "reviewerObjectId": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "deadlinePayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "deadlineId",
+        "matterId",
+        "deadlineClass",
+        "forumType",
+        "label",
+        "triggerDocumentItemId",
+        "triggerDocumentVersion",
+        "triggerTimestamp",
+        "authority",
+        "civilElectronicService",
+        "timeComputation",
+        "transition",
+        "candidateDate",
+        "confidence",
+        "needsVerification",
+        "verifiedByLawyerObjectId",
+        "verifiedByDocketOwnerObjectId",
+        "lifecycleStatus",
+        "completion",
+        "closure",
+        "calendarEntry"
+      ],
+      "properties": {
+        "tenantId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "practiceId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "deadlineId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "matterId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "deadlineClass": {
+          "type": "string",
+          "enum": [
+            "statutory-invariable",
+            "statutory-extendable",
+            "court-set",
+            "contractual",
+            "limitation",
+            "internal"
+          ]
+        },
+        "forumType": {
+          "type": "string",
+          "enum": [
+            "civil",
+            "criminal",
+            "administrative",
+            "family",
+            "labor",
+            "immigration",
+            "housing",
+            "benefits",
+            "other"
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "triggerDocumentItemId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "triggerDocumentVersion": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "triggerTimestamp": {
+          "$ref": "#/$defs/nullableIsoDateTime"
+        },
+        "authority": {
+          "$ref": "#/$defs/sourceEvidence"
+        },
+        "civilElectronicService": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "noticeRequired",
+            "noticeIssuedAt",
+            "accessedAt",
+            "recordedToUserFileAt",
+            "oneWeekAfterNoticeAt",
+            "excludedInabilityPeriods",
+            "effectiveServiceEvent",
+            "effectiveServiceAt",
+            "sourceItemId",
+            "sourceVersion"
+          ],
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": [
+                "paper",
+                "electronic",
+                "court-order",
+                "not-applicable",
+                "unknown"
+              ]
+            },
+            "noticeRequired": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "noticeIssuedAt": {
+              "$ref": "#/$defs/nullableIsoDateTime"
+            },
+            "accessedAt": {
+              "$ref": "#/$defs/nullableIsoDateTime"
+            },
+            "recordedToUserFileAt": {
+              "$ref": "#/$defs/nullableIsoDateTime"
+            },
+            "oneWeekAfterNoticeAt": {
+              "$ref": "#/$defs/nullableIsoDateTime"
+            },
+            "excludedInabilityPeriods": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "from",
+                  "through",
+                  "reason",
+                  "sourceItemId"
+                ],
+                "properties": {
+                  "from": {
+                    "$ref": "#/$defs/isoDateTime"
+                  },
+                  "through": {
+                    "$ref": "#/$defs/isoDateTime"
+                  },
+                  "reason": {
+                    "$ref": "#/$defs/nonEmptyString"
+                  },
+                  "sourceItemId": {
+                    "$ref": "#/$defs/nonEmptyString"
+                  }
+                }
+              }
+            },
+            "effectiveServiceEvent": {
+              "type": "string",
+              "enum": [
+                "paper-service",
+                "access",
+                "record-to-user-file",
+                "one-week-after-notice",
+                "court-order",
+                "not-determined",
+                "not-applicable"
+              ]
+            },
+            "effectiveServiceAt": {
+              "$ref": "#/$defs/nullableIsoDateTime"
+            },
+            "sourceItemId": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "sourceVersion": {
+              "$ref": "#/$defs/nullableString"
+            }
+          }
+        },
+        "timeComputation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "periodValue",
+            "periodUnit",
+            "startEvent",
+            "startDayExcluded",
+            "governingTimeComputationRegime",
+            "cpc95Applies",
+            "cpc95ApplicabilitySourceItemId",
+            "administrativeOrgansHolidayActApplies",
+            "specialRuleSourceItemId",
+            "timezone",
+            "lastDayRule",
+            "holidayCalendarSourceItemId",
+            "filingMethod",
+            "filingCutoff",
+            "completionPostponementGround",
+            "renewalGround",
+            "calculationSteps"
+          ],
+          "properties": {
+            "periodValue": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0
+            },
+            "periodUnit": {
+              "type": "string",
+              "enum": [
+                "hours",
+                "days",
+                "weeks",
+                "months",
+                "years",
+                "court-set",
+                "unknown"
+              ]
+            },
+            "startEvent": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "startDayExcluded": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "governingTimeComputationRegime": {
+              "type": "string",
+              "enum": [
+                "civil-code-138-143",
+                "cpc-95",
+                "criminal-procedure-code-55",
+                "administrative-organs-holiday-act",
+                "special-statute",
+                "court-order",
+                "contract",
+                "other",
+                "unknown"
+              ],
+              "examples": [
+                "cpc-95",
+                "criminal-procedure-code-55"
+              ]
+            },
+            "cpc95Applies": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "cpc95ApplicabilitySourceItemId": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "administrativeOrgansHolidayActApplies": {
+              "type": [
+                "boolean",
+                "null"
+              ]
+            },
+            "specialRuleSourceItemId": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "timezone": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "lastDayRule": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "holidayCalendarSourceItemId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "filingMethod": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "filingCutoff": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "completionPostponementGround": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "renewalGround": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "calculationSteps": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            }
+          }
+        },
+        "transition": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "proceedingCommencedAt",
+            "reformEffectiveAt",
+            "recordRegime",
+            "applicabilitySourceItemId",
+            "caseSpecificDirectionItemId"
+          ],
+          "properties": {
+            "proceedingCommencedAt": {
+              "$ref": "#/$defs/nullableIsoDateTime"
+            },
+            "reformEffectiveAt": {
+              "$ref": "#/$defs/nullableIsoDateTime"
+            },
+            "recordRegime": {
+              "type": "string",
+              "enum": [
+                "pre-2026-05-21-legacy",
+                "post-2026-05-21-new-ordinary-civil",
+                "transitional-mints",
+                "procedure-specific",
+                "unknown"
+              ]
+            },
+            "applicabilitySourceItemId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "caseSpecificDirectionItemId": {
+              "$ref": "#/$defs/nullableString"
+            }
+          }
+        },
+        "candidateDate": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date"
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        },
+        "needsVerification": {
+          "const": true
+        },
+        "verifiedByLawyerObjectId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "verifiedByDocketOwnerObjectId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "lifecycleStatus": {
+          "type": "string",
+          "enum": [
+            "candidate",
+            "verified",
+            "rejected",
+            "superseded",
+            "completed",
+            "closed"
+          ]
+        },
+        "completion": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "evidenceItemId",
+            "evidenceVersion",
+            "completedAt",
+            "completedByObjectId"
+          ],
+          "properties": {
+            "evidenceItemId": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "evidenceVersion": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "completedAt": {
+              "$ref": "#/$defs/nullableIsoDateTime"
+            },
+            "completedByObjectId": {
+              "$ref": "#/$defs/nullableString"
+            }
+          }
+        },
+        "closure": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "reason",
+            "authorityApprovalId",
+            "closedAt",
+            "closedByObjectId",
+            "sourceEvidence"
+          ],
+          "properties": {
+            "reason": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "authorityApprovalId": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "closedAt": {
+              "$ref": "#/$defs/nullableIsoDateTime"
+            },
+            "closedByObjectId": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "sourceEvidence": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/sourceEvidence"
+              }
+            }
+          }
+        },
+        "calendarEntry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "entryId",
+            "approvalId",
+            "writtenAt",
+            "writerObjectId",
+            "failureAuditId"
+          ],
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "not-requested",
+                "approval-pending",
+                "write-pending",
+                "created",
+                "failed",
+                "removed"
+              ]
+            },
+            "entryId": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "approvalId": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "writtenAt": {
+              "$ref": "#/$defs/nullableIsoDateTime"
+            },
+            "writerObjectId": {
+              "$ref": "#/$defs/nullableString"
+            },
+            "failureAuditId": {
+              "$ref": "#/$defs/nullableString"
+            }
+          }
+        }
+      },
+      "allOf": [
+          {
+            "if": {
+              "properties": {
+                "lifecycleStatus": {
+                  "const": "verified"
+                }
+              },
+              "required": [
+                "lifecycleStatus"
+              ]
+            },
+            "then": {
+              "properties": {
+                "verifiedByLawyerObjectId": {
+                  "$ref": "#/$defs/nonEmptyString"
+                },
+                "verifiedByDocketOwnerObjectId": {
+                  "$ref": "#/$defs/nonEmptyString"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "lifecycleStatus": {
+                  "const": "completed"
+                }
+              },
+              "required": [
+                "lifecycleStatus"
+              ]
+            },
+            "then": {
+              "properties": {
+                "completion": {
+                  "properties": {
+                    "evidenceItemId": {
+                      "$ref": "#/$defs/nonEmptyString"
+                    },
+                    "evidenceVersion": {
+                      "$ref": "#/$defs/nonEmptyString"
+                    },
+                    "completedAt": {
+                      "$ref": "#/$defs/isoDateTime"
+                    },
+                    "completedByObjectId": {
+                      "$ref": "#/$defs/nonEmptyString"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "lifecycleStatus": {
+                  "const": "closed"
+                }
+              },
+              "required": [
+                "lifecycleStatus"
+              ]
+            },
+            "then": {
+              "properties": {
+                "closure": {
+                  "properties": {
+                    "reason": {
+                      "$ref": "#/$defs/nonEmptyString"
+                    },
+                    "authorityApprovalId": {
+                      "$ref": "#/$defs/nonEmptyString"
+                    },
+                    "closedAt": {
+                      "$ref": "#/$defs/isoDateTime"
+                    },
+                    "closedByObjectId": {
+                      "$ref": "#/$defs/nonEmptyString"
+                    },
+                    "sourceEvidence": {
+                      "minItems": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "forumType": {
+                  "const": "criminal"
+                }
+              },
+              "required": [
+                "forumType"
+              ]
+            },
+            "then": {
+              "properties": {
+                "timeComputation": {
+                  "properties": {
+                    "governingTimeComputationRegime": {
+                      "const": "criminal-procedure-code-55"
+                    },
+                    "cpc95Applies": {
+                      "const": false
+                    },
+                    "cpc95ApplicabilitySourceItemId": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "timeComputation": {
+                  "properties": {
+                    "governingTimeComputationRegime": {
+                      "const": "criminal-procedure-code-55"
+                    }
+                  },
+                  "required": [
+                    "governingTimeComputationRegime"
+                  ]
+                }
+              },
+              "required": [
+                "timeComputation"
+              ]
+            },
+            "then": {
+              "properties": {
+                "civilElectronicService": {
+                  "properties": {
+                    "mode": {
+                      "const": "not-applicable"
+                    },
+                    "noticeRequired": {
+                      "type": "null"
+                    },
+                    "noticeIssuedAt": {
+                      "type": "null"
+                    },
+                    "accessedAt": {
+                      "type": "null"
+                    },
+                    "recordedToUserFileAt": {
+                      "type": "null"
+                    },
+                    "oneWeekAfterNoticeAt": {
+                      "type": "null"
+                    },
+                    "excludedInabilityPeriods": {
+                      "maxItems": 0
+                    },
+                    "effectiveServiceEvent": {
+                      "const": "not-applicable"
+                    },
+                    "effectiveServiceAt": {
+                      "type": "null"
+                    },
+                    "sourceItemId": {
+                      "type": "null"
+                    },
+                    "sourceVersion": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "transition": {
+                  "properties": {
+                    "reformEffectiveAt": {
+                      "type": "null"
+                    },
+                    "recordRegime": {
+                      "const": "procedure-specific"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "calendarEntry": {
+                  "properties": {
+                    "status": {
+                      "const": "created"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              },
+              "required": [
+                "calendarEntry"
+              ]
+            },
+            "then": {
+              "properties": {
+                "calendarEntry": {
+                  "properties": {
+                    "entryId": {
+                      "$ref": "#/$defs/nonEmptyString"
+                    },
+                    "approvalId": {
+                      "$ref": "#/$defs/nonEmptyString"
+                    },
+                    "writtenAt": {
+                      "$ref": "#/$defs/isoDateTime"
+                    },
+                    "writerObjectId": {
+                      "$ref": "#/$defs/nonEmptyString"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "calendarEntry": {
+                  "properties": {
+                    "status": {
+                      "const": "failed"
+                    }
+                  },
+                  "required": [
+                    "status"
+                  ]
+                }
+              },
+              "required": [
+                "calendarEntry"
+              ]
+            },
+            "then": {
+              "properties": {
+                "calendarEntry": {
+                  "properties": {
+                    "failureAuditId": {
+                      "$ref": "#/$defs/nonEmptyString"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+    },
+    "reviewPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reviewId",
+        "matterId",
+        "artifactType",
+        "artifactItemId",
+        "artifactVersion",
+        "artifactHash",
+        "destination",
+        "sourceEvidence",
+        "decisionNotes",
+        "reviewSubjectTypes",
+        "requiredReviewerRole",
+        "status",
+        "submittedByObjectId",
+        "submittedAt",
+        "reviewedByObjectId",
+        "reviewedAt",
+        "approvalId",
+        "releaseActorObjectId",
+        "legalAndLanguageReview"
+      ],
+      "properties": {
+        "tenantId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "practiceId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "reviewId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "matterId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "artifactType": {
+          "type": "string",
+          "enum": [
+            "intake-summary",
+            "internal-memo",
+            "client-safe-draft",
+            "tracker",
+            "filing-draft",
+            "handoff"
+          ]
+        },
+        "artifactItemId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "artifactVersion": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "artifactHash": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "destination": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "sourceEvidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sourceEvidence"
+          },
+          "minItems": 1
+        },
+        "decisionNotes": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "reviewSubjectTypes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "legal-proposition",
+              "deadline",
+              "engagement",
+              "conflict",
+              "scope",
+              "external-legal-content",
+              "pedagogy",
+              "admin",
+              "consequential-translation"
+            ]
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "requiredReviewerRole": {
+          "type": "string",
+          "enum": [
+            "responsible-lawyer",
+            "supervisor",
+            "both"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "in-review",
+            "approved",
+            "edited-approved",
+            "returned",
+            "superseded",
+            "blocked"
+          ]
+        },
+        "submittedByObjectId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "submittedAt": {
+          "$ref": "#/$defs/isoDateTime"
+        },
+        "reviewedByObjectId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "reviewedAt": {
+          "$ref": "#/$defs/nullableIsoDateTime"
+        },
+        "approvalId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "releaseActorObjectId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "legalAndLanguageReview": {
+          "$ref": "#/$defs/legalAndLanguageReview"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "approved",
+                  "edited-approved"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "reviewedByObjectId": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "reviewedAt": {
+                "$ref": "#/$defs/isoDateTime"
+              },
+              "approvalId": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "reviewSubjectTypes": {
+                  "items": {
+                    "enum": [
+                      "pedagogy",
+                      "admin"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "reviewSubjectTypes"
+              ]
+            },
+            "then": {
+              "properties": {
+                "requiredReviewerRole": {
+                  "const": "supervisor"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "allOf": [
+                {
+                  "properties": {
+                    "reviewSubjectTypes": {
+                      "contains": {
+                        "enum": [
+                          "legal-proposition",
+                          "deadline",
+                          "engagement",
+                          "conflict",
+                          "scope",
+                          "external-legal-content"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "not": {
+                    "properties": {
+                      "reviewSubjectTypes": {
+                        "contains": {
+                          "enum": [
+                            "pedagogy",
+                            "admin"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              ],
+              "required": [
+                "reviewSubjectTypes"
+              ]
+            },
+            "then": {
+              "properties": {
+                "requiredReviewerRole": {
+                  "const": "responsible-lawyer"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "allOf": [
+                {
+                  "properties": {
+                    "reviewSubjectTypes": {
+                      "contains": {
+                        "enum": [
+                          "legal-proposition",
+                          "deadline",
+                          "engagement",
+                          "conflict",
+                          "scope",
+                          "external-legal-content"
+                        ]
+                      }
+                    }
+                  }
+                },
+                {
+                  "properties": {
+                    "reviewSubjectTypes": {
+                      "contains": {
+                        "enum": [
+                          "pedagogy",
+                          "admin"
+                        ]
+                      }
+                    }
+                  }
+                }
+              ],
+              "required": [
+                "reviewSubjectTypes"
+              ]
+            },
+            "then": {
+              "properties": {
+                "requiredReviewerRole": {
+                  "const": "both"
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "reviewSubjectTypes": {
+                  "contains": {
+                    "const": "consequential-translation"
+                  }
+                }
+              },
+              "required": [
+                "reviewSubjectTypes"
+              ]
+            },
+            "then": {
+              "properties": {
+                "legalAndLanguageReview": {
+                  "properties": {
+                    "required": {
+                      "const": true
+                    }
+                  }
+                },
+                "reviewSubjectTypes": {
+                  "contains": {
+                    "enum": [
+                      "legal-proposition",
+                      "deadline",
+                      "engagement",
+                      "conflict",
+                      "scope",
+                      "external-legal-content"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "approved",
+                  "edited-approved"
+                ]
+              },
+              "legalAndLanguageReview": {
+                "properties": {
+                  "required": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "required"
+                ]
+              }
+            },
+            "required": [
+              "status",
+              "legalAndLanguageReview"
+            ]
+          },
+          "then": {
+            "properties": {
+              "legalAndLanguageReview": {
+                "properties": {
+                  "status": {
+                    "const": "approved"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "handoffPayload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "termId",
+        "matterId",
+        "outgoingStudentObjectId",
+        "incomingStudentObjectId",
+        "incomingConflictStatus",
+        "responsibleLawyerObjectId",
+        "deadlineRecordIds",
+        "openIssueIds",
+        "communicationRecordIds",
+        "safeContactItemId",
+        "originalsInventoryItemId",
+        "accessPlanItemId",
+        "bindingRevocationBatchId",
+        "status"
+      ],
+      "properties": {
+        "tenantId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "practiceId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "termId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "matterId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "outgoingStudentObjectId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "incomingStudentObjectId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "incomingConflictStatus": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "clear",
+            "restricted",
+            "blocked"
+          ]
+        },
+        "responsibleLawyerObjectId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "deadlineRecordIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          },
+          "uniqueItems": true
+        },
+        "openIssueIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          },
+          "uniqueItems": true
+        },
+        "communicationRecordIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          },
+          "uniqueItems": true
+        },
+        "safeContactItemId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "originalsInventoryItemId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "accessPlanItemId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "bindingRevocationBatchId": {
+          "$ref": "#/$defs/nullableString"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "lawyer-reviewed",
+            "access-pending",
+            "released",
+            "superseded",
+            "blocked"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "released"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "incomingStudentObjectId": {
+                "$ref": "#/$defs/nonEmptyString"
+              },
+              "incomingConflictStatus": {
+                "enum": [
+                  "clear",
+                  "restricted"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

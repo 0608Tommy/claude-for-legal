@@ -1,0 +1,8 @@
+{
+  "include": [
+    "references/validate_clinic_state_payloads.py"
+  ],
+  "pythonVersion": "3.14",
+  "stubPath": ".type-stubs",
+  "typeCheckingMode": "strict"
+}

@@ -1,0 +1,15 @@
+Legal Clinic — Japanese Microsoft 365 Copilot Cowork adaptation
+
+This package is a modified derivative of the legal-clinic plugin from:
+https://github.com/anthropics/claude-for-legal
+
+The original work is Copyright 2026 Anthropic PBC and is licensed under the
+Apache License, Version 2.0. The Japanese translation, Microsoft 365 storage
+adaptation, conversational state machines, Power Platform front-end contracts,
+matter-isolation controls, and draft Japanese-law reference modules are
+modifications made for this derivative package.
+
+The Japanese-law modules are drafts pending review by qualified Japanese
+counsel and the responsible clinic supervisor. Product and company names remain
+the property of their respective owners. No trademark license is granted by the
+Apache License.

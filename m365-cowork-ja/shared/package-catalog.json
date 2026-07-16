@@ -71,7 +71,7 @@
       "displayNameShort": "リーガルクリニック",
       "displayNameFull": "リーガルクリニック — 日本語版 Microsoft 365 Copilot Cowork",
       "descriptionShort": "相談受付、期限、メモ、依頼者文書、監督、引継ぎを支援します。",
-      "status": "planned"
+      "status": "draft-legal-review"
     },
     "litigation-legal": {
       "appId": "c990db39-4091-5356-a20a-6ba61118e7d8",

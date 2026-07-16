@@ -1,0 +1,444 @@
+{
+  "schemaVersion": 1,
+  "fixtures": [
+    {
+      "id": "revocation-missing-result",
+      "baseExample": "bindingRevocationBatch",
+      "expectedFailure": "semantic",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/results",
+          "value": [
+            {
+              "bindingItemId": "binding-item-1",
+              "outcome": "revoked",
+              "eTagBefore": "\"2\"",
+              "eTagAfter": "\"3\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "revocation-extra-result",
+      "baseExample": "bindingRevocationBatch",
+      "expectedFailure": "semantic",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/results",
+          "value": [
+            {
+              "bindingItemId": "binding-item-1",
+              "outcome": "revoked",
+              "eTagBefore": "\"2\"",
+              "eTagAfter": "\"3\""
+            },
+            {
+              "bindingItemId": "binding-item-2",
+              "outcome": "revoked",
+              "eTagBefore": "\"4\"",
+              "eTagAfter": "\"5\""
+            },
+            {
+              "bindingItemId": "binding-item-3",
+              "outcome": "revoked",
+              "eTagBefore": "\"1\"",
+              "eTagAfter": "\"2\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "revocation-duplicate-result-id",
+      "baseExample": "bindingRevocationBatch",
+      "expectedFailure": "semantic",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/results/1/bindingItemId",
+          "value": "binding-item-1"
+        }
+      ]
+    },
+    {
+      "id": "revocation-success-not-revoked",
+      "baseExample": "bindingRevocationBatch",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/results/0/outcome",
+          "value": "not-applicable"
+        }
+      ]
+    },
+    {
+      "id": "archive-targeting-closed",
+      "baseExample": "bindingRevocationBatch",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/targetMatterStatus",
+          "value": "closed"
+        }
+      ]
+    },
+    {
+      "id": "close-targeting-archived",
+      "baseExample": "bindingRevocationBatch",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/transition",
+          "value": "close"
+        }
+      ]
+    },
+    {
+      "id": "setup-partial-profile-reference-version-null",
+      "baseExample": "setupSession",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/payload/profileVersion",
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "setup-partial-profile-reference-etag-only",
+      "baseExample": "setupSession",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/payload/profileItemId",
+          "value": null
+        },
+        {
+          "op": "replace",
+          "path": "/payload/profileVersion",
+          "value": null
+        }
+      ]
+    },
+    {
+      "id": "closed-deadline-without-closure-source",
+      "baseExample": "trackerRecordDeadline",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/payload/lifecycleStatus",
+          "value": "closed"
+        },
+        {
+          "op": "replace",
+          "path": "/payload/closure/reason",
+          "value": "Court order superseded the candidate."
+        },
+        {
+          "op": "replace",
+          "path": "/payload/closure/authorityApprovalId",
+          "value": "approval-close-1"
+        },
+        {
+          "op": "replace",
+          "path": "/payload/closure/closedAt",
+          "value": "2026-07-16T16:00:00+09:00"
+        },
+        {
+          "op": "replace",
+          "path": "/payload/closure/closedByObjectId",
+          "value": "lawyer-object-1"
+        }
+      ]
+    },
+    {
+      "id": "closed-deadline-with-unversioned-closure-source",
+      "baseExample": "trackerRecordDeadline",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/payload/lifecycleStatus",
+          "value": "closed"
+        },
+        {
+          "op": "replace",
+          "path": "/payload/closure/reason",
+          "value": "Court order superseded the candidate."
+        },
+        {
+          "op": "replace",
+          "path": "/payload/closure/authorityApprovalId",
+          "value": "approval-close-1"
+        },
+        {
+          "op": "replace",
+          "path": "/payload/closure/closedAt",
+          "value": "2026-07-16T16:00:00+09:00"
+        },
+        {
+          "op": "replace",
+          "path": "/payload/closure/closedByObjectId",
+          "value": "lawyer-object-1"
+        },
+        {
+          "op": "replace",
+          "path": "/payload/closure/sourceEvidence",
+          "value": [
+            {
+              "sourceItemId": "court-order-close-1",
+              "authorityType": "matter-document",
+              "officialUrl": null,
+              "effectiveDate": null,
+              "retrievedAt": "2026-07-16T15:30:00+09:00",
+              "reviewStatus": "approved"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "legal-review-routed-to-supervisor-only",
+          "baseExample": "trackerRecordReview",
+          "expectedFailure": "schema",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/payload/requiredReviewerRole",
+              "value": "supervisor"
+            }
+          ]
+        },
+        {
+          "id": "admin-review-routed-to-responsible-lawyer-only",
+          "baseExample": "trackerRecordReview",
+          "expectedFailure": "schema",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/payload/reviewSubjectTypes",
+              "value": [
+                "admin"
+              ]
+            },
+            {
+              "op": "replace",
+              "path": "/payload/legalAndLanguageReview/required",
+              "value": false
+            },
+            {
+              "op": "replace",
+              "path": "/payload/legalAndLanguageReview/status",
+              "value": "not-required"
+            }
+          ]
+        },
+        {
+          "id": "mixed-review-not-routed-to-both",
+          "baseExample": "trackerRecordReview",
+          "expectedFailure": "schema",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/payload/reviewSubjectTypes",
+              "value": [
+                "external-legal-content",
+                "admin"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "consequential-translation-without-language-review",
+          "baseExample": "trackerRecordReview",
+          "expectedFailure": "schema",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/payload/legalAndLanguageReview/required",
+              "value": false
+            },
+            {
+              "op": "replace",
+              "path": "/payload/legalAndLanguageReview/status",
+              "value": "not-required"
+            }
+          ]
+        },
+        {
+          "id": "cross-matter-communication-tracker",
+          "baseExample": "trackerRecordCommunication",
+          "expectedFailure": "semantic",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/scopeId",
+              "value": "matter-other"
+            }
+          ]
+        },
+        {
+          "id": "cross-matter-deadline-tracker",
+          "baseExample": "trackerRecordDeadline",
+          "expectedFailure": "semantic",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/scopeId",
+              "value": "matter-other"
+            }
+          ]
+        },
+        {
+          "id": "cross-matter-review-tracker",
+          "baseExample": "trackerRecordReview",
+          "expectedFailure": "semantic",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/scopeId",
+              "value": "matter-other"
+            }
+          ]
+        },
+        {
+          "id": "cross-matter-handoff-tracker",
+          "baseExample": "trackerRecordHandoff",
+          "expectedFailure": "semantic",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/scopeId",
+              "value": "matter-other"
+            }
+          ]
+        },
+        {
+          "id": "duplicated-tenant-mismatch",
+          "baseExample": "trackerRecordCommunication",
+          "expectedFailure": "semantic",
+          "patch": [
+            {
+              "op": "add",
+              "path": "/payload/tenantId",
+              "value": "tenant-other"
+            }
+          ]
+        },
+        {
+          "id": "duplicated-practice-mismatch",
+          "baseExample": "trackerRecordDeadline",
+          "expectedFailure": "semantic",
+          "patch": [
+            {
+              "op": "add",
+              "path": "/payload/practiceId",
+              "value": "practice-other"
+            }
+          ]
+        },
+        {
+          "id": "criminal-deadline-using-cpc95",
+          "baseExample": "trackerRecordCriminalDeadline",
+          "expectedFailure": "schema",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/payload/timeComputation/governingTimeComputationRegime",
+              "value": "cpc-95"
+            },
+            {
+              "op": "replace",
+              "path": "/payload/timeComputation/cpc95Applies",
+              "value": true
+            },
+            {
+              "op": "replace",
+              "path": "/payload/timeComputation/cpc95ApplicabilitySourceItemId",
+              "value": "civil-procedure-article-95"
+            }
+          ]
+        },
+        {
+          "id": "criminal-deadline-using-civil-code",
+          "baseExample": "trackerRecordCriminalDeadline",
+          "expectedFailure": "schema",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/payload/timeComputation/governingTimeComputationRegime",
+              "value": "civil-code-138-143"
+            }
+          ]
+        },
+        {
+          "id": "criminal-regime-with-electronic-service-mode",
+          "baseExample": "trackerRecordCriminalDeadline",
+          "expectedFailure": "schema",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/payload/civilElectronicService/mode",
+              "value": "electronic"
+            }
+          ]
+        },
+        {
+          "id": "criminal-regime-with-civil-notice-metadata",
+          "baseExample": "trackerRecordCriminalDeadline",
+          "expectedFailure": "schema",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/payload/civilElectronicService/noticeIssuedAt",
+              "value": "2026-07-16T09:00:00+09:00"
+            }
+          ]
+        },
+        {
+          "id": "criminal-regime-with-civil-inability-period",
+          "baseExample": "trackerRecordCriminalDeadline",
+          "expectedFailure": "schema",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/payload/civilElectronicService/excludedInabilityPeriods",
+              "value": [
+                {
+                  "from": "2026-07-16T09:00:00+09:00",
+                  "through": "2026-07-16T10:00:00+09:00",
+                  "reason": "Civil electronic-service system outage.",
+                  "sourceItemId": "civil-service-outage-1"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "criminal-regime-with-ordinary-civil-transition",
+          "baseExample": "trackerRecordCriminalDeadline",
+          "expectedFailure": "schema",
+          "patch": [
+            {
+              "op": "replace",
+              "path": "/payload/transition/reformEffectiveAt",
+              "value": "2026-05-21T00:00:00+09:00"
+            },
+            {
+              "op": "replace",
+              "path": "/payload/transition/recordRegime",
+              "value": "post-2026-05-21-new-ordinary-civil"
+            }
+          ]
+        }
+  ]
+}

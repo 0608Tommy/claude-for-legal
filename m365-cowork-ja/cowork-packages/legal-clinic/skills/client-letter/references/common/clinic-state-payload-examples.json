@@ -1,0 +1,604 @@
+{
+  "clinicPracticeProfile": {
+    "recordType": "clinic-practice-profile",
+    "tenantId": "tenant-example",
+    "practiceId": "practice-example",
+    "pluginId": "legal-clinic",
+    "itemId": "profile-item-1",
+    "eTag": "\"1\"",
+    "version": 1,
+    "profileStatus": "review-pending",
+    "payload": {
+      "clinic": {
+        "name": "Example Clinic",
+        "hostModel": "university-clinic",
+        "jurisdictions": [
+          "JP"
+        ],
+        "practiceAreas": [
+          "general-civil"
+        ]
+      },
+      "authority": {
+        "responsibleLawyerObjectIds": [
+          "lawyer-object-1"
+        ],
+        "supervisorObjectIds": [
+          "supervisor-object-1"
+        ],
+        "registrationVerificationSourceIds": [
+          "jfba-search-result-1"
+        ],
+        "clinicModelLegalReviewStatus": "in-review"
+      },
+      "conflicts": {
+        "ownerObjectIds": [
+          "conflicts-owner-1"
+        ],
+        "processItemId": "conflict-process-1",
+        "informationBarrierPolicyItemId": "barrier-policy-1",
+        "barrierIsNotClearance": true,
+        "clearanceStatuses": [
+          "pending",
+          "clear",
+          "restricted",
+          "blocked"
+        ]
+      },
+      "engagement": {
+        "decisionOwnerObjectIds": [
+          "lawyer-object-1"
+        ],
+        "agreementSourceRequired": true,
+        "scopeRecordRequired": true,
+        "disclaimerNotDeterminative": true,
+        "conductMayCreateOrExpandEngagement": true,
+        "conductEscalationRequired": true
+      },
+      "studentParticipation": {
+        "matrixItemId": "student-matrix-1",
+        "classification": "internal-policy",
+        "createsLegalAuthority": false,
+        "curesAttorneyAct72Risk": false,
+        "competenceSignoffRequired": true
+      },
+      "supervision": {
+        "workflowPreference": "formal-queue",
+        "substantiveLawyerReviewRequired": true,
+        "versionSpecificApprovalRequired": true
+      },
+      "pedagogy": {
+        "defaultMode": "guide"
+      },
+      "data": {
+        "appiAssessmentItemId": "appi-assessment-1",
+        "appiHostRegime": "unresolved",
+        "article58AssessmentItemId": "appi-article-58-assessment-1",
+        "restrictedCategoriesNotEquivalentToStatutorySensitiveData": true,
+        "myNumberControlItemId": "my-number-control-1",
+        "storageDlpStatus": "in-review",
+        "coworkPromptDlpRequired": false,
+        "retentionPolicyItemId": "retention-policy-1",
+        "incidentRouteItemId": "incident-route-1",
+        "restrictedDataCategories": [
+          "identity-contact",
+          "safe-contact",
+          "health-capacity",
+          "immigration",
+          "criminal",
+          "child-family-dv",
+          "interpreter-accessibility",
+          "my-number"
+        ]
+      },
+      "urgentRouting": {
+        "routeItemId": "urgent-route-1",
+        "docketOwnerObjectIds": [
+          "docket-owner-1"
+        ],
+        "childSafetyHumanReviewRequired": true,
+        "responsePromiseProhibited": true
+      },
+      "sourceCards": [
+        {
+          "domain": "general-civil",
+          "sourceCardItemId": "source-card-general-civil-1",
+          "status": "in-review",
+          "effectiveAsOf": "2026-07-16",
+          "approvedByResponsibleLawyer": null
+        }
+      ],
+      "houterasuPrograms": {
+        "consultationAid": "not-configured",
+        "representationAdvancement": "not-configured",
+        "documentPreparationAdvancement": "not-configured",
+        "appointedCriminalCounsel": "not-configured"
+      },
+      "semester": {
+        "currentTermId": "2026-fall",
+        "accessReviewAt": "2026-09-01T00:00:00+09:00"
+      },
+      "integrations": [
+        {
+          "integrationId": "sharepoint-state-gateway",
+          "status": "configured-unverified",
+          "testedAt": null,
+          "testedOperation": null,
+          "scope": "profiles-state-audit",
+          "failure": null
+        }
+      ],
+      "legalReview": {
+        "japanCounselStatus": "pending",
+        "clinicSupervisorStatus": "in-review"
+      },
+      "activationApprovalIds": []
+    }
+  },
+  "setupSession": {
+    "recordType": "setup-session",
+    "tenantId": "tenant-example",
+    "practiceId": "practice-example",
+    "userObjectId": "supervisor-object-1",
+    "sessionId": "setup-session-1",
+    "itemId": "setup-item-1",
+    "eTag": "\"3\"",
+    "version": 3,
+    "payload": {
+      "mode": "full",
+      "completedSections": [
+        "authority",
+        "conflicts"
+      ],
+      "pendingQuestions": [
+        {
+          "questionId": "data-foreign-transfer",
+          "sectionId": "data",
+          "prompt": "外国にある第三者への提供又は委託の扱いを確認する。",
+          "blocking": true
+        }
+      ],
+      "sources": [
+        {
+          "sourceItemId": "jfba-source-1",
+          "sourceVersion": "2026-07-16",
+          "authorityType": "professional-rule",
+          "officialUrl": "https://www.nichibenren.or.jp/jfba_info/rules/society-laws.html",
+          "effectiveDate": null,
+          "retrievedAt": "2026-07-16T09:00:00+09:00",
+          "reviewStatus": "in-review"
+        }
+      ],
+      "status": "paused",
+      "profileItemId": "profile-item-1",
+      "profileVersion": 1,
+      "profileETag": "\"1\"",
+      "legalReview": {
+        "japanCounselStatus": "pending",
+        "clinicSupervisorStatus": "in-review"
+      },
+      "updatedAt": "2026-07-16T10:00:00+09:00"
+    }
+  },
+  "sessionMatterBinding": {
+    "recordType": "session-matter-binding",
+    "tenantId": "tenant-example",
+    "practiceId": "practice-example",
+    "userObjectId": "student-object-1",
+    "sessionId": "cowork-session-1",
+    "matterId": "matter-example-1",
+    "matterBindingGeneration": 2,
+    "status": "active",
+    "boundAt": "2026-07-16T09:00:00+09:00",
+    "boundBy": "lawyer-object-1",
+    "expiresAt": "2026-07-16T17:00:00+09:00",
+    "revokedAt": null,
+    "revokedBy": null,
+    "revocationReason": null,
+    "itemId": "binding-item-1",
+    "eTag": "\"2\"",
+    "version": 2
+  },
+  "bindingRevocationBatch": {
+    "recordType": "binding-revocation-batch",
+    "tenantId": "tenant-example",
+    "practiceId": "practice-example",
+    "matterId": "matter-example-1",
+    "transition": "archive",
+    "targetMatterStatus": "archived",
+    "targetBindingGeneration": 2,
+    "bindingItemIds": [
+      "binding-item-1",
+      "binding-item-2"
+    ],
+    "results": [
+      {
+        "bindingItemId": "binding-item-1",
+        "outcome": "revoked",
+        "eTagBefore": "\"2\"",
+        "eTagAfter": "\"3\""
+      },
+      {
+        "bindingItemId": "binding-item-2",
+        "outcome": "revoked",
+        "eTagBefore": "\"4\"",
+        "eTagAfter": "\"5\""
+      }
+    ],
+    "atomicOutcome": "succeeded",
+    "blockTransitionOnAnyFailure": true,
+    "reactivationRequiresFreshBinding": true,
+    "correlationId": "correlation-archive-0001",
+    "approvalId": "approval-archive-1",
+    "executedAt": "2026-07-16T11:00:00+09:00"
+  },
+  "clinicMatter": {
+    "recordType": "clinic-matter",
+    "tenantId": "tenant-example",
+    "practiceId": "practice-example",
+    "matterId": "matter-example-1",
+    "itemId": "matter-item-1",
+    "eTag": "\"8\"",
+    "version": 8,
+    "status": "archived",
+    "bindingGeneration": 2,
+    "lastBindingRevocationBatchId": "correlation-archive-0001",
+    "freshBindingRequired": true,
+    "conflictStatus": "clear",
+    "engagementStatus": "active",
+    "scopeSourceItemId": "scope-item-1",
+    "responsibleLawyerObjectId": "lawyer-object-1"
+  },
+  "trackerRecordCommunication": {
+    "recordType": "tracker-record",
+    "trackerType": "communication",
+    "tenantId": "tenant-example",
+    "practiceId": "practice-example",
+    "scopeType": "matter",
+    "scopeId": "matter-example-1",
+    "recordId": "matter:matter-example-1:comm:comm-1",
+    "itemId": "tracker-comm-item-1",
+    "eTag": "\"1\"",
+    "version": 1,
+    "updatedAt": "2026-07-16T12:00:00+09:00",
+    "payload": {
+      "entryId": "comm-1",
+      "matterId": "matter-example-1",
+      "direction": "outbound",
+      "medium": "email",
+      "occurredAt": "2026-07-16T11:30:00+09:00",
+      "participantPseudonymousIds": [
+        "client-pseudonym-1"
+      ],
+      "actorObjectId": "student-object-1",
+      "language": "ja-JP",
+      "interpreterUsed": false,
+      "summary": "予約日時の確認draftを作成した。",
+      "actionItems": [
+        "責任弁護士の確認後に人が送信する。"
+      ],
+      "followUpCandidateAt": "2026-07-17T12:00:00+09:00",
+      "artifactItemId": "artifact-client-draft-1",
+      "artifactVersion": "3",
+      "artifactHash": "sha256:example",
+      "destination": "approved-client-email",
+      "reviewerObjectId": "lawyer-object-1",
+      "deliveryEvidenceItemId": null,
+      "correctionOfEntryId": null,
+      "legalAndLanguageReview": {
+        "required": false,
+        "status": "not-required",
+        "responsibleLawyerObjectId": null,
+        "responsibleLawyerReviewedAt": null,
+        "languageReviewerObjectId": null,
+        "languageReviewerCompetenceRecordId": null,
+        "languageReviewedAt": null
+      }
+    }
+  },
+  "trackerRecordDeadline": {
+    "recordType": "tracker-record",
+    "trackerType": "deadline",
+    "tenantId": "tenant-example",
+    "practiceId": "practice-example",
+    "scopeType": "matter",
+    "scopeId": "matter-example-1",
+    "recordId": "matter:matter-example-1:deadline:deadline-1",
+    "itemId": "tracker-deadline-item-1",
+    "eTag": "\"2\"",
+    "version": 2,
+    "updatedAt": "2026-07-16T12:30:00+09:00",
+    "payload": {
+      "deadlineId": "deadline-1",
+      "matterId": "matter-example-1",
+      "deadlineClass": "statutory-invariable",
+      "forumType": "civil",
+      "label": "控訴期間候補",
+      "triggerDocumentItemId": "judgment-item-1",
+      "triggerDocumentVersion": "1",
+      "triggerTimestamp": "2026-07-10T10:00:00+09:00",
+      "authority": {
+        "sourceItemId": "civil-procedure-article-285",
+        "sourceVersion": "2026-07-16",
+        "authorityType": "binding-law",
+        "officialUrl": "https://laws.e-gov.go.jp/law/408AC0000000109",
+        "effectiveDate": "2026-06-24",
+        "retrievedAt": "2026-07-16T12:00:00+09:00",
+        "reviewStatus": "in-review"
+      },
+      "civilElectronicService": {
+        "mode": "electronic",
+        "noticeRequired": true,
+        "noticeIssuedAt": "2026-07-10T09:00:00+09:00",
+        "accessedAt": "2026-07-10T10:00:00+09:00",
+        "recordedToUserFileAt": null,
+        "oneWeekAfterNoticeAt": "2026-07-17T09:00:00+09:00",
+        "excludedInabilityPeriods": [],
+        "effectiveServiceEvent": "access",
+        "effectiveServiceAt": "2026-07-10T10:00:00+09:00",
+        "sourceItemId": "mints-notice-item-1",
+        "sourceVersion": "1"
+      },
+      "timeComputation": {
+        "periodValue": 2,
+        "periodUnit": "weeks",
+        "startEvent": "effective electronic service",
+        "startDayExcluded": true,
+        "governingTimeComputationRegime": "cpc-95",
+        "cpc95Applies": true,
+        "cpc95ApplicabilitySourceItemId": "civil-procedure-article-95",
+        "administrativeOrgansHolidayActApplies": false,
+        "specialRuleSourceItemId": null,
+        "timezone": "Asia/Tokyo",
+        "lastDayRule": "Current CPC/Civil Code rule must be lawyer-verified.",
+        "holidayCalendarSourceItemId": "court-calendar-source-1",
+        "filingMethod": "current court-approved method",
+        "filingCutoff": "case-specific and system-specific",
+        "completionPostponementGround": null,
+        "renewalGround": null,
+        "calculationSteps": [
+          "Confirm effective service event.",
+          "Apply current start-day and last-day rules.",
+          "Confirm case-specific order and transition."
+        ]
+      },
+      "transition": {
+        "proceedingCommencedAt": "2026-06-01T09:00:00+09:00",
+        "reformEffectiveAt": "2026-05-21T00:00:00+09:00",
+        "recordRegime": "post-2026-05-21-new-ordinary-civil",
+        "applicabilitySourceItemId": "civil-digitalization-source-1",
+        "caseSpecificDirectionItemId": "court-direction-item-1"
+      },
+      "candidateDate": "2026-07-24",
+      "confidence": "medium",
+      "needsVerification": true,
+      "verifiedByLawyerObjectId": null,
+      "verifiedByDocketOwnerObjectId": null,
+      "lifecycleStatus": "candidate",
+      "completion": {
+        "evidenceItemId": null,
+        "evidenceVersion": null,
+        "completedAt": null,
+        "completedByObjectId": null
+      },
+      "closure": {
+        "reason": null,
+        "authorityApprovalId": null,
+        "closedAt": null,
+        "closedByObjectId": null,
+        "sourceEvidence": []
+      },
+      "calendarEntry": {
+        "status": "not-requested",
+        "entryId": null,
+        "approvalId": null,
+        "writtenAt": null,
+        "writerObjectId": null,
+        "failureAuditId": null
+      }
+    }
+  },
+  "trackerRecordReview": {
+    "recordType": "tracker-record",
+    "trackerType": "review",
+    "tenantId": "tenant-example",
+    "practiceId": "practice-example",
+    "scopeType": "matter",
+    "scopeId": "matter-example-1",
+    "recordId": "matter:matter-example-1:review:review-1",
+    "itemId": "tracker-review-item-1",
+    "eTag": "\"1\"",
+    "version": 1,
+    "updatedAt": "2026-07-16T13:00:00+09:00",
+    "payload": {
+      "reviewId": "review-1",
+      "matterId": "matter-example-1",
+      "artifactType": "client-safe-draft",
+      "artifactItemId": "artifact-client-draft-2",
+      "artifactVersion": "4",
+      "artifactHash": "sha256:example-review",
+      "destination": "approved-client-email",
+      "sourceEvidence": [
+        {
+          "sourceItemId": "matter-source-1",
+          "sourceVersion": "2",
+          "authorityType": "matter-document",
+          "officialUrl": null,
+          "effectiveDate": null,
+          "retrievedAt": "2026-07-16T12:45:00+09:00",
+          "reviewStatus": "in-review"
+        }
+      ],
+      "decisionNotes": "Facts and destination require responsible-lawyer review.",
+      "reviewSubjectTypes": [
+        "external-legal-content",
+        "consequential-translation"
+      ],
+      "requiredReviewerRole": "responsible-lawyer",
+      "status": "in-review",
+      "submittedByObjectId": "student-object-1",
+      "submittedAt": "2026-07-16T12:50:00+09:00",
+      "reviewedByObjectId": null,
+      "reviewedAt": null,
+      "approvalId": null,
+      "releaseActorObjectId": null,
+      "legalAndLanguageReview": {
+        "required": true,
+        "status": "in-review",
+        "responsibleLawyerObjectId": "lawyer-object-1",
+        "responsibleLawyerReviewedAt": null,
+        "languageReviewerObjectId": "language-reviewer-1",
+        "languageReviewerCompetenceRecordId": "language-competence-1",
+        "languageReviewedAt": null
+      }
+    }
+  },
+  "trackerRecordHandoff": {
+    "recordType": "tracker-record",
+    "trackerType": "handoff",
+    "tenantId": "tenant-example",
+    "practiceId": "practice-example",
+    "scopeType": "matter",
+    "scopeId": "matter-example-1",
+    "recordId": "matter:matter-example-1:handoff:2026-fall",
+    "itemId": "tracker-handoff-item-1",
+    "eTag": "\"1\"",
+    "version": 1,
+    "updatedAt": "2026-07-16T14:00:00+09:00",
+    "payload": {
+      "termId": "2026-fall",
+      "matterId": "matter-example-1",
+      "outgoingStudentObjectId": "student-object-1",
+      "incomingStudentObjectId": null,
+      "incomingConflictStatus": "pending",
+      "responsibleLawyerObjectId": "lawyer-object-1",
+      "deadlineRecordIds": [
+        "matter:matter-example-1:deadline:deadline-1"
+      ],
+      "openIssueIds": [
+        "issue-1"
+      ],
+      "communicationRecordIds": [
+        "matter:matter-example-1:comm:comm-1"
+      ],
+      "safeContactItemId": "safe-contact-item-1",
+      "originalsInventoryItemId": "originals-item-1",
+      "accessPlanItemId": "access-plan-1",
+      "bindingRevocationBatchId": null,
+      "status": "draft"
+    }
+  },
+  "trackerRecordCriminalDeadline": {
+    "$baseExample": "trackerRecordDeadline",
+    "$patch": [
+      {
+        "op": "replace",
+        "path": "/recordId",
+        "value": "matter:matter-example-1:deadline:criminal-appeal-1"
+      },
+      {
+        "op": "replace",
+        "path": "/itemId",
+        "value": "tracker-criminal-deadline-item-1"
+      },
+      {
+        "op": "replace",
+        "path": "/payload/deadlineId",
+        "value": "criminal-appeal-1"
+      },
+      {
+        "op": "replace",
+        "path": "/payload/forumType",
+        "value": "criminal"
+      },
+      {
+        "op": "replace",
+        "path": "/payload/label",
+        "value": "刑事控訴期間候補"
+      },
+      {
+        "op": "replace",
+        "path": "/payload/triggerDocumentItemId",
+        "value": "criminal-judgment-item-1"
+      },
+      {
+        "op": "replace",
+        "path": "/payload/triggerDocumentVersion",
+        "value": "1"
+      },
+      {
+        "op": "replace",
+        "path": "/payload/authority",
+        "value": {
+          "sourceItemId": "criminal-procedure-article-373",
+          "sourceVersion": "2026-07-16",
+          "authorityType": "binding-law",
+          "officialUrl": "https://laws.e-gov.go.jp/law/323AC0000000131",
+          "effectiveDate": "2026-06-24",
+          "retrievedAt": "2026-07-16T12:00:00+09:00",
+          "reviewStatus": "in-review"
+        }
+      },
+      {
+        "op": "replace",
+        "path": "/payload/civilElectronicService",
+        "value": {
+          "mode": "not-applicable",
+          "noticeRequired": null,
+          "noticeIssuedAt": null,
+          "accessedAt": null,
+          "recordedToUserFileAt": null,
+          "oneWeekAfterNoticeAt": null,
+          "excludedInabilityPeriods": [],
+          "effectiveServiceEvent": "not-applicable",
+          "effectiveServiceAt": null,
+          "sourceItemId": null,
+          "sourceVersion": null
+        }
+      },
+      {
+        "op": "replace",
+        "path": "/payload/timeComputation",
+        "value": {
+          "periodValue": 14,
+          "periodUnit": "days",
+          "startEvent": "criminal judgment or notice event verified under criminal procedure",
+          "startDayExcluded": true,
+          "governingTimeComputationRegime": "criminal-procedure-code-55",
+          "cpc95Applies": false,
+          "cpc95ApplicabilitySourceItemId": null,
+          "administrativeOrgansHolidayActApplies": false,
+          "specialRuleSourceItemId": "criminal-procedure-article-373",
+          "timezone": "Asia/Tokyo",
+          "lastDayRule": "Code of Criminal Procedure Article 55 and the applicable special provision must be verified.",
+          "holidayCalendarSourceItemId": "criminal-procedure-article-55",
+          "filingMethod": "current criminal court-approved method",
+          "filingCutoff": "case-specific and court-specific",
+          "completionPostponementGround": null,
+          "renewalGround": null,
+          "calculationSteps": [
+            "Confirm the criminal-procedure trigger.",
+            "Apply Code of Criminal Procedure Article 55.",
+            "Apply the specific criminal appeal provision and case order."
+          ]
+        }
+      },
+      {
+        "op": "replace",
+        "path": "/payload/transition",
+        "value": {
+          "proceedingCommencedAt": null,
+          "reformEffectiveAt": null,
+          "recordRegime": "procedure-specific",
+          "applicabilitySourceItemId": "criminal-procedure-article-55",
+          "caseSpecificDirectionItemId": null
+        }
+      },
+      {
+        "op": "replace",
+        "path": "/payload/candidateDate",
+        "value": null
+      }
+    ]
+  }
+}

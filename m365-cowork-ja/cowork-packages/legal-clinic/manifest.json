@@ -1,0 +1,72 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.28/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.28",
+  "version": "1.0.0",
+  "id": "452af8e2-0fe5-527f-a4ca-614d73a92f94",
+  "developer": {
+    "name": "0608Tommy",
+    "websiteUrl": "https://github.com/0608Tommy/claude-for-legal",
+    "privacyUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/PRIVACY.md",
+    "termsOfUseUrl": "https://github.com/0608Tommy/claude-for-legal/blob/copilot/m365-cowork-ja/m365-cowork-ja/docs/TERMS.md"
+  },
+  "name": {
+    "short": "リーガルクリニック",
+    "full": "リーガルクリニック — 日本語版 Microsoft 365 Copilot Cowork"
+  },
+  "description": {
+    "short": "相談受付、期限、メモ、依頼者文書、監督、引継ぎを支援します。",
+    "full": "anthropics/claude-for-legalを日本語化し、Microsoft 365向けに変更した派生版です。日本のリーガルクリニックにおける相談受付、利益相反確認、期限候補、調査、内部メモ、依頼者向け文書、監督レビュー、学期引継ぎを支援します。すべての出力は日本の有資格弁護士と監督者による確認前提のドラフトです。"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#6B4F8A",
+  "localizationInfo": {
+    "defaultLanguageTag": "ja"
+  },
+  "agentSkills": [
+    {
+      "folder": "./skills/build-guide"
+    },
+    {
+      "folder": "./skills/client-comms-log"
+    },
+    {
+      "folder": "./skills/client-intake"
+    },
+    {
+      "folder": "./skills/client-letter"
+    },
+    {
+      "folder": "./skills/cold-start-interview"
+    },
+    {
+      "folder": "./skills/customize"
+    },
+    {
+      "folder": "./skills/deadlines"
+    },
+    {
+      "folder": "./skills/draft"
+    },
+    {
+      "folder": "./skills/memo"
+    },
+    {
+      "folder": "./skills/ramp"
+    },
+    {
+      "folder": "./skills/research-start"
+    },
+    {
+      "folder": "./skills/semester-handoff"
+    },
+    {
+      "folder": "./skills/status"
+    },
+    {
+      "folder": "./skills/supervisor-review-queue"
+    }
+  ]
+}
