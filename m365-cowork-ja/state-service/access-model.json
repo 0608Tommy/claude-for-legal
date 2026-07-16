@@ -26,6 +26,7 @@
     "Default cross-matter access to false.",
     "Do not copy restricted matter facts into company or practice profiles.",
     "Revoke every session binding when its matter is archived or access is removed.",
+    "Atomically evaluate the active matter precondition and binding expectedAbsent for every session binding create.",
     "External sharing requires a separate destination and privilege check."
   ]
 }

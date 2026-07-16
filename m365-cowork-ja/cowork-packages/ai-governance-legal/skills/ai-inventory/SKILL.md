@@ -30,7 +30,12 @@ EU AI Act上の役割とtierは**会社単位ではなくAIシステム単位**�
 5. **秘匿性・宛先:** 表示・保存前に閲覧者、保存先、DLP、保持、案件分離を確認する。米国法上のwork-product保護を他法域に断定しない。
 6. **人のレビュー:** `prohibited`、`high_risk`、役割変更、義務判断は人のレビュー対象。台帳登録は法的結論または導入承認ではない。
 7. **不可逆操作:** 追加・編集・分類結果の保存前に差分と保存先を確認する。削除は行わず、廃止は `status: deprecated` とする。
-8. **書込み失敗:** 正確な `itemId`、最新 `eTag`、一意な `idempotencyKey` がない、またはstale writeなら上書きせず停止する。ローカルファイルへフォールバックしない。
+8. **Create / update:** `add`はcanonical key、`recordId`、
+   `expectedAbsent: true`、一意な`idempotencyKey`でconditional createし、
+   createへ架空の`itemId` / `eTag`を要求しない。`edit` / `classify`はexact
+   `itemId`、latest`eTag`、一意な`idempotencyKey`でconditional updateし、
+   updateへ`expectedAbsent`を含めない。stale、duplicate、partial successでは
+   上書きせず停止し、ローカルファイルへフォールバックしない。
 
 詳細な保存契約は `references/common/cowork-runtime-contract.md`、出所ルールは `references/common/source-provenance-and-review.md` を参照する。
 
@@ -85,6 +90,19 @@ updated: "2026-05-11"
 
 日本向け追加分類が必要な場合は、EU値を上書きせず `japan_role`、`japan_risk_notes` 等の別フィールドを使う。
 
+## 書込み契約
+
+`add`と既存recordの変更を同じrequest shapeにしない。
+
+| Operation | Required concurrency fields | Forbidden |
+|---|---|---|
+| create (`add`) | canonical key、`recordId`、`expectedAbsent: true`、unique `idempotencyKey` | pre-existing `itemId` / `eTag` |
+| update (`edit`, `classify`, `deprecated`) | exact `itemId`、latest `eTag`、unique `idempotencyKey` | `expectedAbsent` |
+
+create成功後にresponseのexact `itemId` / `eTag`を保持する。どちらも保存先、
+保持、DLP、閲覧者、権限、差分を人が確認した後の1回の条件付きoperationであり、
+台帳登録、分類、廃止、承認、外部送信を自動実行しない。
+
 ## `list`
 
 正確な案件・実務スコープ内のレコードだけを取得し、次の表を出す。
@@ -105,11 +123,17 @@ updated: "2026-05-11"
 5. `eu_nexus` — EU/EEAでの導入・提供、またはEU/EEAの人への影響
 6. 今すぐ分類するか、未分類で保存するか
 
-`sys-NNN` は同一スコープ内の最大番号の次を、競合しない条件付き処理で割り当てる。必須値のないレコードを完成扱いにしない。
+`sys-NNN` は同一スコープ内の最大番号の次を割り当て、完全なcanonical keyと
+`expectedAbsent: true`で競合しないconditional createを行う。成功responseの
+`itemId` / `eTag`を保持する。必須値のないレコードを完成扱いにせず、timeoutや
+duplicate時に別IDで再createしない。
 
 ## `edit <id>`
 
-現在値と更新履歴を示し、変更する1項目、新しい値、下流影響を確認する。role/tierを直接書き換える依頼では、分類根拠も同時に更新する。`id`、`created`、監査履歴は変更しない。
+現在値、exact `itemId`、latest `eTag`、更新履歴を示し、変更する1項目、
+新しい値、下流影響を確認する。role/tierを直接書き換える依頼では、分類根拠も
+同時に更新する。`id`、`created`、監査履歴は変更せず、update requestへ
+`expectedAbsent`を含めない。
 
 ## `classify <id>`
 
@@ -119,7 +143,8 @@ updated: "2026-05-11"
 2. システムについて組織が何をするかを確認し、`role` と `role_basis` を提案する。
 3. Article 5 → Annex III → GPAI → limited → minimalの順で検討する。
 4. `substantial modification`、目的変更、fine-tuning、rebrandingがあればprovider化の可能性を `[review]` とする。
-5. 結果と根拠を見せ、人が確認してから保存する。
+5. 結果と根拠、exact diffを見せ、人が確認してからexact `itemId` / latest
+   `eTag`でconditional updateする。
 
 分類を説明なしに自動確定しない。条文対応が未検証ならタグを外さない。
 

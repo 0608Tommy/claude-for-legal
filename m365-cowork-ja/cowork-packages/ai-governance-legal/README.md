@@ -37,7 +37,9 @@ AIユースケースのトリアージ、AIシステム台帳、AI影響評価�
 1. Coworkで「`cold-start-interview` を開始したい」と依頼します。
 2. クイック設定またはフル設定を選びます。
 3. 既存のAIポリシー、過去のAIA、主要ベンダー契約、AI台帳があれば、権限を確認してSharePointの正確なアイテムを指定します。
-4. 保存前に、保存先、保持・DLP、アクセス範囲、`itemId`、`eTag`、`idempotencyKey` を確認します。
+4. 保存前に、保存先、保持・DLP、アクセス範囲を確認します。新規createは
+   `expectedAbsent: true`と一意な`idempotencyKey`、既存recordのupdateはexact
+   `itemId`、latest`eTag`、一意な`idempotencyKey`を使います。
 5. 日本を対象法域に含める場合、プロファイルの管轄モジュールに `ja-JP` を指定します。
 
 ## 保存先

@@ -64,19 +64,37 @@
 
 ## 更新監査
 
-監査イベントに記録する。
+shared append-only audit envelopeで記録する。system、change、source、
+classification固有fieldは`details`へ入れ、top-levelへ追加しない。
 
+<!-- inventory-audit-event-example -->
 ```yaml
-eventType: ai-inventory-update
-systemId: sys-001
-changedFields:
-  - role
-  - role_basis
-  - tier
-  - tier_basis
-sourceItemId: "[itemId]"
-sourceETag: "[eTag]"
-idempotencyKey: "[idempotencyKey]"
-reviewedBy: "[name or pending]"
-timestamp: "[ISO-8601]"
+tenantId: tenant-1
+practiceId: ai-governance
+matterId: matter-1
+eventType: ai-inventory-classified
+correlationId: corr-ai-classify-0001
+idempotencyKey: ai-classify-0001
+actorObjectId: user-1
+timestamp: "2026-07-16T11:00:00+09:00"
+outcome: succeeded
+itemIds:
+  - ai-system-item-1
+details:
+  pluginId: ai-governance-legal
+  operation: classify
+  systemId: sys-001
+  changedFields:
+    - role
+    - role_basis
+    - tier
+    - tier_basis
+  sourceSystem: sharepoint-state
+  sourceItemId: ai-system-item-1
+  sourceVersionOrRevisionId: '"12"'
+  eTagBefore: '"11"'
+  eTagAfter: '"12"'
+  reviewedByObjectId: user-1
+  sourceTags:
+    - statute-regulator-site
 ```

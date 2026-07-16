@@ -70,5 +70,57 @@
       "type": "object",
       "minProperties": 1
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "recordType": {
+            "const": "session-matter-binding"
+          }
+        },
+        "required": [
+          "recordType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "scopeType": {
+            "const": "session"
+          },
+          "recordId": {
+            "const": "active-matter"
+          },
+          "patch": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "revokedAt",
+              "revokedBy",
+              "revocationReason"
+            ],
+            "properties": {
+              "status": {
+                "const": "revoked"
+              },
+              "revokedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "revokedBy": {
+                "type": "string",
+                "minLength": 1
+              },
+              "revocationReason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

@@ -2,6 +2,11 @@
 
 # 実務プロファイル・レコード構造
 
+以下はpayload構造であり、write requestのconcurrency fieldではない。first-time
+createのouter requestはcanonical key、`recordId`、`expectedAbsent: true`、
+unique `idempotencyKey`を使い、`itemId` / `eTag`を含めない。既存recordのupdate
+だけがexact `itemId` / latest `eTag`を使う。
+
 ```yaml
 recordType: practice-profile
 tenantId: "[tenant id]"
@@ -99,13 +104,15 @@ practiceId: "[practice id]"
 userObjectId: "[Microsoft Entra object id]"
 role: "Lawyer / legal professional"
 attorneyContact: "[name/team/N/A]"
-eTag: "[eTag]"
 ```
 
 現在案件は共有profileの単一値にせず、セッション単位で拘束する。
 
 ```yaml
+scopeType: session
+scopeId: "[userObjectId]:[sessionId]"
 recordType: session-matter-binding
+recordId: active-matter
 tenantId: "[tenant id]"
 practiceId: "[practice id]"
 userObjectId: "[Microsoft Entra object id]"
@@ -119,6 +126,16 @@ revokedAt: "[ISO-8601 or null]"
 revokedBy: "[Microsoft Entra object id or null]"
 revocationReason: "[reason or null]"
 ```
+
+outer `tenantId` / `practiceId`とpayloadはexact一致し、`scopeId`は
+`userObjectId:sessionId`と一致する。createはactive、`revokedAt` /
+`revokedBy` / `revocationReason`がすべてnullのrecordだけを
+`expectedAbsent: true`で作る。binding createはtarget matterのexact `itemId`、
+`expectedStatus: active`、latest `eTag` / `version`またはbinding-generation
+tokenをmatter preconditionに含め、gatewayがbinding absenceと同一transactionで
+評価する。作成後はtenant、practice、user、session、matter、boundAt、boundBy、
+expiresAtを変更せず、current activeから`revokedAt`、`revokedBy`、nonblank
+reasonを揃えたrevokedへの一方向遷移だけを許可する。
 
 実装時の列・JSON schemaはテナント設計に合わせるが、意味、複合キー、
 正規enumを変えない。

@@ -58,8 +58,110 @@
     "expectedAbsent": {
       "const": true
     },
+    "matterPrecondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "itemId",
+        "expectedStatus",
+        "atomicWithBindingExpectedAbsent"
+      ],
+      "properties": {
+        "itemId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "eTag": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "bindingGeneration": {
+          "oneOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          ]
+        },
+        "expectedStatus": {
+          "const": "active"
+        },
+        "atomicWithBindingExpectedAbsent": {
+          "const": true
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "eTag"
+          ]
+        },
+        {
+          "required": [
+            "version"
+          ]
+        },
+        {
+          "required": [
+            "bindingGeneration"
+          ]
+        }
+      ]
+    },
     "payload": {
       "type": "object"
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "recordType": {
+            "const": "session-matter-binding"
+          }
+        },
+        "required": [
+          "recordType"
+        ]
+      },
+      "then": {
+        "required": [
+          "matterPrecondition"
+        ],
+        "properties": {
+          "scopeType": {
+            "const": "session"
+          },
+          "recordId": {
+            "const": "active-matter"
+          },
+          "payload": {
+            "allOf": [
+              {
+                "$ref": "session-binding.schema.json"
+              },
+              {
+                "properties": {
+                  "status": {
+                    "const": "active"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
 }

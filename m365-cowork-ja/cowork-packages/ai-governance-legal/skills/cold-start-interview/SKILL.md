@@ -24,13 +24,21 @@ AIを「作る会社」と「既製ツールを使う会社」では義務と実
 ## 必須ゲート
 
 1. **保存先:** `references/common/cowork-runtime-contract.md` に対応するテナント設定、`profiles`、`matters`、`outputs`、`state`、`audit`、OneDriveを確認する。ローカルパスを作成・移行しない。
-2. **既存設定:** `profiles` の会社・実務プロファイルを正確な`itemId`で検索する。既存値がある場合、上書きせず、再設定・部分更新・中止の選択を示す。
+2. **既存設定:** `profiles` の会社・実務プロファイルをcanonical keyで検索し、
+   存在する場合はexact `itemId` / latest `eTag`を取得する。既存値がある場合、
+   上書きせず、再設定・部分更新・中止の選択を示す。
 3. **案件:** セットアップは原則practice-level。案件固有の回答を共通プロファイルへ混ぜない。案件資料をseedに使う場合は、権限と再利用範囲を確認する。
 4. **管轄:** `request > matter > practice-profile > tenant-default` の解決規則を設定し、テナント既定だけで実際の対象法域を推測しない。曖昧なら保存前に解消する。
 5. **情報源:** 利用者が述べた法令、施行日、閾値、法域を可能な範囲で一次資料確認する。矛盾は `[premise flagged — verify]` とし、黙ってプロファイルへ保存しない。
 6. **秘匿性・宛先:** seed documentsの秘密性、案件範囲、閲覧者、保持、DLPを確認する。契約やAIAの内容を全社共有プロファイルへ転載しない。
 7. **人のレビュー:** レッドライン、規制適用、vendor標準、承認経路は人が確認するまで `draft`。日本法モジュールは `pending` のままにする。
-8. **不可逆操作・失敗:** 保存前に未回答項目、差分、保存先を提示する。`eTag` / `idempotencyKey` 不足、競合、権限不足、資料取得失敗なら停止し、ローカルへフォールバックしない。
+8. **Create / update・失敗:** 保存前に未回答項目、差分、保存先を提示する。
+   first-time profileまたはsetup-sessionはcanonical key、`recordId`、
+   `expectedAbsent: true`、一意な`idempotencyKey`でconditional createし、
+   createへ架空の`itemId` / `eTag`を要求しない。既存recordはexact
+   `itemId`、latest `eTag`、一意な`idempotencyKey`でconditional updateし、
+   updateへ`expectedAbsent`を含めない。競合、権限不足、資料取得失敗なら停止し、
+   ローカルへフォールバックしない。
 
 ## 会話状態
 
@@ -194,7 +202,11 @@ pendingQuestions:
 profileItemId: "[itemId or null]"
 ```
 
-既回答を再質問しない。再開時は未回答と前回保存日時を示す。
+初回の一時停止でsetup-sessionが存在しない場合は`expectedAbsent: true`で
+conditional createし、`itemId` / `eTag`を事前要求しない。既存setup-sessionの
+pause更新または`resume`はexact `itemId` / latest `eTag`でconditional updateし、
+`expectedAbsent`を含めない。既回答を再質問せず、再開時は未回答と前回保存日時を
+示す。
 
 ## 保存前レビュー
 
@@ -213,11 +225,23 @@ profileItemId: "[itemId or null]"
 
 構造は `references/profile-record-schema.md` を使う。会社レベル情報は共有会社プロファイル、AIガバナンス固有情報はpractice profile、台帳は`state`へ分ける。
 
-条件付き更新後、監査に次を追記する。
+first-time company / practice / user profileは完全なcanonical key、`recordId`、
+`expectedAbsent: true`、一意な`idempotencyKey`でそれぞれconditional createする。
+create requestへ`itemId` / `eTag`を含めず、成功responseのexact `itemId`と
+`eTag`を保持する。
+
+既存profileの`redo` / `redo-section` / integration status変更はcurrent valueと
+latest `eTag`を再取得し、exact `itemId`、latest `eTag`、一意な
+`idempotencyKey`でconditional updateする。update requestへ`expectedAbsent`を
+含めない。createとupdateを同じrequest shapeまたはconfirmationとして扱わない。
+
+条件付きcreateまたはupdate後、監査に次を追記する。
 
 - source documentsとread coverage
 - changed fields
-- `itemId`, prior/new `eTag`
+- operation: `create | update`
+- responseの`itemId`とnew `eTag`
+- updateの場合だけprior `eTag`
 - `idempotencyKey`
 - 保存を確認した人
 - pending review

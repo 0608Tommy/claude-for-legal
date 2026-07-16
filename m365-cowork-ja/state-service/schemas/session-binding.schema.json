@@ -13,7 +13,10 @@
     "status",
     "boundAt",
     "boundBy",
-    "expiresAt"
+    "expiresAt",
+    "revokedAt",
+    "revokedBy",
+    "revocationReason"
   ],
   "properties": {
     "tenantId": {
@@ -66,14 +69,72 @@
       "type": [
         "string",
         "null"
-      ]
+      ],
+      "minLength": 1
     },
     "revocationReason": {
       "type": [
         "string",
         "null"
       ],
+      "minLength": 1,
       "maxLength": 500
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "active"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "revokedAt": {
+            "type": "null"
+          },
+          "revokedBy": {
+            "type": "null"
+          },
+          "revocationReason": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "revoked"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "revokedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "revokedBy": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revocationReason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        }
+      }
+    }
+  ]
 }

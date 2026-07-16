@@ -40,6 +40,82 @@ matter scopeで案件が特定できない、複数候補、期限切れ・revok
 AI台帳等の状態レコードは `scopeType + scopeId` でpracticeまたはmatterへ
 明示的に所属させる。
 
+## Session–matter binding
+
+session bindingは次の固定outer identityを使う。
+
+| Field | Value |
+|---|---|
+| `scopeType` | `session` |
+| `scopeId` | `[userObjectId]:[sessionId]` |
+| `recordType` | `session-matter-binding` |
+| `recordId` | `active-matter` |
+
+conditional create:
+
+```yaml
+tenantId: tenant-1
+practiceId: ai-governance
+scopeType: session
+scopeId: user-1:session-1
+recordType: session-matter-binding
+recordId: active-matter
+idempotencyKey: binding-create-0001
+expectedAbsent: true
+matterPrecondition:
+  itemId: matter-item-1
+  eTag: '"5"'
+  version: 5
+  bindingGeneration: 7
+  expectedStatus: active
+  atomicWithBindingExpectedAbsent: true
+payload:
+  tenantId: tenant-1
+  practiceId: ai-governance
+  userObjectId: user-1
+  sessionId: session-1
+  matterId: matter-1
+  status: active
+  boundAt: "2026-07-16T09:00:00+09:00"
+  boundBy: user-1
+  expiresAt: "2026-07-16T17:00:00+09:00"
+  revokedAt: null
+  revokedBy: null
+  revocationReason: null
+```
+
+outer `tenantId` / `practiceId`はpayloadとexact一致し、`scopeId`もpayloadの
+`userObjectId:sessionId`と一致する。作成後は`tenantId`、`practiceId`、
+`userObjectId`、`sessionId`、`matterId`、`boundAt`、`boundBy`、`expiresAt`
+を変更しない。current `active`から完全なrevocation metadata付きの
+`revoked`への一方向遷移だけを許可し、revoked bindingを再有効化しない。
+
+session binding createはtarget matterのexact `itemId`、
+`expectedStatus: active`、latest `eTag` / `version`または
+`bindingGeneration` tokenを必須とする。gatewayはこのmatter preconditionと
+binding `expectedAbsent: true`を同一transactionで評価し、一方でもstale /
+failedならbindingを作らない。matterを先にreadしてから別operationでbindingを
+createするcheck-then-createは許可しない。
+
+`switch` / `none`ではcurrent bindingをconditional revokeし、現在の会話を
+停止する。別matterのbindingはfresh sessionでだけconditional createする。
+practice-levelはfresh sessionでbindingが存在しない状態で表し、第三のbinding
+statusやnull-matter active bindingを作らない。
+
+matter closeは、最初のatomic conditional operationでmatterを
+`close-pending`等のnon-active stateへtransitionし、generation方式を使う実装では
+同じoperationで`bindingGeneration`も増やして、新規binding createをfenceする。
+fence後に対象matterの全bindingを列挙し、
+statusが`active`のbindingだけをconditional revokeする。
+既に`revoked`のbindingはsatisfiedとして再更新せず、最後に全件を再照合して
+active bindingが0件であることを確認してから`archived`へfinalizeする。
+finalizeはpost-fence matterのexact `itemId` / latest `eTag`によるconditional
+updateとする。
+fence前にcommitしたcreateはpost-fence enumerationで捕捉され、fence後のcreateは
+atomic matter preconditionで失敗する。
+列挙漏れ・競合・失敗があればfenced stateを維持し、matter accessをfail closedで
+拒否する。
+
 `user-profile` が存在しない、別利用者のレコードしかない、roleが不明な
 場合は共有practice profileの値で代用しない。現在利用者へroleと弁護士
 連絡先を確認し、本人の複合キーで保存するまで、lawyer/non-lawyerによって
@@ -47,25 +123,83 @@ AI台帳等の状態レコードは `scopeType + scopeId` でpracticeまたはma
 
 ## 書込みプロトコル
 
-書込みには必ず次を揃える。
+本契約とconnector定義はDRAFTであり、承認・導入済みgatewayのlive preflightと
+人の明示確認なしにstate operationを自動実行したと表示しない。
 
-- 正確な `itemId`
-- 最新の `eTag`
-- 操作ごとに一意な `idempotencyKey`
-- 保存先ライブラリまたはリスト
-- 保持ポリシーとDLPポリシーの確認
-- 共有先・閲覧者の確認
+### Create
 
-手順:
+新規profile、matter、AI台帳、setup session、session bindingにはcreate対象
+record自身の既存`itemId` / `eTag`がない。ordinary createでは次を揃える。
 
-1. 現在値と `eTag` を再取得する。
-2. 変更差分と下流影響を人に提示する。
-3. 人が変更内容と保存先を確認する。
-4. 条件付き更新を1回実行する。
-5. stale write または競合なら上書きせず、再読取りして差分を示す。
-6. 成否を `audit` に追記する。監査記録は更新・削除しない。
+- 完全なcanonical composite keyと`recordId`
+- `expectedAbsent: true`
+- 操作ごとに一意な`idempotencyKey`
+- 保存先、保持、DLP、閲覧者、現在利用者の権限
+
+条件付きcreate成功後にresponseのexact `itemId`と`eTag`を保持する。
+duplicate、timeout、partial successでは再createせず、同じkeyと
+idempotencyを照合する。createへ`itemId` / `eTag`を要求しない。
+
+session binding createだけは、上記に加えて参照matterのexact `itemId`とcurrent
+tokenを`matterPrecondition`として要求する。これはbinding自身のpre-existing
+`itemId` / `eTag`ではない。
+
+### Update
+
+既存recordのupdateでは次を揃える。
+
+- exact `itemId`
+- latest `eTag`
+- 操作ごとに一意な`idempotencyKey`
+- 完全なcanonical key、保存先、保持、DLP、閲覧者、権限
+
+1. current valueと`eTag`を再取得する。
+2. exact diffと下流影響を人に提示する。
+3. 変更単位でfresh confirmationを得る。
+4. 条件付きupdateを1回実行する。
+5. stale write、duplicate、partial successでは上書きせず再読取りする。
+6. 成否とexact item IDを`audit`へ追記する。
+
+updateへ`expectedAbsent`を含めない。session binding updateのpatchは次の
+revocation fieldsだけとし、identityまたはmatterをpatchしない。
+
+```yaml
+patch:
+  status: revoked
+  revokedAt: "2026-07-16T10:00:00+09:00"
+  revokedBy: user-1
+  revocationReason: matter-switch
+```
 
 同じ `idempotencyKey` の再送は新しい変更として扱わない。部分成功時は、成功した操作と未実行の操作を明示し、推測で継続しない。
+
+## 監査envelope
+
+すべての監査eventはshared append-only envelopeを使う。skill固有の値は
+top-levelへ追加せず`details`へ入れる。
+
+```yaml
+tenantId: tenant-1
+practiceId: ai-governance
+matterId: matter-1
+eventType: session-binding-revoked
+correlationId: corr-matter-switch-0001
+idempotencyKey: binding-revoke-0001
+actorObjectId: user-1
+timestamp: "2026-07-16T10:00:00+09:00"
+outcome: succeeded
+itemIds:
+  - binding-item-1
+details:
+  pluginId: ai-governance-legal
+  operation: switch
+  sessionId: session-1
+  revocationReason: matter-switch
+```
+
+`switch`のrevoke eventとfresh-session create eventは別eventとして同じ
+`correlationId`で関連付ける。監査recordを更新・削除せず、不要なmatter内容、
+secret、個人情報を複製しない。
 
 ## 成果物の昇格
 
