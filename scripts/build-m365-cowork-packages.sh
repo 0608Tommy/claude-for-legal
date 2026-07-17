@@ -64,6 +64,13 @@ path_exists() {
   [[ -e "$1" || -L "$1" ]]
 }
 
+mirror_candidate_path() {
+  local slug="$1"
+
+  printf '%s\n' \
+    "$TARGET/$slug/build/.m365-cowork-mirror-candidate.$RUN_ID.zip"
+}
+
 recover_legacy_publication() {
   if ! path_exists "$DIST" && path_exists "$LEGACY_DIST_BACKUP"; then
     echo "restoring legacy interrupted Cowork publication" >&2
@@ -75,6 +82,8 @@ recover_legacy_publication() {
 
 cleanup_abandoned_builds() {
   local abandoned
+  local mirror_dir
+  local slug
 
   for abandoned in \
     "$CACHE"/package-build-first.* \
@@ -85,13 +94,40 @@ cleanup_abandoned_builds() {
   for abandoned in "$CACHE"/package-build-paused.*; do
     [[ -f "$abandoned" || -L "$abandoned" ]] && rm -f "$abandoned"
   done
+  for slug in "${EXPECTED_SLUGS[@]}"; do
+    mirror_dir="$TARGET/$slug/build"
+    if path_exists "$mirror_dir"; then
+      [[ -d "$mirror_dir" && ! -L "$mirror_dir" ]] || {
+        echo "$slug: mirror build path must be a regular directory" >&2
+        exit 1
+      }
+    else
+      continue
+    fi
+    for abandoned in \
+      "$mirror_dir"/.m365-cowork-mirror-candidate.*.zip; do
+      if path_exists "$abandoned"; then
+        [[ ! -d "$abandoned" || -L "$abandoned" ]] || {
+          echo "$slug: abandoned mirror candidate is a directory" >&2
+          exit 1
+        }
+        rm -f -- "$abandoned"
+      fi
+    done
+  done
   return 0
 }
 
 cleanup() {
   local status=$?
+  local candidate
+  local slug
 
   trap - EXIT HUP INT TERM
+  for slug in "${EXPECTED_SLUGS[@]}"; do
+    candidate="$(mirror_candidate_path "$slug")"
+    rm -f -- "$candidate" 2>/dev/null || true
+  done
   rm -rf "$FIRST_STAGE" "$SECOND_STAGE"
   rm -f "$PAUSE_MARKER"
   exit "$status"
@@ -165,6 +201,24 @@ require_exact_slugs() {
       <(printf '%s\n' "$actual_text") >&2 || true
     exit 1
   fi
+}
+
+require_exact_hash_map() {
+  local label="$1"
+  local hash_map="$2"
+  local slug
+  local digest
+  local extra
+  local actual=()
+
+  while IFS=$'\t' read -r slug digest extra; do
+    [[ -n "$slug" && "$digest" =~ ^[0-9a-f]{64}$ && -z "$extra" ]] || {
+      echo "$label contains an invalid hash-map row" >&2
+      exit 1
+    }
+    actual+=("$slug")
+  done <"$hash_map"
+  require_exact_slugs "$label" "${actual[@]}"
 }
 
 mapfile -t eligible_slugs < <(
@@ -436,6 +490,7 @@ build_pass() {
 write_fleet_hash_map() {
   local fleet_root="$1"
   local output="$2"
+  local label="$3"
   local slug
   local package_zip
   local digest_line
@@ -450,6 +505,125 @@ write_fleet_hash_map() {
     digest_line="$(sha256sum "$package_zip")"
     printf '%s\t%s\n' "$slug" "${digest_line%% *}" >>"$output"
   done
+  require_exact_hash_map "$label" "$output"
+}
+
+ensure_mirror_directory() {
+  local slug="$1"
+  local mirror_dir="$TARGET/$slug/build"
+
+  if path_exists "$mirror_dir"; then
+    [[ -d "$mirror_dir" && ! -L "$mirror_dir" ]] || {
+      echo "$slug: mirror build path must be a regular directory" >&2
+      exit 1
+    }
+  else
+    mkdir -- "$mirror_dir"
+  fi
+}
+
+build_mirror_candidates() {
+  local output="$1"
+  local slug
+  local source
+  local canonical
+  local candidate
+  local contract_copy
+  local canonical_digest_line
+  local candidate_digest_line
+  local canonical_digest
+  local candidate_digest
+  local canonical_bytes
+  local candidate_bytes
+  local result
+  local result_slug
+  local contract_digest
+
+  mkdir -p "$SECOND_STAGE/mirror-contract"
+  : >"$output"
+  for slug in "${EXPECTED_SLUGS[@]}"; do
+    source="$TARGET/$slug"
+    canonical="$DIST/$slug/$slug-ja.zip"
+    ensure_mirror_directory "$slug"
+    candidate="$(mirror_candidate_path "$slug")"
+    contract_copy="$SECOND_STAGE/mirror-contract/$slug-ja.zip"
+    ! path_exists "$candidate" || {
+      echo "$slug: mirror candidate already exists" >&2
+      exit 1
+    }
+
+    cp -p -- "$canonical" "$candidate"
+    [[ -f "$candidate" && ! -L "$candidate" ]] || {
+      echo "$slug: mirror candidate is not a regular file" >&2
+      exit 1
+    }
+    cmp -s "$canonical" "$candidate" || {
+      echo "$slug: mirror candidate bytes differ from canonical dist" >&2
+      exit 1
+    }
+    canonical_bytes="$(stat -c '%s' "$canonical")"
+    candidate_bytes="$(stat -c '%s' "$candidate")"
+    [[ "$candidate_bytes" == "$canonical_bytes" ]] || {
+      echo "$slug: mirror candidate size differs from canonical dist" >&2
+      exit 1
+    }
+
+    result="$(
+      python3 "$NORMALIZER" "$candidate" "$contract_copy" "$source"
+    )"
+    result_slug="${result%%$'\t'*}"
+    contract_digest="${result#*$'\t'}"
+    [[
+      "$result_slug" == "$slug" &&
+        "$contract_digest" =~ ^[0-9a-f]{64}$
+    ]] || {
+      echo "$slug: invalid mirror contract result: $result" >&2
+      exit 1
+    }
+    cmp -s "$candidate" "$contract_copy" || {
+      echo "$slug: mirror candidate violates normalized ZIP contract" >&2
+      exit 1
+    }
+
+    canonical_digest_line="$(sha256sum "$canonical")"
+    candidate_digest_line="$(sha256sum "$candidate")"
+    canonical_digest="${canonical_digest_line%% *}"
+    candidate_digest="${candidate_digest_line%% *}"
+    [[
+      "$candidate_digest" == "$canonical_digest" &&
+        "$contract_digest" == "$canonical_digest"
+    ]] || {
+      echo "$slug: mirror candidate digest differs from canonical dist" >&2
+      exit 1
+    }
+    printf '%s\t%s\n' "$slug" "$candidate_digest" >>"$output"
+  done
+  require_exact_hash_map "validated mirror candidate hash map" "$output"
+}
+
+write_mirror_hash_map() {
+  local output="$1"
+  local slug
+  local canonical
+  local mirror
+  local digest_line
+
+  : >"$output"
+  for slug in "${EXPECTED_SLUGS[@]}"; do
+    canonical="$DIST/$slug/$slug-ja.zip"
+    mirror="$TARGET/$slug/build/$slug-ja.zip"
+    [[ -f "$mirror" && ! -L "$mirror" ]] || {
+      echo "$slug: package-local mirror ZIP is missing or not regular" >&2
+      exit 1
+    }
+    cmp -s "$canonical" "$mirror" || {
+      echo "$slug: package-local mirror bytes differ from canonical dist" >&2
+      exit 1
+    }
+    digest_line="$(sha256sum "$mirror")"
+    printf '%s\t%s\n' "$slug" "${digest_line%% *}" >>"$output"
+  done
+  require_exact_hash_map "published mirror hash map" "$output"
 }
 
 build_pass "1/2" "$FIRST_STAGE"
@@ -471,6 +645,9 @@ if ! cmp -s \
     "$SECOND_STAGE/hash-map.tsv" >&2 || true
   exit 1
 fi
+require_exact_hash_map \
+  "validated deterministic build hash map" \
+  "$FIRST_STAGE/hash-map.tsv"
 
 PUBLISH="$FIRST_STAGE/publish"
 mkdir "$PUBLISH"
@@ -482,7 +659,10 @@ for slug in "${EXPECTED_SLUGS[@]}"; do
 done
 
 CANDIDATE_HASHES="$SECOND_STAGE/candidate-hash-map.tsv"
-write_fleet_hash_map "$PUBLISH" "$CANDIDATE_HASHES"
+write_fleet_hash_map \
+  "$PUBLISH" \
+  "$CANDIDATE_HASHES" \
+  "dist publication candidate hash map"
 cmp -s "$FIRST_STAGE/hash-map.tsv" "$CANDIDATE_HASHES" || {
   echo "publication candidate hashes differ from validated build hashes" >&2
   exit 1
@@ -497,11 +677,40 @@ else
 fi
 
 PUBLISHED_HASHES="$SECOND_STAGE/published-hash-map.tsv"
-write_fleet_hash_map "$DIST" "$PUBLISHED_HASHES"
+write_fleet_hash_map "$DIST" "$PUBLISHED_HASHES" "published dist hash map"
 cmp -s "$FIRST_STAGE/hash-map.tsv" "$PUBLISHED_HASHES" || {
   echo "published package hashes differ from validated build hashes" >&2
   exit 1
 }
 
-printf 'Microsoft 365 Cowork package build: OK (%d deterministic ZIPs)\n' \
+MIRROR_CANDIDATE_HASHES="$SECOND_STAGE/mirror-candidate-hash-map.tsv"
+build_mirror_candidates "$MIRROR_CANDIDATE_HASHES"
+cmp -s "$FIRST_STAGE/hash-map.tsv" "$MIRROR_CANDIDATE_HASHES" || {
+  echo "validated mirror candidate hashes differ from canonical dist" >&2
+  exit 1
+}
+
+pause_at "before-mirror-renames"
+inject_failure "before-mirror-renames"
+for slug in "${EXPECTED_SLUGS[@]}"; do
+  mirror_candidate="$(mirror_candidate_path "$slug")"
+  mirror="$TARGET/$slug/build/$slug-ja.zip"
+  mv --no-copy -T "$mirror_candidate" "$mirror"
+  pause_at "after-mirror-rename-$slug"
+  inject_failure "after-mirror-rename-$slug"
+done
+
+MIRROR_HASHES="$SECOND_STAGE/mirror-hash-map.tsv"
+write_mirror_hash_map "$MIRROR_HASHES"
+cmp -s "$FIRST_STAGE/hash-map.tsv" "$MIRROR_HASHES" || {
+  echo "published mirror hashes differ from validated build hashes" >&2
+  exit 1
+}
+cmp -s "$PUBLISHED_HASHES" "$MIRROR_HASHES" || {
+  echo "published dist and mirror hash maps differ" >&2
+  exit 1
+}
+
+printf \
+  'Microsoft 365 Cowork package build: OK (%d deterministic ZIPs + mirrors)\n' \
   "$EXPECTED_PACKAGE_COUNT"

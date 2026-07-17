@@ -180,6 +180,7 @@ raw_one = scratch / "raw-one.zip"
 raw_two = scratch / "raw-two.zip"
 normalized_one = scratch / "normalized-one.zip"
 normalized_two = scratch / "normalized-two.zip"
+normalized_three = scratch / "normalized-three.zip"
 write_archive(raw_one, base_members)
 write_archive(raw_two, base_members, reverse=True)
 
@@ -189,6 +190,11 @@ if digest_one != digest_two:
     raise AssertionError("normalized digests differ")
 if normalized_one.read_bytes() != normalized_two.read_bytes():
     raise AssertionError("normalized ZIP bytes differ")
+digest_three = normalize_package(normalized_one, normalized_three, source)
+if digest_three != digest_one:
+    raise AssertionError("normalized ZIP contract is not digest-idempotent")
+if normalized_three.read_bytes() != normalized_one.read_bytes():
+    raise AssertionError("normalized ZIP contract is not byte-idempotent")
 
 with zipfile.ZipFile(normalized_one) as archive:
     infos = archive.infolist()

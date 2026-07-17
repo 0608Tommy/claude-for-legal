@@ -10,6 +10,7 @@ export PYTHONDONTWRITEBYTECODE=1
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 M365_ROOT="$ROOT/m365-cowork-ja"
 DIST="$M365_ROOT/dist"
+TARGET="$M365_ROOT/cowork-packages"
 CACHE="$M365_ROOT/.cache"
 LEGACY_BACKUP="$CACHE/dist-publication-backup"
 LOCK_FILE="$CACHE/package-build.lock"
@@ -89,6 +90,7 @@ assert_lock_available() {
 
 assert_no_abandoned_builds() {
   local abandoned
+  local package_dir
 
   for abandoned in \
     "$CACHE"/package-build-first.* \
@@ -99,6 +101,16 @@ assert_no_abandoned_builds() {
       echo "abandoned build path remains: $abandoned" >&2
       exit 1
     }
+  done
+  for package_dir in "$TARGET"/*; do
+    [[ -d "$package_dir" && ! -L "$package_dir" ]] || continue
+    for abandoned in \
+      "$package_dir/build"/.m365-cowork-mirror-candidate.*.zip; do
+      [[ ! -e "$abandoned" && ! -L "$abandoned" ]] || {
+        echo "abandoned mirror candidate remains: $abandoned" >&2
+        exit 1
+      }
+    done
   done
 }
 

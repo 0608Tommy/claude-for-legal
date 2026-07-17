@@ -28,7 +28,36 @@ m365-cowork-ja/.cache/skills-ref-venv/bin/python \
 bash scripts/test-m365-cowork-fleet.sh
 ```
 
-生成物は `m365-cowork-ja/dist/<plugin>/<plugin>-ja.zip` に保存されます。
+配布用の正本は
+`m365-cowork-ja/dist/<plugin>/<plugin>-ja.zip` です。fleet全体のビルドが
+成功した後だけ、同一バイトの検証済みconvenience mirrorが
+`m365-cowork-ja/cowork-packages/<plugin>/build/<plugin>-ja.zip` に
+原子的に置き換わります。`build/` はgit管理外であり、正本ではありません。
+手動の `atk package` が同じ場所へ出力したZIPは検証済みとはみなしません。
+
+WSL上のCLIにはWSLの絶対パス、Windowsのfile pickerには `wslpath` が返す
+Windowsパスをそのまま使います。手作業で相互変換しません。
+
+```bash
+REPO="$(git rev-parse --show-toplevel)"
+PLUGIN=ai-governance-legal
+CANONICAL_ZIP="$(
+  realpath "$REPO/m365-cowork-ja/dist/$PLUGIN/$PLUGIN-ja.zip"
+)"
+MIRROR_ZIP="$(
+  realpath \
+    "$REPO/m365-cowork-ja/cowork-packages/$PLUGIN/build/$PLUGIN-ja.zip"
+)"
+
+printf 'WSL canonical: %s\n' "$CANONICAL_ZIP"
+printf 'Windows canonical: %s\n' "$(wslpath -w "$CANONICAL_ZIP")"
+printf 'WSL validated mirror: %s\n' "$MIRROR_ZIP"
+printf 'Windows validated mirror: %s\n' "$(wslpath -w "$MIRROR_ZIP")"
+```
+
+Windows側では通常
+`\\wsl.localhost\<distribution>\home\...\m365-cowork-ja\dist\...zip`
+形式になります。表示された正確な値を使用してください。
 
 ## 個人サイドロード
 
@@ -37,7 +66,7 @@ bash scripts/test-m365-cowork-fleet.sh
 ```bash
 atk auth login
 atk install \
-  --file-path m365-cowork-ja/dist/<plugin>/<plugin>-ja.zip \
+  --file-path "$CANONICAL_ZIP" \
   --scope Personal
 ```
 

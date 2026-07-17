@@ -27,7 +27,32 @@ m365-cowork-ja/.cache/skills-ref-venv/bin/python \
 ```
 
 `scripts/build-m365-cowork-packages.sh` はmanifest、skill、Apache通知、
-package上限を検証し、skills-only ZIPを再現可能に生成します。
+package上限を検証し、skills-only ZIPを再現可能に生成します。検証済みの正本は
+`m365-cowork-ja/dist/<plugin>/<plugin>-ja.zip` へfleet単位で原子的に
+公開されます。その公開hashを再検証した後、正本とSHA-256、サイズ、全バイト、
+正規化ZIP contractが一致する候補12件をすべて完成させてから、各候補を
+`m365-cowork-ja/cowork-packages/<plugin>/build/<plugin>-ja.zip` へ
+原子的にrenameします。
+
+package-local `build/` はgit管理外のconvenience mirrorです。fleet build成功後
+のmirrorだけを検証済みとして扱います。手動の `atk package` 出力、過去のZIP、
+途中終了後の一部更新を信頼せず、次を再実行して正本とmirrorを修復します。
+
+```bash
+bash scripts/test-m365-cowork-fleet.sh
+```
+
+WSLのCLIには `realpath` のPOSIX絶対パスを渡します。Windowsのupload画面では
+同じパスを `wslpath -w` で変換し、その出力をそのまま選択します。
+
+```bash
+REPO="$(git rev-parse --show-toplevel)"
+PLUGIN=ai-governance-legal
+ZIP="$(
+  realpath "$REPO/m365-cowork-ja/dist/$PLUGIN/$PLUGIN-ja.zip"
+)"
+printf 'WSL: %s\nWindows: %s\n' "$ZIP" "$(wslpath -w "$ZIP")"
+```
 
 ## 公式converter
 
