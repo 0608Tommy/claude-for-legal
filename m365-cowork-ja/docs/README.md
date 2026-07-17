@@ -150,6 +150,13 @@ OAuth、MCP entitlement、report翻訳・保持・再配布条件を付与しま
 
 ## License
 
-sourceと派生物はApache License, Version 2.0に従います。各packageに英語
-`LICENSE`を同梱し、source-derived fileへ変更通知を付けます。日本語の説明は
-参考であり、英語licenseが正式です。
+sourceと派生物はApache License, Version 2.0に従います。各package source
+rootの英語`LICENSE`と`NOTICE`を正式な正本として保持し、skills-only ZIPの
+root memberには含めません。
+
+各登録skill rootの必須配布fileは`SKILL.md`、`LICENSE.txt`、
+`NOTICE.txt`です。後二者はconverter互換性のための意図的なcopyで、package
+rootの正本とbyte-for-byteで一致させます。extensionlessのskill-level
+`LICENSE` / `NOTICE`または別拡張子のlegal fileをZIPへ含めません。
+source-derived fileへ変更通知を付けます。日本語の説明は参考であり、英語
+licenseが正式です。

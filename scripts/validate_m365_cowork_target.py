@@ -24,7 +24,11 @@ TARGET_ROOT: Final = ROOT / "m365-cowork-ja" / "cowork-packages"
 CONTRACT_PATH: Final = (
     ROOT / "m365-cowork-ja" / "shared" / "target-contract.json"
 )
+TOOLCHAIN_LOCK_PATH: Final = (
+    ROOT / "m365-cowork-ja" / "shared" / "toolchain-lock.json"
+)
 TARGET_ID_RE: Final = re.compile(r"^[a-z0-9][a-z0-9-]{1,63}$")
+FILE_EXTENSION_RE: Final = re.compile(r"^\.[a-z0-9]+$")
 MARKDOWN_LINK_RE: Final = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 BACKTICK_PATH_RE: Final = re.compile(
     r"`((?:(?:/|\./|\.\./)[^`\n]+|references/[A-Za-z0-9_./-]+))`",
@@ -37,6 +41,16 @@ JAPANESE_CHARACTER_RE: Final = re.compile(
 )
 CHANGE_NOTICE_MARKER: Final = "> **変更通知:**"
 FORBIDDEN_RUNTIME_MARKERS: Final = ("~/.claude/", "$ARGUMENTS")
+SKILL_ENTRYPOINT_NAME: Final = "SKILL.md"
+PACKAGE_LEGAL_FILE_NAMES: Final = ("LICENSE", "NOTICE")
+SKILL_LEGAL_FILE_PAIRS: Final = (
+    ("LICENSE.txt", "LICENSE"),
+    ("NOTICE.txt", "NOTICE"),
+)
+SKILL_LEGAL_NAMES_BY_STEM: Final = {
+    "license": "LICENSE.txt",
+    "notice": "NOTICE.txt",
+}
 
 
 class Limits(NamedTuple):
@@ -49,29 +63,11 @@ class Limits(NamedTuple):
     maximum_companion_files: int
     maximum_file_nesting_depth: int
     recommended_lines: int
+    fleet_converter_extensions: frozenset[str]
 
 
 def _require_object(value: object, context: str) -> dict[str, object]:
-    """Require a JSON object.
-
-    Parameters
-    ----------
-    value:
-        Candidate JSON value.
-    context:
-        Human-readable value location.
-
-    Returns
-    -------
-    dict[str, object]
-        Validated mapping.
-
-    Raises
-    ------
-    TypeError
-        If ``value`` is not a JSON object.
-
-    """
+    """Require a JSON object."""
     if not isinstance(value, dict):
         message = f"{context} must be an object"
         raise TypeError(message)
@@ -79,26 +75,7 @@ def _require_object(value: object, context: str) -> dict[str, object]:
 
 
 def _require_int(value: object, context: str) -> int:
-    """Require a JSON integer.
-
-    Parameters
-    ----------
-    value:
-        Candidate JSON value.
-    context:
-        Human-readable value location.
-
-    Returns
-    -------
-    int
-        Validated integer.
-
-    Raises
-    ------
-    TypeError
-        If ``value`` is not an integer.
-
-    """
+    """Require a JSON integer."""
     if not isinstance(value, int) or isinstance(value, bool):
         message = f"{context} must be an integer"
         raise TypeError(message)
@@ -106,26 +83,7 @@ def _require_int(value: object, context: str) -> int:
 
 
 def _require_strings(value: object, context: str) -> frozenset[str]:
-    """Require a JSON array of strings.
-
-    Parameters
-    ----------
-    value:
-        Candidate JSON value.
-    context:
-        Human-readable value location.
-
-    Returns
-    -------
-    frozenset[str]
-        Validated strings.
-
-    Raises
-    ------
-    TypeError
-        If ``value`` is not an array of strings.
-
-    """
+    """Require a JSON array of strings."""
     if not isinstance(value, list):
         message = f"{context} must be an array of strings"
         raise TypeError(message)
@@ -136,29 +94,95 @@ def _require_strings(value: object, context: str) -> frozenset[str]:
     return frozenset(cast("list[str]", items))
 
 
-def load_limits(contract_path: Path = CONTRACT_PATH) -> Limits:
-    """Load strict and recommended limits from the target contract.
+def _require_extension_set(
+    value: object,
+    context: str,
+) -> frozenset[str]:
+    """Require a non-empty set of normalized file extensions."""
+    extensions = _require_strings(value, context)
+    raw_items = cast("list[object]", value)
+    if not extensions:
+        message = f"{context} must not be empty"
+        raise ValueError(message)
+    if len(raw_items) != len(extensions):
+        message = f"{context} must not contain duplicates"
+        raise ValueError(message)
+    invalid = _invalid_extensions(extensions)
+    if invalid:
+        message = f"{context} has invalid extensions {invalid}"
+        raise ValueError(message)
+    return extensions
 
-    Parameters
-    ----------
-    contract_path:
-        Path to ``target-contract.json``.
 
-    Returns
-    -------
-    Limits
-        Validated limits.
-
-    """
-    raw_contract: object = json.loads(
-        contract_path.read_text(encoding="utf-8"),
+def _invalid_extensions(extensions: frozenset[str]) -> list[str]:
+    """Return extensions that are not normalized lowercase suffixes."""
+    return sorted(
+        extension
+        for extension in extensions
+        if FILE_EXTENSION_RE.fullmatch(extension) is None
     )
-    contract = _require_object(raw_contract, "target contract")
+
+
+def _load_json_object(path: Path, context: str) -> dict[str, object]:
+    """Load one JSON document and require an object root."""
+    raw_document: object = json.loads(path.read_text(encoding="utf-8"))
+    return _require_object(raw_document, context)
+
+
+def _compatibility_extensions(
+    document: dict[str, object],
+    section_name: str,
+    context: str,
+) -> frozenset[str]:
+    """Load the scoped fleet/converter compatibility extension set."""
+    section = _require_object(
+        document.get(section_name),
+        f"{context}.{section_name}",
+    )
+    compatibility = _require_object(
+        section.get("fleetConverterCompatibility"),
+        f"{context}.{section_name}.fleetConverterCompatibility",
+    )
+    return _require_extension_set(
+        compatibility.get("fileExtensions"),
+        (
+            f"{context}.{section_name}.fleetConverterCompatibility."
+            "fileExtensions"
+        ),
+    )
+
+
+def load_limits(
+    contract_path: Path = CONTRACT_PATH,
+    toolchain_lock_path: Path = TOOLCHAIN_LOCK_PATH,
+) -> Limits:
+    """Load strict and recommended target and toolchain contracts."""
+    contract = _load_json_object(contract_path, "target contract")
+    toolchain_lock = _load_json_object(
+        toolchain_lock_path,
+        "toolchain lock",
+    )
     frontmatter = _require_object(
         contract.get("frontmatter"),
         "frontmatter",
     )
     skill = _require_object(contract.get("skill"), "skill")
+    target_extensions = _compatibility_extensions(
+        contract,
+        "skill",
+        "target contract",
+    )
+    toolchain_extensions = _compatibility_extensions(
+        toolchain_lock,
+        "cowork",
+        "toolchain lock",
+    )
+    if target_extensions != toolchain_extensions:
+        message = (
+            "target contract and toolchain lock fleet/converter "
+            "compatibility extension sets must match exactly"
+        )
+        raise ValueError(message)
     return Limits(
         allowed_fields=_require_strings(
             frontmatter.get("allowedFields"),
@@ -188,59 +212,22 @@ def load_limits(contract_path: Path = CONTRACT_PATH) -> Limits:
             skill.get("recommendedMaximumLines"),
             "skill.recommendedMaximumLines",
         ),
+        fleet_converter_extensions=target_extensions,
     )
 
 
 def _relative(path: Path, target_root: Path) -> str:
-    """Return a target-root-relative path.
-
-    Parameters
-    ----------
-    path:
-        Target path.
-    target_root:
-        Target package root.
-
-    Returns
-    -------
-    str
-        POSIX path relative to ``target_root``.
-
-    """
+    """Return a target-root-relative POSIX path."""
     return path.relative_to(target_root).as_posix()
 
 
 def _contains_format_controls(text: str) -> bool:
-    """Return whether text contains hidden Unicode format controls.
-
-    Parameters
-    ----------
-    text:
-        Candidate text.
-
-    Returns
-    -------
-    bool
-        ``True`` when a Unicode ``Cf`` character is present.
-
-    """
+    """Return whether text contains hidden Unicode format controls."""
     return any(unicodedata.category(character) == "Cf" for character in text)
 
 
 def _companion_files(skill_path: Path) -> tuple[Path, ...]:
-    """Return companion files shipped beside a skill.
-
-    Parameters
-    ----------
-    skill_path:
-        Path to ``SKILL.md``.
-
-    Returns
-    -------
-    tuple[Path, ...]
-        All other files under the skill directory.
-
-    """
+    """Return all companion files shipped beside a skill."""
     return tuple(
         path
         for path in skill_path.parent.rglob("*")
@@ -248,25 +235,158 @@ def _companion_files(skill_path: Path) -> tuple[Path, ...]:
     )
 
 
+def _declared_skill_paths(skills_root: Path) -> tuple[Path, ...]:
+    """Return exact ``skills/<skill>/SKILL.md`` entrypoints."""
+    return tuple(
+        child / SKILL_ENTRYPOINT_NAME
+        for child in sorted(skills_root.iterdir())
+        if child.is_dir()
+        and (child / SKILL_ENTRYPOINT_NAME).is_file()
+    )
+
+
+def _top_level_skill_shape_errors(
+    skills_root: Path,
+    target_root: Path,
+) -> list[str]:
+    """Return errors for invalid direct children of ``skills``."""
+    errors: list[str] = []
+    for child in sorted(skills_root.iterdir()):
+        relative = _relative(child, target_root)
+        if child.is_file():
+            errors.append(
+                f"{relative}: orphan file outside skills/<skill>/",
+            )
+        elif child.is_dir() and not (
+            child / SKILL_ENTRYPOINT_NAME
+        ).is_file():
+            errors.append(
+                f"{relative}: orphan skill directory missing "
+                f"{SKILL_ENTRYPOINT_NAME}",
+            )
+    return errors
+
+
+def _misplaced_entrypoint_errors(
+    skills_root: Path,
+    target_root: Path,
+) -> list[str]:
+    """Return errors for nested or root-level skill entrypoints."""
+    return [
+        (
+            f"{_relative(entrypoint, target_root)}: skill entrypoint is "
+            "outside skills/<skill>/SKILL.md"
+        )
+        for entrypoint in sorted(skills_root.rglob(SKILL_ENTRYPOINT_NAME))
+        if entrypoint.parent.parent != skills_root
+    ]
+
+
+def _case_collision_errors(
+    skills_root: Path,
+    target_root: Path,
+) -> list[str]:
+    """Return case-insensitive collisions across the complete skills tree."""
+    errors: list[str] = []
+    observed: dict[str, Path] = {}
+    for path in sorted(skills_root.rglob("*")):
+        skill_relative = path.relative_to(skills_root).as_posix()
+        collision_key = unicodedata.normalize(
+            "NFC",
+            skill_relative,
+        ).casefold()
+        previous = observed.get(collision_key)
+        if previous is not None:
+            relative = _relative(path, target_root)
+            previous_relative = _relative(previous, target_root)
+            errors.append(
+                f"{relative}: case-insensitive path collision with "
+                f"{previous_relative}",
+            )
+        else:
+            observed[collision_key] = path
+    return errors
+
+
+def _file_extension_error(
+    file_path: Path,
+    allowed_extensions: frozenset[str],
+    target_root: Path,
+) -> str | None:
+    """Return one fleet/converter compatibility extension error."""
+    relative = _relative(file_path, target_root)
+    extension = file_path.suffix
+    if not extension:
+        if file_path.name in PACKAGE_LEGAL_FILE_NAMES:
+            return (
+                f"{relative}: file has no extension; required skill "
+                f"legal name is {file_path.name}.txt"
+            )
+        return (
+            f"{relative}: file has no extension; fleet/converter "
+            "compatibility requires a declared extension"
+        )
+    if extension != extension.lower():
+        return (
+            f"{relative}: uppercase file extension is forbidden: "
+            f"{extension}"
+        )
+    if extension not in allowed_extensions:
+        return (
+            f"{relative}: unsupported fleet/converter compatibility "
+            f"extension {extension}"
+        )
+    return None
+
+
+def _file_extension_errors(
+    skills_root: Path,
+    allowed_extensions: frozenset[str],
+    target_root: Path,
+) -> list[str]:
+    """Validate every file extension under the complete skills tree."""
+    errors: list[str] = []
+    for file_path in sorted(skills_root.rglob("*")):
+        if not file_path.is_file():
+            continue
+        error = _file_extension_error(
+            file_path,
+            allowed_extensions,
+            target_root,
+        )
+        if error is not None:
+            errors.append(error)
+    return errors
+
+
+def _scan_skill_tree(
+    package_path: Path,
+    limits: Limits,
+    target_root: Path,
+) -> tuple[tuple[Path, ...], list[str]]:
+    """Discover declared skills and validate the complete skills tree."""
+    skills_root = package_path / "skills"
+    if not skills_root.is_dir():
+        relative = _relative(package_path, target_root)
+        return (), [f"{relative}: missing skills directory"]
+    errors = _top_level_skill_shape_errors(skills_root, target_root)
+    errors.extend(_misplaced_entrypoint_errors(skills_root, target_root))
+    errors.extend(_case_collision_errors(skills_root, target_root))
+    errors.extend(
+        _file_extension_errors(
+            skills_root,
+            limits.fleet_converter_extensions,
+            target_root,
+        ),
+    )
+    return _declared_skill_paths(skills_root), errors
+
+
 def _validate_local_references(
     skill_path: Path,
     target_root: Path,
 ) -> list[str]:
-    """Validate local references without allowing skill-root escapes.
-
-    Parameters
-    ----------
-    skill_path:
-        Path to ``SKILL.md``.
-    target_root:
-        Target package root.
-
-    Returns
-    -------
-    list[str]
-        Link validation errors.
-
-    """
+    """Validate local references without allowing skill-root escapes."""
     errors: list[str] = []
     skill_root = skill_path.parent.resolve()
     for markdown_path in skill_path.parent.rglob("*.md"):
@@ -321,25 +441,7 @@ def _reference_errors(
     skill_root: Path,
     target_root: Path,
 ) -> list[str]:
-    """Return validation errors for one local reference.
-
-    Parameters
-    ----------
-    markdown_path:
-        Markdown file containing the reference.
-    raw_target:
-        Link or backticked reference target.
-    skill_root:
-        Resolved skill directory.
-    target_root:
-        Target package root.
-
-    Returns
-    -------
-    list[str]
-        Reference errors.
-
-    """
+    """Return validation errors for one local reference."""
     target = raw_target.strip().strip("<>")
     if _is_nonlocal_reference(target):
         return []
@@ -357,23 +459,7 @@ def _validate_skill(
     limits: Limits,
     target_root: Path,
 ) -> tuple[list[str], list[str]]:
-    """Validate one target skill.
-
-    Parameters
-    ----------
-    skill_path:
-        Path to ``SKILL.md``.
-    limits:
-        Target package limits.
-    target_root:
-        Target package root.
-
-    Returns
-    -------
-    tuple[list[str], list[str]]
-        Errors and warnings.
-
-    """
+    """Validate one target skill."""
     text = skill_path.read_text(encoding="utf-8")
     relative = _relative(skill_path, target_root)
     errors = _frontmatter_errors(skill_path, text, limits, relative)
@@ -458,25 +544,7 @@ def _frontmatter_errors(
     limits: Limits,
     relative: str,
 ) -> list[str]:
-    """Return strict frontmatter errors.
-
-    Parameters
-    ----------
-    skill_path:
-        Path to ``SKILL.md``.
-    text:
-        Skill Markdown text.
-    limits:
-        Target package limits.
-    relative:
-        Target-root-relative path.
-
-    Returns
-    -------
-    list[str]
-        Frontmatter errors.
-
-    """
+    """Return strict frontmatter errors."""
     errors: list[str] = []
     try:
         frontmatter = extract_frontmatter(text, skill_path)
@@ -636,7 +704,7 @@ def _required_package_file_errors(
 ) -> list[str]:
     """Return errors for missing package-level legal files."""
     errors: list[str] = []
-    for required_name in ("LICENSE", "NOTICE"):
+    for required_name in PACKAGE_LEGAL_FILE_NAMES:
         required_path = package_path / required_name
         if not required_path.is_file():
             relative = _relative(package_path, target_root)
@@ -739,17 +807,80 @@ def _skill_count_errors(
 
 def _required_skill_file_errors(
     skill_path: Path,
+    package_path: Path,
     target_root: Path,
 ) -> list[str]:
-    """Return errors for missing skill-level legal files."""
+    """Return errors for missing or divergent skill-level legal files."""
     errors: list[str] = []
-    for required_name in ("LICENSE", "NOTICE"):
-        required_path = skill_path.parent / required_name
-        if not required_path.is_file():
-            relative = _relative(skill_path, target_root)
-            errors.append(
-                f"{relative}: missing companion {required_name}",
+    relative = _relative(skill_path, target_root)
+    for skill_name, package_name in SKILL_LEGAL_FILE_PAIRS:
+        skill_legal_path = skill_path.parent / skill_name
+        if not skill_legal_path.is_file():
+            errors.extend(
+                _missing_skill_legal_errors(
+                    skill_path,
+                    skill_name,
+                    package_name,
+                    relative,
+                ),
             )
+            continue
+        package_legal_path = package_path / package_name
+        if (
+            package_legal_path.is_file()
+            and skill_legal_path.read_bytes()
+            != package_legal_path.read_bytes()
+        ):
+            skill_relative = _relative(skill_legal_path, target_root)
+            errors.append(
+                f"{skill_relative}: content does not byte-match "
+                f"package-root {package_name}",
+            )
+    return errors
+
+
+def _missing_skill_legal_errors(
+    skill_path: Path,
+    skill_name: str,
+    package_name: str,
+    relative: str,
+) -> list[str]:
+    """Return a missing error unless a rejected legacy file explains it."""
+    if (skill_path.parent / package_name).is_file():
+        return []
+    return [f"{relative}: missing exact companion {skill_name}"]
+
+
+def _skill_legal_name_error(
+    file_path: Path,
+    target_root: Path,
+) -> str | None:
+    """Reject noncanonical legal-like filenames at a skill root."""
+    if not file_path.is_file():
+        return None
+    if file_path.name in PACKAGE_LEGAL_FILE_NAMES:
+        return None
+    stem = file_path.name.partition(".")[0].casefold()
+    expected_name = SKILL_LEGAL_NAMES_BY_STEM.get(stem)
+    if expected_name is None or file_path.name == expected_name:
+        return None
+    relative = _relative(file_path, target_root)
+    return (
+        f"{relative}: skill legal filename must be exactly "
+        f"{expected_name}"
+    )
+
+
+def _skill_legal_name_errors(
+    skill_path: Path,
+    target_root: Path,
+) -> list[str]:
+    """Return noncanonical skill-root legal filename errors."""
+    errors: list[str] = []
+    for file_path in sorted(skill_path.parent.iterdir()):
+        error = _skill_legal_name_error(file_path, target_root)
+        if error is not None:
+            errors.append(error)
     return errors
 
 
@@ -761,12 +892,22 @@ def _validate_package(
     """Validate one Cowork package."""
     errors = _package_errors(package_path, target_root)
     warnings: list[str] = []
-    skill_paths = tuple(
-        sorted(package_path.glob("skills/*/SKILL.md")),
+    skill_paths, skill_tree_errors = _scan_skill_tree(
+        package_path,
+        limits,
+        target_root,
     )
+    errors.extend(skill_tree_errors)
     errors.extend(_skill_count_errors(package_path, skill_paths, limits))
     for skill_path in skill_paths:
-        errors.extend(_required_skill_file_errors(skill_path, target_root))
+        errors.extend(_skill_legal_name_errors(skill_path, target_root))
+        errors.extend(
+            _required_skill_file_errors(
+                skill_path,
+                package_path,
+                target_root,
+            ),
+        )
         skill_errors, skill_warnings = _validate_skill(
             skill_path,
             limits,

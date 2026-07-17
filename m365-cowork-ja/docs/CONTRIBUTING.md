@@ -28,7 +28,12 @@
 - skill ID、path、enum、URL、citationを翻訳しない。
 - shared referenceをskill rootの外へ参照しない。
 - source-derived MarkdownへApache変更通知を付ける。
-- 各skillに英語`LICENSE`と`NOTICE`を同梱する。
+- package rootの英語`LICENSE`と`NOTICE`を正式な正本として必須にし、
+  skills-only ZIPのroot memberには含めない。
+- 各skill rootの必須配布fileを`SKILL.md`、`LICENSE.txt`、
+  `NOTICE.txt`とする。後二者はconverter互換の意図的なcopyで、package
+  rootの正本とbyte-for-byteで一致させる。extensionlessまたは別拡張子の
+  skill-level legal fileは同梱しない。
 - connectorとPower Platform solutionをCowork ZIPへ混在させない。
 - Cowork DLPが対応済みと表示しない。
 - 日本法moduleをqualified reviewerの記録なしに`approved`へ変更しない。

@@ -62,6 +62,12 @@ READMEのsecurity表、YAML comments、実際のtool scopeを一致させます�
   する。root直下は0、`references/file`は1、
   `references/common/ja-jp/file`は3で有効、
   `references/common/jurisdictions/ja-jp/file`は4で無効とする。
+- package rootの英語`LICENSE`と`NOTICE`を正式な正本として保持し、
+  skills-only ZIPのroot memberからは除外する。
+- 各skill rootの必須配布fileを`SKILL.md`、`LICENSE.txt`、
+  `NOTICE.txt`とする。後二者はconverter互換の意図的なcopyで、package
+  rootの正本とbyte-for-byteで一致させる。extensionlessまたは別拡張子の
+  skill-level legal fileは許可しない。
 - source-derived fileへApache変更通知を付ける。
 - connector、Power Platform solution、Cowork app ZIPを分離する。
 - CoCounselは書面承認までblockする。

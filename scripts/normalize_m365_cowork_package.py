@@ -29,7 +29,13 @@ SKILL_PATH_PART_COUNT: Final = 2
 CLI_ARGUMENT_COUNT: Final = 4
 MAX_UNCOMPRESSED_BYTES: Final = 100 * 1024 * 1024
 MAX_MEMBER_BYTES: Final = 20 * 1024 * 1024
-REQUIRED_SKILL_FILES: Final = ("SKILL.md", "LICENSE", "NOTICE")
+REQUIRED_SKILL_FILES: Final = ("SKILL.md", "LICENSE.txt", "NOTICE.txt")
+CANONICAL_LEGAL_FILES: Final = ("LICENSE", "NOTICE")
+DISTRIBUTED_LEGAL_FILES: Final = (
+    ("LICENSE.txt", "LICENSE"),
+    ("NOTICE.txt", "NOTICE"),
+)
+LEGAL_FILE_STEMS: Final = frozenset({"license", "notice"})
 CONNECTOR_DRAFT_NAME: Final = "connectors.draft.json"
 
 
@@ -351,29 +357,105 @@ def _source_skill_entries(
 
 
 def _validate_required_skill_files(
-    source_entries: dict[str, bytes],
+    entries: dict[str, bytes],
     declared: tuple[str, ...],
     context: str,
+    origin: str,
 ) -> None:
     """Require each skill's definition, license, and notice."""
     for slug in declared:
         for filename in REQUIRED_SKILL_FILES:
             name = f"skills/{slug}/{filename}"
-            data = source_entries.get(name)
+            data = entries.get(name)
             if not data:
                 raise _error(
                     context,
-                    f"required packaged file missing: {name}",
+                    f"required {origin} file missing or empty: {name}",
                 )
 
 
-def _validate_root_notices(source_dir: Path, context: str) -> None:
-    """Require nonempty package-level license and notice files."""
-    for filename in ("LICENSE", "NOTICE"):
+def _canonical_legal_data(
+    source_dir: Path,
+    context: str,
+) -> dict[str, bytes]:
+    """Return nonempty package-level canonical legal files."""
+    legal_data: dict[str, bytes] = {}
+    for filename in CANONICAL_LEGAL_FILES:
         path = source_dir / filename
         _require_regular_file(path, path.as_posix())
-        if not path.read_bytes():
+        data = path.read_bytes()
+        if not data:
             raise _error(context, f"package {filename} must not be empty")
+        legal_data[filename] = data
+    return legal_data
+
+
+def _skill_root_legal_filename(
+    name: str,
+    declared: tuple[str, ...],
+) -> str | None:
+    """Return a legal-like filename at a declared skill root."""
+    parts = PurePosixPath(name).parts
+    if (
+        len(parts) != SKILL_PATH_PART_COUNT + 1
+        or parts[0] != "skills"
+        or parts[1] not in declared
+    ):
+        return None
+    filename = parts[2]
+    stem, _, _ = filename.partition(".")
+    return filename if stem.casefold() in LEGAL_FILE_STEMS else None
+
+
+def _validate_skill_legal_names(
+    names: set[str],
+    declared: tuple[str, ...],
+    context: str,
+    origin: str,
+) -> None:
+    """Reject legacy, alternate-extension, and mis-cased legal files."""
+    for name in sorted(names):
+        filename = _skill_root_legal_filename(name, declared)
+        if filename is None or filename in REQUIRED_SKILL_FILES:
+            continue
+        raise _error(
+            context,
+            _legal_name_error_detail(name, filename, origin),
+        )
+
+
+def _legal_name_error_detail(
+    name: str,
+    filename: str,
+    origin: str,
+) -> str:
+    """Return the specific error for one unsupported legal filename."""
+    _, separator, extension = filename.partition(".")
+    if not separator:
+        return f"legacy extensionless legal member is forbidden: {name}"
+    if extension.casefold() != "txt":
+        return f"unsupported legal-file extension in {origin}: {name}"
+    return f"legal-file name must use canonical case in {origin}: {name}"
+
+
+def _validate_distributed_legal_bytes(
+    entry_map: dict[str, bytes],
+    declared: tuple[str, ...],
+    canonical: dict[str, bytes],
+    context: str,
+) -> None:
+    """Require archived legal copies to equal package-root canonical bytes."""
+    for slug in declared:
+        for distributed_name, canonical_name in DISTRIBUTED_LEGAL_FILES:
+            name = f"skills/{slug}/{distributed_name}"
+            if entry_map[name] != canonical[canonical_name]:
+                raise _error(
+                    context,
+                    (
+                        "archived legal file differs from package-root "
+                        f"{canonical_name}: {name}"
+                    ),
+                )
 
 
 def _source_icon_data(
@@ -505,10 +587,39 @@ def _validate_archive_contents(
     icons = _manifest_icons(source_manifest, context)
     declared = _declared_skills(source_manifest, context)
     _validate_source_skill_set(source_dir, declared, context)
-    _validate_root_notices(source_dir, context)
+    canonical_legal = _canonical_legal_data(source_dir, context)
     source_entries = _source_skill_entries(source_dir, declared, context)
-    _validate_required_skill_files(source_entries, declared, context)
+    _validate_skill_legal_names(
+        set(source_entries),
+        declared,
+        context,
+        "source",
+    )
+    _validate_required_skill_files(
+        source_entries,
+        declared,
+        context,
+        "source",
+    )
     entry_names = set(entry_map)
+    _validate_skill_legal_names(
+        entry_names,
+        declared,
+        context,
+        "archive",
+    )
+    _validate_required_skill_files(
+        entry_map,
+        declared,
+        context,
+        "archived",
+    )
+    _validate_distributed_legal_bytes(
+        entry_map,
+        declared,
+        canonical_legal,
+        context,
+    )
     expected_names = _expected_archive_names(icons, source_entries)
     _validate_connector_exclusion(source_manifest, entry_names, context)
     _validate_member_set(entry_names, expected_names, context)

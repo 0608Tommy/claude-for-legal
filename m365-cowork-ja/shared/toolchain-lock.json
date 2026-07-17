@@ -1,12 +1,21 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-07-16",
+  "checkedAt": "2026-07-17",
   "sourceRevision": "5ceb305b30b4c82653c9b6642499c12e946ec319",
   "cowork": {
     "availability": "GA",
     "manifestVersion": "1.28",
     "manifestSchema": "https://developer.microsoft.com/json-schemas/teams/v1.28/MicrosoftTeams.schema.json",
-    "initialPackageScope": "skills-only"
+    "initialPackageScope": "skills-only",
+    "fleetConverterCompatibility": {
+      "fileExtensions": [
+        ".md",
+        ".json",
+        ".py",
+        ".txt"
+      ],
+      "scope": "claude-for-legal fleet and /claude-to-cowork-plugin converter compatibility; not a universal Microsoft allowlist"
+    }
   },
   "tools": {
     "m365AgentsToolkitCli": {
@@ -29,6 +38,14 @@
       "url": "https://download.microsoft.com/download/20e5d05b-0bfd-419b-bdde-06c14b8fcf5b/Convert-ClaudePluginToMOS3.ps1",
       "versioned": false,
       "checksumPublished": false,
+      "productionAuthority": false
+    },
+    "claudeToCoworkPlugin": {
+      "command": "/claude-to-cowork-plugin",
+      "observedAt": "2026-07-17",
+      "noExtensionFileResult": "rejected",
+      "version": null,
+      "sha256": null,
       "productionAuthority": false
     }
   },

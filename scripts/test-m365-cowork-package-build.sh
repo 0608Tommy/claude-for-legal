@@ -52,6 +52,7 @@ python3 - "$SCRATCH" "$SOURCE" <<'PY'
 from __future__ import annotations
 
 import json
+import shutil
 import stat
 import sys
 import warnings
@@ -59,14 +60,27 @@ import zipfile
 from pathlib import Path
 
 from normalize_m365_cowork_package import (
+    CANONICAL_LEGAL_FILES,
     DOS_EPOCH,
+    DISTRIBUTED_LEGAL_FILES,
     FIXED_EXTERNAL_ATTR,
     PackageBuildError,
     normalize_package,
 )
 
 scratch = Path(sys.argv[1])
-source = Path(sys.argv[2])
+source_template = Path(sys.argv[2])
+source = scratch / "fixture-source"
+shutil.copytree(source_template, source)
+canonical_legal = {
+    name: (source / name).read_bytes() for name in CANONICAL_LEGAL_FILES
+}
+for skill_dir in sorted((source / "skills").iterdir()):
+    for distributed_name, canonical_name in DISTRIBUTED_LEGAL_FILES:
+        (skill_dir / canonical_name).unlink(missing_ok=True)
+        (skill_dir / distributed_name).write_bytes(
+            canonical_legal[canonical_name],
+        )
 
 
 def source_members() -> dict[str, bytes]:
@@ -147,6 +161,21 @@ def expect_failure(
 
 base = source_members()
 base_members = [(name, data, False) for name, data in base.items()]
+skill_name = next(
+    name for name in sorted(base) if name.endswith("/SKILL.md")
+)
+license_name = next(
+    name for name in sorted(base) if name.endswith("/LICENSE.txt")
+)
+notice_name = next(
+    name for name in sorted(base) if name.endswith("/NOTICE.txt")
+)
+license_names = sorted(
+    name for name in base if name.endswith("/LICENSE.txt")
+)
+notice_names = sorted(
+    name for name in base if name.endswith("/NOTICE.txt")
+)
 raw_one = scratch / "raw-one.zip"
 raw_two = scratch / "raw-two.zip"
 normalized_one = scratch / "normalized-one.zip"
@@ -163,8 +192,15 @@ if normalized_one.read_bytes() != normalized_two.read_bytes():
 
 with zipfile.ZipFile(normalized_one) as archive:
     infos = archive.infolist()
-    if [item.filename for item in infos] != sorted(base):
+    archive_names = [item.filename for item in infos]
+    if archive_names != sorted(base):
         raise AssertionError("normalized members are not sorted")
+    if any(name in archive_names for name in CANONICAL_LEGAL_FILES):
+        raise AssertionError("package-root canonical legal file was archived")
+    if any(
+        name.endswith(("/LICENSE", "/NOTICE")) for name in archive_names
+    ):
+        raise AssertionError("legacy extensionless legal member was archived")
     if archive.comment:
         raise AssertionError("normalized archive comment remains")
     for item in infos:
@@ -178,15 +214,15 @@ with zipfile.ZipFile(normalized_one) as archive:
             raise AssertionError(f"metadata remains on {item.filename}")
         if archive.read(item) != base[item.filename]:
             raise AssertionError(f"member bytes changed: {item.filename}")
+    for name in license_names:
+        if archive.read(name) != canonical_legal["LICENSE"]:
+            raise AssertionError(f"license bytes differ: {name}")
+    for name in notice_names:
+        if archive.read(name) != canonical_legal["NOTICE"]:
+            raise AssertionError(f"notice bytes differ: {name}")
 
 color_name = "color.png"
 manifest_name = "manifest.json"
-skill_name = next(
-    name for name in sorted(base) if name.endswith("/SKILL.md")
-)
-notice_name = next(
-    name for name in sorted(base) if name.endswith("/NOTICE")
-)
 
 expect_failure(
     "duplicate",
@@ -219,6 +255,76 @@ expect_failure(
     "connector draft",
 )
 
+missing_license = [
+    member for member in base_members if member[0] != license_name
+]
+expect_failure(
+    "missing-license",
+    missing_license,
+    f"required archived file missing or empty: {license_name}",
+)
+missing_notice = [
+    member for member in base_members if member[0] != notice_name
+]
+expect_failure(
+    "missing-notice",
+    missing_notice,
+    f"required archived file missing or empty: {notice_name}",
+)
+
+changed_license = [
+    (
+        name,
+        data + b"\nchanged" if name == license_name else data,
+        symlink,
+    )
+    for name, data, symlink in base_members
+]
+expect_failure(
+    "changed-license",
+    changed_license,
+    "archived legal file differs from package-root LICENSE",
+)
+changed_notice = [
+    (
+        name,
+        data + b"\nchanged" if name == notice_name else data,
+        symlink,
+    )
+    for name, data, symlink in base_members
+]
+expect_failure(
+    "changed-notice",
+    changed_notice,
+    "archived legal file differs from package-root NOTICE",
+)
+
+legacy_license_name = license_name.removesuffix(".txt")
+expect_failure(
+    "legacy-legal-member",
+    [
+        *base_members,
+        (legacy_license_name, canonical_legal["LICENSE"], False),
+    ],
+    "legacy extensionless legal member",
+)
+expect_failure(
+    "unsupported-extension",
+    [
+        *base_members,
+        (f"{legacy_license_name}.md", canonical_legal["LICENSE"], False),
+    ],
+    "unsupported legal-file extension",
+)
+expect_failure(
+    "legal-case-collision",
+    [
+        *base_members,
+        (f"{legacy_license_name}.TXT", canonical_legal["LICENSE"], False),
+    ],
+    "case-colliding ZIP member",
+)
+
 changed_manifest = json.loads(base[manifest_name])
 changed_manifest["version"] = "9.9.9"
 changed_manifest_bytes = json.dumps(changed_manifest).encode()
@@ -235,11 +341,6 @@ expect_failure(
     semantic_members,
     "differs semantically",
 )
-
-missing_notice = [
-    member for member in base_members if member[0] != notice_name
-]
-expect_failure("missing-notice", missing_notice, "member set mismatch")
 
 changed_skill = [
     (

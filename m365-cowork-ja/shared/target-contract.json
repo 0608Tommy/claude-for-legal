@@ -18,7 +18,16 @@
     "maximumCompanionFiles": 20,
     "maximumFileNestingDepth": 3,
     "recommendedMaximumLines": 500,
-    "recommendedMaximumActivatedTokens": 5000
+    "recommendedMaximumActivatedTokens": 5000,
+    "fleetConverterCompatibility": {
+      "fileExtensions": [
+        ".md",
+        ".json",
+        ".py",
+        ".txt"
+      ],
+      "scope": "claude-for-legal fleet and /claude-to-cowork-plugin converter compatibility; not a universal Microsoft allowlist"
+    }
   },
   "connector": {
     "maximumPerPackage": 10,
