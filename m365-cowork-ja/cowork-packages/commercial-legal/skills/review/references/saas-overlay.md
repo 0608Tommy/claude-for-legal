@@ -86,7 +86,7 @@ business criticalityを先に確認する。重要でなければ、skip理由�
 
 silent contractもfinding。「AI/ML rightsが未規定」であり、vendorが使わないとは推測しない。
 
-日本では`common/jurisdictions/ja-jp/competition-ip.md`、`common/jurisdictions/ja-jp/privacy-data.md`、METI checklistを読む。guidanceをbinding termと混同しない。
+日本では`common/ja-jp/competition-ip.md`、`common/ja-jp/privacy-data.md`、METI checklistを読む。guidanceをbinding termと混同しない。
 
 ## Liability
 

@@ -178,7 +178,7 @@ primarySourcesCheckedThrough: "2026-07-16"
 appi2026AmendmentStatus: enacted-promulgation-pending-not-effective
 ```
 
-`references/common/jurisdictions/ja-jp/README.md`を読む。
+`references/common/ja-jp/README.md`を読む。
 
 PIAは民間一般に一律mandatoryではないこと、APPI rolesはGDPR controller/processorと同一でないこと、本人請求deadline、漏えい、越境、Cookie/telecom、employee/applicant、children/biometric、My Number/sectorを確認する。
 

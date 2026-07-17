@@ -58,6 +58,10 @@ READMEのsecurity表、YAML comments、実際のtool scopeを一致させます�
 - internal helperはcallerへflattenし、登録skillとして露出しない。
 - mandatory safety gateをoptional referenceだけへ移さない。
 - referenceはskill root内に閉じ、20 companions以下にする。
+- skill配下の全fileは、filenameを除くskill root相対の親directory数を最大3に
+  する。root直下は0、`references/file`は1、
+  `references/common/ja-jp/file`は3で有効、
+  `references/common/jurisdictions/ja-jp/file`は4で無効とする。
 - source-derived fileへApache変更通知を付ける。
 - connector、Power Platform solution、Cowork app ZIPを分離する。
 - CoCounselは書面承認までblockする。

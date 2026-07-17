@@ -32,7 +32,7 @@ scope mismatchを明示して続行します。
 
 1. `references/common/cowork-runtime-contract.md`を読み、exact scope/sourceを確認。
 2. Japanなら
-   `references/common/jurisdictions/ja-jp/wage-worker-status.md`を使います。
+   `references/common/ja-jp/wage-worker-status.md`を使います。
 3. purposeを別trackにします:
    `labor-standards | labor-contract | labor-union | social-insurance |
    tax | freelance-act | dispatch-worker-supply | osh`。

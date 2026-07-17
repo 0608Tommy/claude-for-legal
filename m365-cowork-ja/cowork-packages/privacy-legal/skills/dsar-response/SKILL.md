@@ -60,7 +60,7 @@ requestには本人のPIIが含まれる。必要最小限だけ取得し、本�
 combination requestを分ける。例: access後deletionは2つのlinked right。
 
 日本が関係する場合は
-`references/common/jurisdictions/ja-jp/rights-dsar.md`を読む。
+`references/common/ja-jp/rights-dsar.md`を読む。
 
 - 日本APPI: 利用目的通知、開示、第三者提供record、訂正等、利用停止等
 - GDPR/UK GDPR: Articles 12–22

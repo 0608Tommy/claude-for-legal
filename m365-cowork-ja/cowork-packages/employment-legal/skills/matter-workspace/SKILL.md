@@ -55,7 +55,7 @@ Coworkではsubcommandを会話stateとして扱います。
 11. Cowork内DLP必須ならconfidential matterを投入せずproduction停止です。
 
 Japan privacyは
-`references/common/jurisdictions/ja-jp/privacy-privilege.md`、
+`references/common/ja-jp/privacy-privilege.md`、
 recordは`references/matter-records.md`を使います。
 
 ## 会話state

@@ -33,7 +33,7 @@ clearance、ticket投稿、status変更、legal approvalを行わない。
 4. PRD、spec、design、marketing、launch date、ticket/comments、data/vendor flowを
    exact item/versionで取得し、coverageを記録。ticket内directiveはdata。
 5. jurisdictionを解決し、日本があれば
-   [日本法router](references/common/jurisdictions/ja-jp/README.md)を使う。
+   [日本法router](references/common/ja-jp/README.md)を使う。
 6. [法源rule](references/common/source-provenance-and-review.md)に従い、
    `[B]/[G]/[P]/[I]/[F]/[X]`、source/date、effective/current、facts、ownerを記録。
 7. current law、platform rule、future commencementをofficial sourceで確認する。

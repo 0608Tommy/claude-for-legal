@@ -45,9 +45,9 @@ canonical label: `/legal-clinic:client-intake [practice-area]`
     safety/emergency、specialist referralだけ。
 
 Japan:
-`references/common/jurisdictions/ja-jp/clinic-law-and-supervision.md`、
-`references/common/jurisdictions/ja-jp/privacy-client-data.md`、
-`references/common/jurisdictions/ja-jp/procedure-deadlines.md`。
+`references/common/ja-jp/clinic-law-and-supervision.md`、
+`references/common/ja-jp/privacy-client-data.md`、
+`references/common/ja-jp/procedure-deadlines.md`。
 
 ## Workflow
 

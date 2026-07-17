@@ -39,7 +39,7 @@ compatibility: Microsoft 365 Copilot Cowork; SharePoint/OneDrive storage contrac
 7. Cowork内DLP必須ならrestricted factsを投入せずproduction停止です。
 
 Japan lawは
-`references/common/jurisdictions/ja-jp/termination-investigations.md`、
+`references/common/ja-jp/termination-investigations.md`、
 checklistは`references/termination-review-checklist.md`。
 
 ## 会話state

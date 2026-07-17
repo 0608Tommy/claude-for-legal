@@ -30,7 +30,7 @@ campaign activationを行わない。
 3. matter scopeはactive/unexpired non-null binding。practice modeはfresh session
    でbinding不在。archived/revoked/expiredでは停止。
 4. jurisdictionを解決し、日本があれば
-   [consumer/claims module](references/common/jurisdictions/ja-jp/consumer-commerce-claims.md)
+   [consumer/claims module](references/common/ja-jp/consumer-commerce-claims.md)
    とtriggerしたsector moduleを読む。
 5. [法源rule](references/common/source-provenance-and-review.md)に従い
    `[B]/[G]/[P]/[I]/[F]/[X]`を分ける。platform policyはlive fetch。

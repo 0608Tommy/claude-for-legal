@@ -49,7 +49,7 @@ Coworkではflagsをconversation stateへ変換する。
    recordId=regulatory-legal:[setupSessionId]`。別利用者のsessionをresumeしない。
 7. jurisdictionは
    `request > matter > practice-profile > tenant-default`。Japanなら
-   [日本法router](references/common/jurisdictions/ja-jp/README.md)を使う。
+   [日本法router](references/common/ja-jp/README.md)を使う。
 8. jurisdiction/nexus、instrumentClass、normativeForce、lifecycleStatus、
    applicabilityを独立して保存する。`displayTags: [B,G,P,I,F,X]`は複数可の表示用。
    `isAdministrativeGuidance`とbasis、official source/revisionも確認する。

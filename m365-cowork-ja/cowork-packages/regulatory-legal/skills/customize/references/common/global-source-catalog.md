@@ -4,7 +4,7 @@
 
 移行元catalogのU.S./EU/UK/international sourceを保持する。URL確認基準日は
 **2026年5月**。日本のsourceは
-[日本source register](jurisdictions/ja-jp/source-register.md)を使う。
+[日本source register](ja-jp/source-register.md)を使う。
 feed URLは変わるため、利用前にlive probeする。
 
 Federal RegisterはU.S. federal sourceだけに使う。EUはEUR-Lex / Official Journal、

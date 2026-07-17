@@ -58,10 +58,10 @@ columnを埋める作業は`tabular-review`、大量uniform extractionのexterna
 
 日本overlay:
 
-- `references/common/jurisdictions/ja-jp/diligence-overlays.md`
-- `references/common/jurisdictions/ja-jp/ma-regulatory.md`
-- `references/common/jurisdictions/ja-jp/governance-records.md`
-- `references/common/jurisdictions/ja-jp/privilege-security.md`
+- `references/common/ja-jp/diligence-overlays.md`
+- `references/common/ja-jp/ma-regulatory.md`
+- `references/common/ja-jp/governance-records.md`
+- `references/common/ja-jp/privilege-security.md`
 
 provenanceは
 `references/common/source-provenance-and-review.md`を使う。

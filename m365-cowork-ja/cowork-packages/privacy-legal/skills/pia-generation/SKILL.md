@@ -54,7 +54,7 @@ PIAはconversation with the product/teamを記録するdraftである。AIはpro
 ## Trigger
 
 日本が関係する場合は
-`references/common/jurisdictions/ja-jp/pia-assessments.md`を読む。
+`references/common/ja-jp/pia-assessments.md`を読む。
 
 - 民間一般の日本PIA: 一律の法定義務ではなくPPCが促進する自主的取組
 - My Number: 対象主体には特定個人情報保護評価という固有制度
@@ -111,7 +111,7 @@ genericな`data breach`や`non-compliance`ではなく設計に結び付ける�
 website policyに加え、CMP/cookie banner、App Store privacy label、Google Data Safety、in-product consent、GLBA/HIPAA/FERPA/COPPA等のsector noticeを確認する。
 
 日本のtrackingは
-`references/common/jurisdictions/ja-jp/tracking-telecom.md`。
+`references/common/ja-jp/tracking-telecom.md`。
 
 direct conflictはlaunch conditionまたはSTOP候補。policyを変えるかdesignを変えるかは人が選ぶ。
 

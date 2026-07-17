@@ -47,7 +47,7 @@ no flagは`report`、default `windowDays: 90`。`--days`はpositive integer。
 11. Cowork内DLP必須ならconfidential portfolioのproduction利用を停止。
 
 [portfolio schema](references/portfolio-records.md)、
-[JPO source register](references/common/jurisdictions/ja-jp/source-register.md)、
+[JPO source register](references/common/ja-jp/source-register.md)、
 [automation contract](references/common/power-platform-automation-contracts.md)を使います。
 
 ## Conversation state

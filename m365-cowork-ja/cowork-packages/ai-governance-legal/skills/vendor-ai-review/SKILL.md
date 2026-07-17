@@ -122,7 +122,7 @@ AI termsが全くない場合、一般termsでAIサービスを提供してい�
 
 ## 日本向け
 
-`references/common/jurisdictions/ja-jp/contracts-security.md` を読み、個人情報は `references/common/jurisdictions/ja-jp/privacy-data.md`、著作権は `references/common/jurisdictions/ja-jp/copyright-content.md` を追加する。
+`references/common/ja-jp/contracts-security.md` を読み、個人情報は `references/common/ja-jp/privacy-data.md`、著作権は `references/common/ja-jp/copyright-content.md` を追加する。
 
 - AI事業者ガイドラインを契約義務と混同しない。
 - PPCの個人情報・国外・委託/第三者提供の整理を確認する。

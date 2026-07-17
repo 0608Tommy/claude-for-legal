@@ -23,7 +23,7 @@ resume state: `--resume-strategic` → `resume-strategic`
 1. `references/common/cowork-runtime-contract.md`を読む。
 2. exact user/profile、matter binding（ある場合）、access、conflicts、destinationを確認。
 3. Japanなら
-   `references/common/jurisdictions/ja-jp/demands-limitation-settlement.md`と
+   `references/common/ja-jp/demands-limitation-settlement.md`と
    `source-register.md`を読む。
 4. governing law、forum、contract notice clause、actual source item/versionを確認。
 5. limitation、statutory notice、delivery、current lawはofficial sourceを取得。

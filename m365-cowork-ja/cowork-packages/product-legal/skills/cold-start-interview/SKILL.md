@@ -240,7 +240,7 @@ cyberReporting2026Status: future-effective-2026-10-01-scope-check-required
 electionAiStatus: future-effective-2027-03-01-not-general-label
 ```
 
-[日本法router](references/common/jurisdictions/ja-jp/README.md)を読み、APPI/PPC、
+[日本法router](references/common/ja-jp/README.md)を読み、APPI/PPC、
 consumer/final screen、claims/stealth、product safety、telecom、platform、
 accessibility/minors、payments/medical、cyber、AI/IP、public disclosureをscreenする。
 

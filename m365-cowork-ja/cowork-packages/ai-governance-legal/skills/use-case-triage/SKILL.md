@@ -70,7 +70,7 @@ red lineを弱めてConditionalにしない。例外を求める場合は、理�
 
 実務プロファイルの全regimeと、今回の対象者・導入地域から追加で見つかるregimeを確認する。複数法域では、各法域の結果を分け、厳しい条件を全体の最低条件とする。
 
-EU/米国の基礎は `references/common/original-jurisdiction-logic.md`。日本は `references/common/jurisdictions/ja-jp/README.md`。
+EU/米国の基礎は `references/common/original-jurisdiction-logic.md`。日本は `references/common/ja-jp/README.md`。
 
 例:
 

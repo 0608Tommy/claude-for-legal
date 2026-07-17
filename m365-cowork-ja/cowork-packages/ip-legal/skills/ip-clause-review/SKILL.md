@@ -32,7 +32,7 @@ local pathを読みません。
    `granting | receiving | both`でdocumentごとに確定。
 5. main agreement、SOW、order、annex、incorporated URLを読み、coverageを記録。
 6. governing lawだけでなくcreator、right、registration、performance territoryを確認。
-7. 日本なら[契約・ownership module](references/common/jurisdictions/ja-jp/contracts-ownership.md)。
+7. 日本なら[契約・ownership module](references/common/ja-jp/contracts-ownership.md)。
 8. internal memoとcounterparty redline draftを分離。AIは送信、署名、recordal、
    filingを実行しません。
 

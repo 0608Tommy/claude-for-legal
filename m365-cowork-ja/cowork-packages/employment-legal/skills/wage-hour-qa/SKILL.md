@@ -26,7 +26,7 @@ compatibility: Microsoft 365 Copilot Cowork; SharePoint/OneDrive storage contrac
 2. actual establishment、prefecture、worker status、work rules/CBAを確認します。
    不明ならgeneric answerを出さず質問します。
 3. Japan lawは
-   `references/common/jurisdictions/ja-jp/wage-worker-status.md`。
+   `references/common/ja-jp/wage-worker-status.md`。
 4. minimum wage、Article 36、premium、working-time system、effective dateをその
    会話でofficial sourceからrefreshします。
 5. source/inputs不足では計算を停止し、推測値を出しません。

@@ -35,7 +35,7 @@ grammar compatibility:
 4. sourceがdisclosure/production/court order/clean-teamから得られた場合、actual use
    restriction、protective order、court direction、purposeを確認する。
 5. privilege/secrecy postureを人が選ぶまでextractしない。
-6. 日本なら`references/common/jurisdictions/ja-jp/evidence-confidentiality-preservation.md`
+6. 日本なら`references/common/ja-jp/evidence-confidentiality-preservation.md`
    と`civil-procedure-and-digital.md`を読む。
 7. exact source item/version、language、translation、coverage、unreadを記録する。
 8. quote/citation、artifact safetyは

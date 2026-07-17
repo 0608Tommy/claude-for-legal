@@ -22,7 +22,7 @@ compatibility: Microsoft 365 Copilot Cowork; SharePoint/OneDrive storage contrac
 1. **保存契約:** `references/common/cowork-runtime-contract.md` を必ず読む。ローカルfile、cache、home directoryへread/writeしない。
 2. **Setup:** SharePoint `profiles`の会社・実務profileと、複合keyが一致する現在利用者の`user-profile`を読む。未設定でも純粋なhistory extractionはできるが、privilege、destination、保存先、matterが不明なら保存・共有を停止する。
 3. **Matter:** server-side session–matter bindingを確認する。別matterの契約を候補にせず、複数候補、権限不足、binding矛盾ならfail closed。
-4. **Jurisdiction:** `request > matter > practice-profile > tenant-default`で解決する。日本が含まれる場合は`references/common/jurisdictions/ja-jp/README.md`と`references/common/jurisdictions/ja-jp/contract-core.md`を読む。ただし本skillは原則historyを整理し、法的controlを断定しない。
+4. **Jurisdiction:** `request > matter > practice-profile > tenant-default`で解決する。日本が含まれる場合は`references/common/ja-jp/README.md`と`references/common/ja-jp/contract-core.md`を読む。ただし本skillは原則historyを整理し、法的controlを断定しない。
 5. **Source:** base agreement、全amendment、addendum、assignment、order form、effective dateをexact item/versionで取得する。読めない資料を無視しない。
 6. **Confidentiality:** authorized viewers、NDA、clean-team、retention、legal hold、保存境界DLPを確認する。
 7. **Human review:** conflicting amendment、priority、novation、assignment、waiver、現在の支配条項は法的解釈になり得る。AIは確定せず`[review]`へ回す。

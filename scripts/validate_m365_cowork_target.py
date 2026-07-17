@@ -47,6 +47,7 @@ class Limits(NamedTuple):
     description_limit: int
     maximum_skills: int
     maximum_companion_files: int
+    maximum_file_nesting_depth: int
     recommended_lines: int
 
 
@@ -125,12 +126,14 @@ def _require_strings(value: object, context: str) -> frozenset[str]:
         If ``value`` is not an array of strings.
 
     """
-    if not isinstance(value, list) or not all(
-        isinstance(item, str) for item in value
-    ):
+    if not isinstance(value, list):
         message = f"{context} must be an array of strings"
         raise TypeError(message)
-    return frozenset(cast("list[str]", value))
+    items = cast("list[object]", value)
+    if not all(isinstance(item, str) for item in items):
+        message = f"{context} must be an array of strings"
+        raise TypeError(message)
+    return frozenset(cast("list[str]", items))
 
 
 def load_limits(contract_path: Path = CONTRACT_PATH) -> Limits:
@@ -176,6 +179,10 @@ def load_limits(contract_path: Path = CONTRACT_PATH) -> Limits:
         maximum_companion_files=_require_int(
             skill.get("maximumCompanionFiles"),
             "skill.maximumCompanionFiles",
+        ),
+        maximum_file_nesting_depth=_require_int(
+            skill.get("maximumFileNestingDepth"),
+            "skill.maximumFileNestingDepth",
         ),
         recommended_lines=_require_int(
             skill.get("recommendedMaximumLines"),
@@ -280,6 +287,34 @@ def _validate_local_references(
     return errors
 
 
+def _is_nonlocal_reference(target: str) -> bool:
+    """Return whether a reference does not resolve to a local file."""
+    return target.startswith(
+        ("http://", "https://", "mailto:", "#"),
+    ) or SLASH_COMMAND_RE.fullmatch(target) is not None
+
+
+def _local_reference_error(
+    markdown_path: Path,
+    target: str,
+    skill_root: Path,
+    target_root: Path,
+) -> str | None:
+    """Return an error for an invalid local reference."""
+    relative = _relative(markdown_path, target_root)
+    if target.startswith("/"):
+        return f"{relative}: absolute local reference is forbidden: {target}"
+    path_without_anchor = target.split("#", maxsplit=1)[0]
+    if not path_without_anchor:
+        return None
+    resolved = (markdown_path.parent / path_without_anchor).resolve()
+    if not resolved.is_relative_to(skill_root):
+        return f"{relative}: reference escapes skill root: {target}"
+    if not resolved.exists():
+        return f"{relative}: missing local reference target {target}"
+    return None
+
+
 def _reference_errors(
     markdown_path: Path,
     raw_target: str,
@@ -306,23 +341,14 @@ def _reference_errors(
 
     """
     target = raw_target.strip().strip("<>")
-    if (
-        target.startswith(("http://", "https://", "mailto:", "#"))
-        or SLASH_COMMAND_RE.fullmatch(target) is not None
-    ):
+    if _is_nonlocal_reference(target):
         return []
-    relative = _relative(markdown_path, target_root)
-    error: str | None = None
-    if target.startswith("/"):
-        error = f"{relative}: absolute local reference is forbidden: {target}"
-    else:
-        path_without_anchor = target.split("#", maxsplit=1)[0]
-        if path_without_anchor:
-            resolved = (markdown_path.parent / path_without_anchor).resolve()
-            if not resolved.is_relative_to(skill_root):
-                error = f"{relative}: reference escapes skill root: {target}"
-            elif not resolved.exists():
-                error = f"{relative}: missing local reference target {target}"
+    error = _local_reference_error(
+        markdown_path,
+        target,
+        skill_root,
+        target_root,
+    )
     return [error] if error is not None else []
 
 
@@ -364,6 +390,68 @@ def _validate_skill(
     return errors, warnings
 
 
+def _hidden_control_errors(
+    value: str | None,
+    field: str,
+    relative: str,
+) -> list[str]:
+    """Return hidden Unicode control errors for one field."""
+    if value is None:
+        return []
+    if _contains_format_controls(value):
+        return [f"{relative}: {field} contains hidden Unicode controls"]
+    return []
+
+
+def _unexpected_frontmatter_errors(
+    fields: tuple[str, ...],
+    limits: Limits,
+    relative: str,
+) -> list[str]:
+    """Return errors for unsupported frontmatter fields."""
+    unsupported = sorted(set(fields) - limits.allowed_fields)
+    if unsupported:
+        return [f"{relative}: unexpected frontmatter fields {unsupported}"]
+    return []
+
+
+def _name_errors(
+    name: str | None,
+    skill_path: Path,
+    relative: str,
+) -> list[str]:
+    """Return target skill name errors."""
+    expected_name = skill_path.parent.name
+    errors: list[str] = []
+    if name != expected_name:
+        errors.append(f"{relative}: name must match folder {expected_name}")
+    if name is None or TARGET_ID_RE.fullmatch(name) is None:
+        errors.append(f"{relative}: invalid target skill name {name!r}")
+    errors.extend(_hidden_control_errors(name, "name", relative))
+    return errors
+
+
+def _description_errors(
+    description: str | None,
+    limits: Limits,
+    relative: str,
+) -> list[str]:
+    """Return target skill description errors."""
+    if not description:
+        return [f"{relative}: description is required"]
+    errors: list[str] = []
+    if len(description) > limits.description_limit:
+        errors.append(
+            f"{relative}: description has {len(description)} characters",
+        )
+    elif JAPANESE_CHARACTER_RE.search(description) is None:
+        errors.append(f"{relative}: description must contain Japanese text")
+    errors.extend(
+        _hidden_control_errors(description, "description", relative),
+    )
+    return errors
+
+
 def _frontmatter_errors(
     skill_path: Path,
     text: str,
@@ -395,33 +483,108 @@ def _frontmatter_errors(
     except ValueError as error:
         return [str(error)]
     fields = frontmatter_fields(frontmatter)
-    unsupported = sorted(set(fields) - limits.allowed_fields)
-    if unsupported:
-        errors.append(
-            f"{relative}: unexpected frontmatter fields {unsupported}",
-        )
     name = frontmatter_scalar(frontmatter, "name")
-    if name != skill_path.parent.name:
-        errors.append(
-            f"{relative}: name must match folder {skill_path.parent.name}",
-        )
-    if name is None or TARGET_ID_RE.fullmatch(name) is None:
-        errors.append(f"{relative}: invalid target skill name {name!r}")
     description = frontmatter_text(frontmatter, "description")
-    if not description:
-        errors.append(f"{relative}: description is required")
-    elif len(description) > limits.description_limit:
-        errors.append(
-            f"{relative}: description has {len(description)} characters",
-        )
-    elif JAPANESE_CHARACTER_RE.search(description) is None:
-        errors.append(f"{relative}: description must contain Japanese text")
-    if name is not None and _contains_format_controls(name):
-        errors.append(f"{relative}: name contains hidden Unicode controls")
-    if description is not None and _contains_format_controls(description):
-        errors.append(
-            f"{relative}: description contains hidden Unicode controls",
-        )
+    errors.extend(_unexpected_frontmatter_errors(fields, limits, relative))
+    errors.extend(_name_errors(name, skill_path, relative))
+    errors.extend(_description_errors(description, limits, relative))
+    return errors
+
+
+def _source_contract_errors(text: str, relative: str) -> list[str]:
+    """Return source attribution and runtime marker errors."""
+    errors: list[str] = []
+    if CHANGE_NOTICE_MARKER not in text:
+        errors.append(f"{relative}: Apache change notice is required")
+    errors.extend(
+        f"{relative}: unsupported source runtime marker {marker}"
+        for marker in FORBIDDEN_RUNTIME_MARKERS
+        if marker in text
+    )
+    return errors
+
+
+def _storage_contract_errors(
+    skill_path: Path,
+    text: str,
+    relative: str,
+) -> list[str]:
+    """Return errors for a missing required storage contract."""
+    if "storage contract required" not in text:
+        return []
+    runtime_contract = (
+        skill_path.parent
+        / "references"
+        / "common"
+        / "cowork-runtime-contract.md"
+    )
+    if runtime_contract.is_file():
+        return []
+    return [f"{relative}: storage contract companion is required"]
+
+
+def _character_limit_errors(
+    text: str,
+    limits: Limits,
+    relative: str,
+) -> list[str]:
+    """Return strict skill character limit errors."""
+    if len(text) <= limits.character_limit:
+        return []
+    return [
+        f"{relative}: {len(text)} characters exceeds "
+        f"{limits.character_limit}",
+    ]
+
+
+def _companion_count_errors(
+    skill_path: Path,
+    limits: Limits,
+    relative: str,
+) -> list[str]:
+    """Return strict companion file count errors."""
+    companion_count = len(_companion_files(skill_path))
+    if companion_count <= limits.maximum_companion_files:
+        return []
+    return [
+        f"{relative}: {companion_count} companion files exceeds "
+        f"{limits.maximum_companion_files}",
+    ]
+
+
+def _file_nesting_errors(
+    skill_path: Path,
+    limits: Limits,
+    target_root: Path,
+) -> list[str]:
+    """Return errors for files nested too deeply below a skill root.
+
+    Depth is the count of parent directories relative to the skill root,
+    excluding the filename itself.
+
+    """
+    errors: list[str] = []
+    skill_root = skill_path.parent
+    for file_path in sorted(skill_root.rglob("*")):
+        if not file_path.is_file():
+            continue
+        depth = len(file_path.relative_to(skill_root).parts) - 1
+        if depth > limits.maximum_file_nesting_depth:
+            relative = _relative(file_path, target_root)
+            errors.append(
+                f"{relative}: file nesting depth {depth} exceeds maximum "
+                f"{limits.maximum_file_nesting_depth}",
+            )
+    return errors
+
+
+def _text_format_errors(text: str, relative: str) -> list[str]:
+    """Return final newline and trailing whitespace errors."""
+    errors: list[str] = []
+    if not text.endswith("\n"):
+        errors.append(f"{relative}: missing final newline")
+    if any(line.rstrip() != line for line in text.splitlines()):
+        errors.append(f"{relative}: trailing whitespace")
     return errors
 
 
@@ -453,43 +616,51 @@ def _content_errors(
         Content errors.
 
     """
+    errors = _source_contract_errors(text, relative)
+    errors.extend(
+        _storage_contract_errors(skill_path, text, relative),
+    )
+    errors.extend(_character_limit_errors(text, limits, relative))
+    errors.extend(
+        _companion_count_errors(skill_path, limits, relative),
+    )
+    errors.extend(_file_nesting_errors(skill_path, limits, target_root))
+    errors.extend(_text_format_errors(text, relative))
+    errors.extend(_validate_local_references(skill_path, target_root))
+    return errors
+
+
+def _required_package_file_errors(
+    package_path: Path,
+    target_root: Path,
+) -> list[str]:
+    """Return errors for missing package-level legal files."""
+    errors: list[str] = []
+    for required_name in ("LICENSE", "NOTICE"):
+        required_path = package_path / required_name
+        if not required_path.is_file():
+            relative = _relative(package_path, target_root)
+            errors.append(f"{relative}: missing {required_name}")
+    return errors
+
+
+def _package_markdown_errors(
+    markdown_path: Path,
+    target_root: Path,
+) -> list[str]:
+    """Return source and localization errors for package Markdown."""
+    text = markdown_path.read_text(encoding="utf-8")
+    relative = _relative(markdown_path, target_root)
     errors: list[str] = []
     if CHANGE_NOTICE_MARKER not in text:
         errors.append(f"{relative}: Apache change notice is required")
+    if JAPANESE_CHARACTER_RE.search(text) is None:
+        errors.append(f"{relative}: Japanese content is required")
     errors.extend(
         f"{relative}: unsupported source runtime marker {marker}"
         for marker in FORBIDDEN_RUNTIME_MARKERS
         if marker in text
     )
-    runtime_contract = (
-        skill_path.parent
-        / "references"
-        / "common"
-        / "cowork-runtime-contract.md"
-    )
-    if (
-        "storage contract required" in text
-        and not runtime_contract.is_file()
-    ):
-        errors.append(
-            f"{relative}: storage contract companion is required",
-        )
-    if len(text) > limits.character_limit:
-        errors.append(
-            f"{relative}: {len(text)} characters exceeds "
-            f"{limits.character_limit}",
-        )
-    companion_count = len(_companion_files(skill_path))
-    if companion_count > limits.maximum_companion_files:
-        errors.append(
-            f"{relative}: {companion_count} companion files exceeds "
-            f"{limits.maximum_companion_files}",
-        )
-    if not text.endswith("\n"):
-        errors.append(f"{relative}: missing final newline")
-    if any(line.rstrip() != line for line in text.splitlines()):
-        errors.append(f"{relative}: trailing whitespace")
-    errors.extend(_validate_local_references(skill_path, target_root))
     return errors
 
 
@@ -512,25 +683,10 @@ def _package_errors(
         Package-level errors.
 
     """
-    errors: list[str] = []
-    for required_name in ("LICENSE", "NOTICE"):
-        required_path = package_path / required_name
-        if not required_path.is_file():
-            relative = _relative(package_path, target_root)
-            errors.append(f"{relative}: missing {required_name}")
+    errors = _required_package_file_errors(package_path, target_root)
     for markdown_path in package_path.rglob("*.md"):
-        text = markdown_path.read_text(encoding="utf-8")
-        if CHANGE_NOTICE_MARKER not in text:
-            relative = _relative(markdown_path, target_root)
-            errors.append(f"{relative}: Apache change notice is required")
-        if JAPANESE_CHARACTER_RE.search(text) is None:
-            relative = _relative(markdown_path, target_root)
-            errors.append(f"{relative}: Japanese content is required")
         errors.extend(
-            f"{_relative(markdown_path, target_root)}: "
-            f"unsupported source runtime marker {marker}"
-            for marker in FORBIDDEN_RUNTIME_MARKERS
-            if marker in text
+            _package_markdown_errors(markdown_path, target_root),
         )
     return errors
 
@@ -566,6 +722,68 @@ def _content_warnings(
     ]
 
 
+def _skill_count_errors(
+    package_path: Path,
+    skill_paths: tuple[Path, ...],
+    limits: Limits,
+) -> list[str]:
+    """Return package skill count errors."""
+    skill_count = len(skill_paths)
+    if skill_count <= limits.maximum_skills:
+        return []
+    return [
+        f"{package_path.name}: {skill_count} skills exceeds "
+        f"{limits.maximum_skills}",
+    ]
+
+
+def _required_skill_file_errors(
+    skill_path: Path,
+    target_root: Path,
+) -> list[str]:
+    """Return errors for missing skill-level legal files."""
+    errors: list[str] = []
+    for required_name in ("LICENSE", "NOTICE"):
+        required_path = skill_path.parent / required_name
+        if not required_path.is_file():
+            relative = _relative(skill_path, target_root)
+            errors.append(
+                f"{relative}: missing companion {required_name}",
+            )
+    return errors
+
+
+def _validate_package(
+    package_path: Path,
+    limits: Limits,
+    target_root: Path,
+) -> tuple[list[str], list[str]]:
+    """Validate one Cowork package."""
+    errors = _package_errors(package_path, target_root)
+    warnings: list[str] = []
+    skill_paths = tuple(
+        sorted(package_path.glob("skills/*/SKILL.md")),
+    )
+    errors.extend(_skill_count_errors(package_path, skill_paths, limits))
+    for skill_path in skill_paths:
+        errors.extend(_required_skill_file_errors(skill_path, target_root))
+        skill_errors, skill_warnings = _validate_skill(
+            skill_path,
+            limits,
+            target_root,
+        )
+        errors.extend(skill_errors)
+        warnings.extend(skill_warnings)
+    return errors, warnings
+
+
+def _package_directories(target_root: Path) -> tuple[Path, ...]:
+    """Return sorted package directories below the target root."""
+    return tuple(
+        path for path in sorted(target_root.glob("*")) if path.is_dir()
+    )
+
+
 def validate_target(
     target_root: Path = TARGET_ROOT,
     limits: Limits | None = None,
@@ -585,39 +803,20 @@ def validate_target(
         Errors and warnings.
 
     """
-    active_limits = limits or load_limits()
+    active_limits = load_limits() if limits is None else limits
     errors: list[str] = []
     warnings: list[str] = []
-    package_paths = tuple(
-        path for path in sorted(target_root.glob("*")) if path.is_dir()
-    )
+    package_paths = _package_directories(target_root)
     if not package_paths:
         return [f"{target_root.as_posix()}: no packages found"], warnings
     for package_path in package_paths:
-        errors.extend(_package_errors(package_path, target_root))
-        skill_paths = tuple(
-            sorted(package_path.glob("skills/*/SKILL.md")),
+        package_errors, package_warnings = _validate_package(
+            package_path,
+            active_limits,
+            target_root,
         )
-        if len(skill_paths) > active_limits.maximum_skills:
-            errors.append(
-                f"{package_path.name}: {len(skill_paths)} skills exceeds "
-                f"{active_limits.maximum_skills}",
-            )
-        for skill_path in skill_paths:
-            for required_name in ("LICENSE", "NOTICE"):
-                required_path = skill_path.parent / required_name
-                if not required_path.is_file():
-                    relative = _relative(skill_path, target_root)
-                    errors.append(
-                        f"{relative}: missing companion {required_name}",
-                    )
-            skill_errors, skill_warnings = _validate_skill(
-                skill_path,
-                active_limits,
-                target_root,
-            )
-            errors.extend(skill_errors)
-            warnings.extend(skill_warnings)
+        errors.extend(package_errors)
+        warnings.extend(package_warnings)
     return errors, warnings
 
 

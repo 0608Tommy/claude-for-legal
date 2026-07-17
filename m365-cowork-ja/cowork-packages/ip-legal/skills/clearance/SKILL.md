@@ -34,8 +34,8 @@ compatibility: Microsoft 365 Copilot Cowork; SharePoint/OneDrive storage contrac
    approver、search sourceを読みます。未設定ならsetupへ案内。
 3. matter scopeならactive/unexpired bindingを要求。practice modeはfresh session。
 4. jurisdictionを`request > matter > practice-profile > tenant-default`で解決。
-5. 日本なら[商標module](references/common/jurisdictions/ja-jp/trademark-clearance.md)と
-   [official source register](references/common/jurisdictions/ja-jp/source-register.md)。
+5. 日本なら[商標module](references/common/ja-jp/trademark-clearance.md)と
+   [official source register](references/common/ja-jp/source-register.md)。
 6. connector/resultはlive retrieval時だけsource名を付けます。searchなしなら
    searchなしと明記します。
 7. internal memoだけを作り、filing、adoption、opposition、consent agreementを

@@ -33,7 +33,7 @@ compatibility: Microsoft 365 Copilot Cowork; SharePoint/OneDrive storage contrac
 2. exact user/practice/matter、patent counsel、jurisdictions、integrationsを読みます。
 3. matter scopeはactive/unexpired binding、practice modeはfresh session。
 4. 未公開technical contentをexternal tool/foreign partyへ送る前に
-   [特許非公開P0](references/common/jurisdictions/ja-jp/patents-utility-designs.md)。
+   [特許非公開P0](references/common/ja-jp/patents-utility-designs.md)。
    不明なら送信しません。
 5. source exact item/version、technical coverage、manufacture/use/sale/import routeを
    確認します。

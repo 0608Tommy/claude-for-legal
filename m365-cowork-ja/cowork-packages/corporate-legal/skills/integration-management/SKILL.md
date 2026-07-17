@@ -65,9 +65,9 @@ PA obligation、FIEA/JFTC/FEFTA/TDnet等を追跡する。
 11. **DLP:** Cowork内DLP必須ならproduction useを停止する。
 
 日本workflowは
-`references/common/jurisdictions/ja-jp/integration-entity.md`、
-`references/common/jurisdictions/ja-jp/ma-regulatory.md`、
-`references/common/jurisdictions/ja-jp/diligence-overlays.md`、
+`references/common/ja-jp/integration-entity.md`、
+`references/common/ja-jp/ma-regulatory.md`、
+`references/common/ja-jp/diligence-overlays.md`、
 provenanceは
 `references/common/source-provenance-and-review.md`を使う。
 

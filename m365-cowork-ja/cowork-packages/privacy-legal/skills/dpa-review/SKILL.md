@@ -69,8 +69,8 @@ compatibility: Microsoft 365 Copilot Cowork; SharePoint/OneDrive storage contrac
 GDPRの`controller` / `processor`、Californiaの`business` / `service provider` / `contractor`、日本APPIの`個人情報取扱事業者` / `委託`を同一視しない。
 
 日本が関係する場合は
-`references/common/jurisdictions/ja-jp/cross-border-dpa.md`と
-`references/common/jurisdictions/ja-jp/appi-core.md`を読む。
+`references/common/ja-jp/cross-border-dpa.md`と
+`references/common/ja-jp/appi-core.md`を読む。
 
 contract labelより次を優先する。
 
@@ -105,7 +105,7 @@ playbook standard、fallback、neverとbinding-law floorを分ける。playbook 
 ## Sector overlay
 
 dataがNPI、PHI、education record、children data、communications、My Number、biometric等を含むか先に確認する。state-law exemptionは別sector lawが消えることを意味しない。日本は
-`references/common/jurisdictions/ja-jp/sectoral-my-number.md`。
+`references/common/ja-jp/sectoral-my-number.md`。
 
 ## Transfer
 

@@ -61,7 +61,7 @@ Coworkではsubcommandを会話stateとして扱う。local folderの作成、�
 13. **DLP:** Cowork内DLP必須ならconfidential matterを投入せずproduction停止。
 
 privilegeは
-`references/common/jurisdictions/ja-jp/privilege-security.md`、
+`references/common/ja-jp/privilege-security.md`、
 Power Platformは
 `references/common/power-platform-automation-contracts.md`を使う。
 

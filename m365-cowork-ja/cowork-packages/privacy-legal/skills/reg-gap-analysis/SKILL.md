@@ -64,7 +64,7 @@ source tagとcurrent-law ruleは
 結論は`成立済み・公布確認待ち・未施行`。改正をcurrent compliance gapとして断定せず、future-readiness planと現行法gapを分ける。
 
 日本module:
-`references/common/jurisdictions/ja-jp/source-register.md`。
+`references/common/ja-jp/source-register.md`。
 
 ## Scope
 

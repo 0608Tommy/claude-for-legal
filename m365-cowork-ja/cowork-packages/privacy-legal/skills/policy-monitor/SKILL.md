@@ -52,7 +52,7 @@ PIAで新data categoryが条件付き承認され、DPAでvendorが追加され�
 - subprocessor / transfer notice
 
 日本のCookie・external transmission:
-`references/common/jurisdictions/ja-jp/tracking-telecom.md`。
+`references/common/ja-jp/tracking-telecom.md`。
 
 ## 会話state
 

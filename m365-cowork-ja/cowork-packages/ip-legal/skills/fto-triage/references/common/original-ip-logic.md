@@ -4,7 +4,7 @@
 
 本書は移行元のtrademark、copyright、patent、trade secret、OSS、portfolio、
 enforcement workflowを日本語で保持します。日本案件では
-`jurisdictions/ja-jp/README.md`を優先し、U.S. testを見た目だけ置換して使いません。
+`ja-jp/README.md`を優先し、U.S. testを見た目だけ置換して使いません。
 
 ## 共通の移行元契約
 

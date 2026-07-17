@@ -39,7 +39,7 @@ canonical label: `/legal-clinic:build-guide [practice-area]`
 8. Cowork内DLPが必要ならclient-derived exampleを投入せず、synthetic exampleだけ。
 
 Japan layer:
-`references/common/jurisdictions/ja-jp/clinic-law-and-supervision.md`。
+`references/common/ja-jp/clinic-law-and-supervision.md`。
 
 ## 会話state
 

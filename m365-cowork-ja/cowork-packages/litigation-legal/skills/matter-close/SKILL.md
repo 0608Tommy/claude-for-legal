@@ -28,7 +28,7 @@ folder moveをしない。
 3. exact matter preconditionとcurrent `bindingGeneration`を確認し、new binding createを
    fenceできないgatewayではcloseを開始しない。
 4. Japanなら
-   `references/common/jurisdictions/ja-jp/civil-procedure-and-digital.md`、
+   `references/common/ja-jp/civil-procedure-and-digital.md`、
    `demands-limitation-settlement.md`、`evidence-confidentiality-preservation.md`を読む。
 5. settlement、judgment、appeal/finality、execution、related matter、preservation/
    retentionをexact sourceで確認。

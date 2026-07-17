@@ -38,7 +38,7 @@ documentごとに同じquestionを同じtypeで答え、every cellをsourceへ�
 1. `references/common/cowork-runtime-contract.md`を読み、exact user、binding、
    matter、source scope、destinationを確認する。local schema/output fileを作らない。
 2. transaction structureとjurisdictionを確認する。日本なら
-   `references/common/jurisdictions/ja-jp/diligence-overlays.md`を読む。
+   `references/common/ja-jp/diligence-overlays.md`を読む。
 3. exact document set/item/versionとcountを固定する。全documentにrowを作り、
    unreadableも`needs_review` rowとして残す。
 4. materiality filterを使う場合、PA/statutory/internal thresholdを分け、

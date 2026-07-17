@@ -50,8 +50,8 @@ Coworkではflagを会話stateへ変換します。
 10. Cowork内DLP必須ならproduction enableを記録せず停止します。
 
 Japan sourceは
-`references/common/jurisdictions/ja-jp/README.md`、
-`references/common/jurisdictions/ja-jp/source-register.md`、
+`references/common/ja-jp/README.md`、
+`references/common/ja-jp/source-register.md`、
 `references/common/currency-watch.md`を使います。
 
 ## 会話state

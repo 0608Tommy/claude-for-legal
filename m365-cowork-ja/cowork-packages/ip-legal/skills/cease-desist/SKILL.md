@@ -40,12 +40,12 @@ draftです。`receive`はincoming assertionを権利別に検証し、options m
 3. matter scopeならactive/unexpired binding、matter `status: active`、権限を確認。
    fresh practice modeでは過去matterをcarryしません。
 4. `request > matter > practice-profile > tenant-default`で法域を解決します。
-   日本なら[日本法router](references/common/jurisdictions/ja-jp/README.md)と
-   [権利行使・Customs](references/common/jurisdictions/ja-jp/enforcement-customs.md)。
+   日本なら[日本法router](references/common/ja-jp/README.md)と
+   [権利行使・Customs](references/common/ja-jp/enforcement-customs.md)。
 5. right、registration/status、owner、recordal/chain、territory、standing、
    accused conduct、evidenceをofficial sourceで確認します。
 6. external letterとinternal analysisを別artifactにします。日本の秘密性は
-   [privilege/security](references/common/jurisdictions/ja-jp/privilege-security.md)。
+   [privilege/security](references/common/ja-jp/privilege-security.md)。
 7. counterparty、customer/distributor、partner、press、forum、insurance、
    indemnitor、Customs/platform routeを確認します。
 8. draft approvalはsend approvalではありません。AIは送信、service、filing、

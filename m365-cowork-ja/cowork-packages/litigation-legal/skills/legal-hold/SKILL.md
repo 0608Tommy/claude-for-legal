@@ -28,7 +28,7 @@ canonical IDと`legal-hold`用語を保持するが、日本modeでは法定義�
 3. issue/refresh/releaseはexact user/profile、active binding、matter access、authority、
    retention、DLPを確認。
 4. Japanなら
-   `references/common/jurisdictions/ja-jp/evidence-confidentiality-preservation.md`と
+   `references/common/ja-jp/evidence-confidentiality-preservation.md`と
    `source-register.md`を読む。
 5. basisを
    `internal-control | CCP-234 | court-order | sector-rule | contract |

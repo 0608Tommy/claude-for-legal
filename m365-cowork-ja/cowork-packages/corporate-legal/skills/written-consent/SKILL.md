@@ -65,7 +65,7 @@ genericな「unanimous written consent」を使わず、法的mechanismを先に
 14. **DLP:** Cowork内DLP必須ならconfidential materialを投入しない。
 
 日本formalitiesは
-`references/common/jurisdictions/ja-jp/governance-records.md`、
+`references/common/ja-jp/governance-records.md`、
 provenanceは
 `references/common/source-provenance-and-review.md`を使う。
 

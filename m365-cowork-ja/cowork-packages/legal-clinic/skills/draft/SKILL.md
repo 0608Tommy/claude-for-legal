@@ -47,8 +47,8 @@ legacy `form-generation` utteranceは本skillへrouteする。別skillを登録�
     reviewの両方を同じartifact version/hashに要求する。
 
 Japan:
-`references/common/jurisdictions/ja-jp/procedure-deadlines.md`、
-`references/common/jurisdictions/ja-jp/clinic-law-and-supervision.md`。
+`references/common/ja-jp/procedure-deadlines.md`、
+`references/common/ja-jp/clinic-law-and-supervision.md`。
 
 ## Pedagogy mode
 

@@ -93,7 +93,7 @@ house styleの基準に従い `Fast track` または `Full assessment` を選ぶ
 - 施行・経過措置
 - sector law、契約、外部コミットメント
 
-EUロジックは `references/common/original-jurisdiction-logic.md`、日本は `references/common/jurisdictions/ja-jp/README.md` から関連ファイルを読む。
+EUロジックは `references/common/original-jurisdiction-logic.md`、日本は `references/common/ja-jp/README.md` から関連ファイルを読む。
 
 実務プロファイルのfootprintが古く、今回の対象者・判断類型を含まない場合、現在の事業地域と事実から再導出し、プロファイル更新候補を示す。`AI role: Both` 相当なら法域ごとにproviderとdeployerの義務を別列にする。
 

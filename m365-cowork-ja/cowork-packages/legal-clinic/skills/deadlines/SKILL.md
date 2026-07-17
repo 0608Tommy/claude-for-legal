@@ -47,7 +47,7 @@ canonical label:
 13. Cowork内DLPが必須ならconfidential matter dataを投入しない。
 
 Japan:
-`references/common/jurisdictions/ja-jp/procedure-deadlines.md`。
+`references/common/ja-jp/procedure-deadlines.md`。
 
 ## Mode
 

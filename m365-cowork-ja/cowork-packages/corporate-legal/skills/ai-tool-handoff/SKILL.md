@@ -37,8 +37,8 @@ Japanese lawは人の判断層である。本skillはbulk extractionの準備と
 3. **Source:** exact source item/version、document count、coverage、category、
    confidentialityを取得する。表示名だけでdocumentを選ばない。
 4. **Jurisdiction:** `request > matter > practice-profile > tenant-default`。
-   日本なら`references/common/jurisdictions/ja-jp/privilege-security.md`と
-   `references/common/jurisdictions/ja-jp/diligence-overlays.md`を読む。
+   日本なら`references/common/ja-jp/privilege-security.md`と
+   `references/common/ja-jp/diligence-overlays.md`を読む。
 5. **Mandatory security gate:** 外部transfer前に、VDR/customer/client terms、
    authorization、APPI role/purpose、foreign transfer、subprocessor/data location、
    retention/deletion、no-training、encryption/access log、My Number除外、

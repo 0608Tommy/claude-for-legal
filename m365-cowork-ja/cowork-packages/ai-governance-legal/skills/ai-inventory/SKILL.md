@@ -25,7 +25,7 @@ EU AI Act上の役割とtierは**会社単位ではなくAIシステム単位**�
 
 1. **セットアップ:** SharePoint `profiles` の会社プロファイル、`ai-governance-legal` 実務プロファイル、複合キーが一致する現在利用者の`user-profile`を読む。未作成、`[PLACEHOLDER]`、必須項目欠落なら、一覧表示以外の実質処理を停止し、`cold-start-interview` を案内する。別利用者のroleを流用しない。
 2. **案件:** サーバー側のsession–matter bindingを確認する。複数候補、矛盾、権限不足なら停止する。既定で案件横断参照をしない。
-3. **管轄:** `request > matter > practice-profile > tenant-default` で解決する。曖昧なら分類を停止する。`ja-JP` が含まれる場合は `references/common/jurisdictions/ja-jp/README.md` と関連モジュールを追加で読む。
+3. **管轄:** `request > matter > practice-profile > tenant-default` で解決する。曖昧なら分類を停止する。`ja-JP` が含まれる場合は `references/common/ja-jp/README.md` と関連モジュールを追加で読む。
 4. **情報源:** 現行のEU AI Act原文を取得できない場合、条文・Annex・施行日を確定せず `[verify against current AI Act text]` を残す。出所タグは実際の取得結果に従う。
 5. **秘匿性・宛先:** 表示・保存前に閲覧者、保存先、DLP、保持、案件分離を確認する。米国法上のwork-product保護を他法域に断定しない。
 6. **人のレビュー:** `prohibited`、`high_risk`、役割変更、義務判断は人のレビュー対象。台帳登録は法的結論または導入承認ではない。

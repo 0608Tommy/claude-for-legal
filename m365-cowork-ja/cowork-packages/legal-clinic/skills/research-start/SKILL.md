@@ -39,8 +39,8 @@ canonical label: `/legal-clinic:research-start [issue]`
     目的とするresearchに限定し、card approved前にsubstantive matter conclusionへ使わない。
 
 Japan:
-`references/common/jurisdictions/ja-jp/source-register.md`、
-`references/common/jurisdictions/ja-jp/currency-watch.md`。
+`references/common/ja-jp/source-register.md`、
+`references/common/ja-jp/currency-watch.md`。
 
 ## Research hierarchy
 

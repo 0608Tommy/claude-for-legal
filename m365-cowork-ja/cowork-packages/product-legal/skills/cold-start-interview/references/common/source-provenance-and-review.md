@@ -55,7 +55,7 @@ screen、required notice、prohibited representation、安全義務等の[B] flo
 
 施行日、閾値、法案status、platform rule、sector registration、事故報告期限、
 JPX disclosure、regulator postureに依存する場合、その会話でcurrent official
-sourceを確認する。[日本法router](jurisdictions/ja-jp/README.md)と
+sourceを確認する。[日本法router](ja-jp/README.md)と
 `source-register.md`は検索indexであり、個別案件への適用判断ではない。
 
 ## 情報不足の3値

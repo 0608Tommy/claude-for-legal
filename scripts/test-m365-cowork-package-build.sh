@@ -11,6 +11,7 @@ SCRATCH="$M365_ROOT/.cache/package-build-test.${BASHPID:-$$}"
 PYTHON_FILES=(
   "$ROOT/scripts/normalize_m365_cowork_package.py"
   "$ROOT/scripts/validate_m365_cowork_icons.py"
+  "$ROOT/scripts/validate_m365_cowork_target.py"
 )
 
 for tool in bandit flake8 mypy pydocstyle pylint pyright radon ruff \

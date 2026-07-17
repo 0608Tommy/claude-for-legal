@@ -47,8 +47,8 @@ PAのMaterial Contract definitionを契約ごとに適用し、scheduleをPA for
 11. Cowork内DLP必須ならconfidential sourceを投入しない。
 
 日本overlayは
-`references/common/jurisdictions/ja-jp/ma-regulatory.md`と
-`references/common/jurisdictions/ja-jp/diligence-overlays.md`、
+`references/common/ja-jp/ma-regulatory.md`と
+`references/common/ja-jp/diligence-overlays.md`、
 provenanceは
 `references/common/source-provenance-and-review.md`を使う。
 

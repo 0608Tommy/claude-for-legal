@@ -35,8 +35,8 @@ notification、flowを含まない。
    **live preflight**。失敗時はcurrent requestのauthorized materialだけを使う
    **read-only/manual draft mode**。cursor/tracker/save/scheduleを主張しない。
 4. jurisdictionを解決し、Japanなら
-   [日本法router](references/common/jurisdictions/ja-jp/README.md)、
-   [source pack](references/common/jurisdictions/ja-jp/regulator-source-pack.md)を使う。
+   [日本法router](references/common/ja-jp/README.md)、
+   [source pack](references/common/ja-jp/regulator-source-pack.md)を使う。
 5. itemごとに
    `sourceSystem + sourceItemId + sourceVersionOrRevisionId`、jurisdiction/nexus、
    instrumentClass、normativeForce、lifecycleStatus、applicabilityを独立して確認する。
@@ -64,7 +64,7 @@ human profile、matter binding、approved deliveryを変更しない。
 ## Step 0 — Coverage and source health
 
 watchlistと
-[日本source register](references/common/jurisdictions/ja-jp/source-register.md)または
+[日本source register](references/common/ja-jp/source-register.md)または
 [global catalog](references/common/global-source-catalog.md)を比較する。
 
 - watch対象なのにsourceなし
@@ -138,7 +138,7 @@ same generic source identity + hashをdedupe。proposed textをfinalでoverwrite
 
 ## Step 3 — Official status verification
 
-[status rule](references/common/jurisdictions/ja-jp/legal-status-and-effective-dates.md)
+[status rule](references/common/ja-jp/legal-status-and-effective-dates.md)
 に従う。
 
 - lifecycleStatus:
@@ -183,7 +183,7 @@ candidate record、exact source、proposed diff、ownerを表示する。tracker
 operationでfresh confirmation。scheduled runでautomatic appendしない。
 
 日本のcomment deadlineは
-[public-comment rule](references/common/jurisdictions/ja-jp/public-comment-procedure.md)
+[public-comment rule](references/common/ja-jp/public-comment-procedure.md)
 に従い、recordKind、nullable dates、exception/final disposition、route-specific
 destination、instruction URL/hash、deadline、receipt-or-postmark、verifiedAtを保持する。
 email/postal routeを推測しない。

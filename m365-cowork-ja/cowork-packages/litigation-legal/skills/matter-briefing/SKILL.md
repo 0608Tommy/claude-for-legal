@@ -25,7 +25,7 @@ canonical label: `/litigation-legal:matter-briefing [slug]`
 2. exact user/profile、active unexpired binding、matter `status: active`、ACLを確認。
 3. exact matter、event、deadline、preservation、evidence state versionを読む。
 4. Japanなら
-   `references/common/jurisdictions/ja-jp/civil-procedure-and-digital.md`、
+   `references/common/ja-jp/civil-procedure-and-digital.md`、
    `evidence-confidentiality-preservation.md`、`currency-watch.md`を読む。
 5. current deadlineはauthority/trigger/service/calculation/verificationを確認し、
    candidateを確定日と表現しない。

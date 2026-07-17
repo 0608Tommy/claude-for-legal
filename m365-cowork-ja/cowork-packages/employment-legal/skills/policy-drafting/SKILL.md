@@ -35,8 +35,8 @@ compatibility: Microsoft 365 Copilot Cowork; SharePoint/OneDrive storage contrac
 9. Cowork内DLP必須ならsensitive sourceを投入せずproduction停止です。
 
 Japan framework:
-`references/common/jurisdictions/ja-jp/hiring-work-rules.md`、
-`references/common/jurisdictions/ja-jp/leave-harassment.md`。
+`references/common/ja-jp/hiring-work-rules.md`、
+`references/common/ja-jp/leave-harassment.md`。
 
 ## 会話state
 

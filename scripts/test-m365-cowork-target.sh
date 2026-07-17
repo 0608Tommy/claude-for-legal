@@ -4,19 +4,26 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-TMP="$(mktemp -d)"
-trap 'rm -rf "$TMP"' EXIT
+SCRATCH="$ROOT/m365-cowork-ja/.cache/target-test.${BASHPID:-$$}"
 
-VALID="$TMP/valid"
-INVALID="$TMP/invalid"
-TOO_LONG="$TMP/too-long"
-TOO_MANY="$TMP/too-many"
-BACKTICK_ONLY="$TMP/backtick-only"
+cleanup() {
+  rm -rf "$SCRATCH"
+}
+trap cleanup EXIT HUP INT TERM
+
+VALID="$SCRATCH/valid"
+INVALID="$SCRATCH/invalid"
+TOO_LONG="$SCRATCH/too-long"
+TOO_MANY="$SCRATCH/too-many"
+BACKTICK_ONLY="$SCRATCH/backtick-only"
+DEPTH_THREE="$SCRATCH/depth-three"
+DEPTH_FOUR="$SCRATCH/depth-four"
 mkdir -p "$VALID/example/skills/example/references"
 mkdir -p "$INVALID/example/skills/example"
 mkdir -p "$TOO_LONG/example/skills/too-long"
 mkdir -p "$TOO_MANY/example/skills"
 mkdir -p "$BACKTICK_ONLY/example/skills/example"
+mkdir -p "$DEPTH_THREE" "$DEPTH_FOUR"
 
 cat >"$VALID/example/skills/example/SKILL.md" <<'EOF'
 ---
@@ -48,6 +55,18 @@ printf 'Apache License 2.0\n' >"$VALID/example/LICENSE"
 printf 'Modified package\n' >"$VALID/example/NOTICE"
 cp "$VALID/example/LICENSE" "$VALID/example/skills/example/LICENSE"
 cp "$VALID/example/NOTICE" "$VALID/example/skills/example/NOTICE"
+
+cp -R "$VALID/example" "$DEPTH_THREE/example"
+mkdir -p \
+  "$DEPTH_THREE/example/skills/example/references/common/ja-jp"
+printf '{"depth": 3}\n' > \
+  "$DEPTH_THREE/example/skills/example/references/common/ja-jp/data.json"
+
+cp -R "$VALID/example" "$DEPTH_FOUR/example"
+mkdir -p \
+  "$DEPTH_FOUR/example/skills/example/references/common/jurisdictions/ja-jp"
+printf '{"depth": 4}\n' > \
+  "$DEPTH_FOUR/example/skills/example/references/common/jurisdictions/ja-jp/data.json"
 
 cat >"$INVALID/example/skills/example/SKILL.md" <<'EOF'
 ---
@@ -113,13 +132,30 @@ EOF
 
 PYTHONPATH="$ROOT/scripts" python3 - \
   "$VALID" "$INVALID" "$TOO_LONG" "$TOO_MANY" \
-  "$BACKTICK_ONLY" <<'PY'
+  "$BACKTICK_ONLY" "$DEPTH_THREE" "$DEPTH_FOUR" \
+  "$ROOT/m365-cowork-ja/shared/toolchain-lock.json" <<'PY'
+import json
 import pathlib
 import sys
 
 from validate_m365_cowork_target import load_limits, validate_target
 
 limits = load_limits()
+if limits.maximum_file_nesting_depth != 3:
+    raise SystemExit(
+        "maximumFileNestingDepth contract was not loaded"
+    )
+toolchain_lock = json.loads(
+    pathlib.Path(sys.argv[8]).read_text(encoding="utf-8")
+)
+if (
+    toolchain_lock["limits"]["maximumFileNestingDepth"]
+    != limits.maximum_file_nesting_depth
+):
+    raise SystemExit(
+        "maximumFileNestingDepth machine contracts disagree"
+    )
+
 valid_errors, _ = validate_target(pathlib.Path(sys.argv[1]), limits)
 if valid_errors:
     raise SystemExit(f"valid fixture failed: {valid_errors}")
@@ -161,6 +197,31 @@ for fragment in backtick_fragments:
             f"backtick fixture did not report {fragment}: "
             f"{backtick_errors}"
         )
+
+depth_three_errors, _ = validate_target(
+    pathlib.Path(sys.argv[6]),
+    limits,
+)
+if depth_three_errors:
+    raise SystemExit(
+        f"depth-3 fixture failed: {depth_three_errors}"
+    )
+
+depth_four_errors, _ = validate_target(
+    pathlib.Path(sys.argv[7]),
+    limits,
+)
+depth_four_fragment = (
+    "references/common/jurisdictions/ja-jp/data.json: "
+    "file nesting depth 4 exceeds maximum 3"
+)
+if not any(
+    depth_four_fragment in error
+    for error in depth_four_errors
+):
+    raise SystemExit(
+        f"depth-4 fixture was accepted: {depth_four_errors}"
+    )
 
 print("m365 Cowork target validator: OK")
 PY

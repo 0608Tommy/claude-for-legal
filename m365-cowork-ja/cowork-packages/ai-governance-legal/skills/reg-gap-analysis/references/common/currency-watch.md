@@ -38,7 +38,7 @@
 
 ## 日本
 
-日本の監視対象は `jurisdictions/ja-jp/source-register.md` を使う。特に:
+日本の監視対象は `ja-jp/source-register.md` を使う。特に:
 
 - AI法に基づく基本計画・政府指針
 - AI事業者ガイドラインのversion

@@ -37,7 +37,7 @@ Coworkではauthorized SharePoint/OneDrive item、approved connector result、�
 7. source code、customer data、credential、trade secretの外部共有をしません。
 8. AIはship、publish、source release、licence purchase/acceptanceを決定・実行しません。
 
-[日本OSS module](references/common/jurisdictions/ja-jp/trade-secrets-oss.md)と
+[日本OSS module](references/common/ja-jp/trade-secrets-oss.md)と
 [source rule](references/common/source-provenance-and-review.md)を使います。
 
 ## Inventory

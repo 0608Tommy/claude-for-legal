@@ -101,12 +101,12 @@ Japan:
 - public sector
 
 日本module:
-`references/common/jurisdictions/ja-jp/sectoral-my-number.md`。
+`references/common/ja-jp/sectoral-my-number.md`。
 
 ## Assessment trigger
 
 日本の民間一般PIAは一律mandatoryではない。
-`references/common/jurisdictions/ja-jp/pia-assessments.md`を読む。
+`references/common/ja-jp/pia-assessments.md`を読む。
 
 強いindicator:
 

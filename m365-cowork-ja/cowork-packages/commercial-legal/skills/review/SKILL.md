@@ -36,7 +36,7 @@ compatibility: Microsoft 365 Copilot Cowork; SharePoint/OneDrive storage contrac
    選んだ場合は`scopeType: practice`でreviewできるが、過去matterのcontract、
    quote、draft、renewal、precedentをcarryしない。
 4. **Side:** 契約ごとに`sales | purchasing`を確定し、該当sideだけを適用する。reseller、partnership、revenue share等で曖昧なら質問する。
-5. **Jurisdiction:** `request > matter > practice-profile > tenant-default`。governing law、party、performance、consumer/data/worker locationを確認し、日本なら`references/common/jurisdictions/ja-jp/README.md`と該当moduleを読む。
+5. **Jurisdiction:** `request > matter > practice-profile > tenant-default`。governing law、party、performance、consumer/data/worker locationを確認し、日本なら`references/common/ja-jp/README.md`と該当moduleを読む。
 6. **Source:** exact contract item/version、全exhibit、incorporated URL、order form、DPA、SLAを読む。missingとunreadを分け、partial readでcomprehensive conclusionを出さない。
 7. **Confidentiality/destination:** NDA、privilege、clean-team、authorized viewers、retention、legal hold、保存境界DLPを確認する。internal reviewをcounterpartyへそのまま出さない。
 8. **Human review/irreversible:** severity、fallback、redline、risk acceptance、
@@ -155,11 +155,11 @@ playbookにpositionがなければ、market defaultを保存せず`[review]`と�
 
 日本が含まれる場合、issueに応じて:
 
-- `references/common/jurisdictions/ja-jp/contract-core.md`
-- `references/common/jurisdictions/ja-jp/privacy-data.md`
-- `references/common/jurisdictions/ja-jp/entrusted-transactions.md`
-- `references/common/jurisdictions/ja-jp/consumer-electronic.md`
-- `references/common/jurisdictions/ja-jp/competition-ip.md`
+- `references/common/ja-jp/contract-core.md`
+- `references/common/ja-jp/privacy-data.md`
+- `references/common/ja-jp/entrusted-transactions.md`
+- `references/common/ja-jp/consumer-electronic.md`
+- `references/common/ja-jp/competition-ip.md`
 
 を読む。binding law、official guidance、internal playbookを別欄にする。日本法有資格者review statusは`pending`。
 

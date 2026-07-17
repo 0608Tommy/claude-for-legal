@@ -37,8 +37,8 @@ compatibility: Microsoft 365 Copilot Cowork; SharePoint/OneDrive storage contrac
 5. audienceとdestinationを確認する。board/exec、deal lead、working teamで
    privilege/MNPI/clean-team detailを分ける。
 6. 日本案件は
-   `references/common/jurisdictions/ja-jp/ma-regulatory.md`と
-   `references/common/jurisdictions/ja-jp/diligence-overlays.md`を読み、
+   `references/common/ja-jp/ma-regulatory.md`と
+   `references/common/ja-jp/diligence-overlays.md`を読み、
    Companies Act、FIEA/TDnet、JFTC、FEFTA、labour、APPI、IP、licenceを
    applicableな範囲で示す。
 7. law、listing、guidance、PA、internal thresholdを混同しない。

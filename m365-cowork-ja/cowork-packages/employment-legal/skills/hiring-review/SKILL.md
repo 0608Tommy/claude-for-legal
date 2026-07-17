@@ -25,7 +25,7 @@ compatibility: Microsoft 365 Copilot Cowork; SharePoint/OneDrive storage contrac
    source item/version、destinationを確認します。gateway failure時もread-only draftは
    可能ですが、保存・送信を主張しません。
 2. jurisdictionはactual work location、establishment、entityで解決します。日本なら
-   `references/common/jurisdictions/ja-jp/hiring-work-rules.md`を使います。
+   `references/common/ja-jp/hiring-work-rules.md`を使います。
 3. accommodation/medical、sensitive background、contested offer等はrestricted matterを
    提案し、active bindingなしに他matter dataを読みません。
 4. employment-condition、minimum wage、working-time system、covenant、visa、

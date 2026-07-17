@@ -71,10 +71,10 @@ footprint、house format、materiality、approver、seed documentsをprofileへ�
 
 Japan module:
 
-- `references/common/jurisdictions/ja-jp/README.md`
-- `references/common/jurisdictions/ja-jp/source-register.md`
-- `references/common/jurisdictions/ja-jp/governance-records.md`
-- `references/common/jurisdictions/ja-jp/ma-regulatory.md`
+- `references/common/ja-jp/README.md`
+- `references/common/ja-jp/source-register.md`
+- `references/common/ja-jp/governance-records.md`
+- `references/common/ja-jp/ma-regulatory.md`
 
 ## 会話state
 

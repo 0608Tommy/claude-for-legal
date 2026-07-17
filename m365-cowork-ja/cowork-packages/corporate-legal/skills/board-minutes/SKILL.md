@@ -54,7 +54,7 @@ mandatory formalitiesを満たすreview用draftを作る。議事録はcorporate
 12. **DLP:** Cowork内DLP必須ならconfidential materialsを投入しない。
 
 日本のformalitiesは
-`references/common/jurisdictions/ja-jp/governance-records.md`、
+`references/common/ja-jp/governance-records.md`、
 provenanceは`references/common/source-provenance-and-review.md`を使う。
 
 ## 会話state

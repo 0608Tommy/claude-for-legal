@@ -29,7 +29,7 @@ chartはdraftであり、contention、brief、expert opinion、merits conclusion
 3. disclosed/produced/clean-team sourceのuse restrictionとpurposeを確認。
 4. mode、side、forum、phase、claim/count、target、existing chartを確定。
 5. 日本なら
-   `references/common/jurisdictions/ja-jp/patent-and-claim-charts.md`、
+   `references/common/ja-jp/patent-and-claim-charts.md`、
    `evidence-confidentiality-preservation.md`、`source-register.md`を読む。
 6. controlling textとauthorityをその会話でofficial sourceから確認。templateをlawと
    扱わない。

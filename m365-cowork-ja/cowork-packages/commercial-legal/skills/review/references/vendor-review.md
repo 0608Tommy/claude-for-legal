@@ -124,7 +124,7 @@ indemnity directionはsales/purchasingで反転し得る。
 
 ## DPA/security
 
-main terms、DPA、security exhibit、privacy policyのpriorityを確認する。日本は`common/jurisdictions/ja-jp/privacy-data.md`、取引scopeは`common/jurisdictions/ja-jp/entrusted-transactions.md`を読む。security certificationだけでactual controlを保証しない。
+main terms、DPA、security exhibit、privacy policyのpriorityを確認する。日本は`common/ja-jp/privacy-data.md`、取引scopeは`common/ja-jp/entrusted-transactions.md`を読む。security certificationだけでactual controlを保証しない。
 
 ## Japanese transaction screen
 

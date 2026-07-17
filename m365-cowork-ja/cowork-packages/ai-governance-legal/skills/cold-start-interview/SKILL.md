@@ -170,7 +170,7 @@ EUが関係する場合、1～3システムについて `ai-inventory` のadd/cl
 
 ## 管轄モジュール
 
-日本が含まれる場合、`references/common/jurisdictions/ja-jp/README.md` を選択し、プロファイルへ次を記録する。
+日本が含まれる場合、`references/common/ja-jp/README.md` を選択し、プロファイルへ次を記録する。
 
 ```yaml
 jurisdictionModules:

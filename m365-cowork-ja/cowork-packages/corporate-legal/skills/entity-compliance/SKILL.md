@@ -60,8 +60,8 @@ commercial registrationとperiodic governance/complianceを管理する。
 10. **DLP:** Cowork内DLP必須ならproduction useを停止する。
 
 日本workflowは
-`references/common/jurisdictions/ja-jp/integration-entity.md`と
-`references/common/jurisdictions/ja-jp/governance-records.md`、
+`references/common/ja-jp/integration-entity.md`と
+`references/common/ja-jp/governance-records.md`、
 provenanceは
 `references/common/source-provenance-and-review.md`を使う。
 

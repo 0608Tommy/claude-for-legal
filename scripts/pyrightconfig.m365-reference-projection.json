@@ -1,0 +1,11 @@
+{
+  "include": [
+    "m365_reference_contract.py",
+    "m365_reference_common_projection.py",
+    "m365_reference_projection.py",
+    "m365_reference_projection_types.py",
+    "validate_m365_reference_projection.py"
+  ],
+  "pythonVersion": "3.14",
+  "typeCheckingMode": "strict"
+}

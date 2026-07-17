@@ -43,7 +43,7 @@ hidden `internal-investigation`は登録せず、本callerの
 10. Cowork内DLP必須ならmatter contentを投入せずproduction停止です。
 
 Japan:
-`references/common/jurisdictions/ja-jp/termination-investigations.md`。
+`references/common/ja-jp/termination-investigations.md`。
 
 ## 会話state
 

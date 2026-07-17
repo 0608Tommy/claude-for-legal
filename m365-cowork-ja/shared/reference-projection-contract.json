@@ -1,0 +1,358 @@
+{
+  "schemaVersion": 1,
+  "canonicalRoot": "references/jurisdictions/ja-jp",
+  "localRoot": "references/common/ja-jp",
+  "forbiddenLocalRoot": "references/common/jurisdictions",
+  "expectedTotals": {
+    "packageCount": 10,
+    "registeredSkillCount": 119,
+    "canonicalFileCount": 79,
+    "projectedFileCount": 928
+  },
+  "commonFileProjection": {
+    "canonicalRoot": "references",
+    "localRoot": "references/common",
+    "expectedTransformedCopyCount": 45,
+    "transforms": [
+      {
+        "package": "ai-governance-legal",
+        "path": "currency-watch.md",
+        "from": "jurisdictions/ja-jp/",
+        "to": "ja-jp/",
+        "expectedOccurrences": 1,
+        "expectedCopyCount": 10
+      },
+      {
+        "package": "ip-legal",
+        "path": "original-ip-logic.md",
+        "from": "jurisdictions/ja-jp/",
+        "to": "ja-jp/",
+        "expectedOccurrences": 1,
+        "expectedCopyCount": 12
+      },
+      {
+        "package": "product-legal",
+        "path": "source-provenance-and-review.md",
+        "from": "jurisdictions/ja-jp/",
+        "to": "ja-jp/",
+        "expectedOccurrences": 1,
+        "expectedCopyCount": 7
+      },
+      {
+        "package": "regulatory-legal",
+        "path": "global-source-catalog.md",
+        "from": "jurisdictions/ja-jp/",
+        "to": "ja-jp/",
+        "expectedOccurrences": 1,
+        "expectedCopyCount": 8
+      },
+      {
+        "package": "regulatory-legal",
+        "path": "source-provenance-and-review.md",
+        "from": "jurisdictions/ja-jp/",
+        "to": "ja-jp/",
+        "expectedOccurrences": 2,
+        "expectedCopyCount": 8
+      }
+    ]
+  },
+  "packages": {
+    "ai-governance-legal": {
+      "expectedSkillCount": 10,
+      "expectedFilesPerSkill": 9,
+      "expectedProjectedFileCount": 90,
+      "registeredSkills": [
+        "ai-inventory",
+        "aia-generation",
+        "cold-start-interview",
+        "customize",
+        "matter-workspace",
+        "policy-monitor",
+        "policy-starter",
+        "reg-gap-analysis",
+        "use-case-triage",
+        "vendor-ai-review"
+      ],
+      "canonicalFiles": [
+        "README.md",
+        "consumer-competition.md",
+        "contracts-security.md",
+        "copyright-content.md",
+        "employment.md",
+        "governance-core.md",
+        "privacy-data.md",
+        "public-sector.md",
+        "source-register.md"
+      ]
+    },
+    "commercial-legal": {
+      "expectedSkillCount": 9,
+      "expectedFilesPerSkill": 7,
+      "expectedProjectedFileCount": 63,
+      "registeredSkills": [
+        "amendment-history",
+        "cold-start-interview",
+        "customize",
+        "escalation-flagger",
+        "matter-workspace",
+        "renewal-tracker",
+        "review",
+        "review-proposals",
+        "stakeholder-summary"
+      ],
+      "canonicalFiles": [
+        "README.md",
+        "competition-ip.md",
+        "consumer-electronic.md",
+        "contract-core.md",
+        "entrusted-transactions.md",
+        "privacy-data.md",
+        "source-register.md"
+      ]
+    },
+    "corporate-legal": {
+      "expectedSkillCount": 13,
+      "expectedFilesPerSkill": 7,
+      "expectedProjectedFileCount": 91,
+      "registeredSkills": [
+        "ai-tool-handoff",
+        "board-minutes",
+        "closing-checklist",
+        "cold-start-interview",
+        "customize",
+        "deal-team-summary",
+        "diligence-issue-extraction",
+        "entity-compliance",
+        "integration-management",
+        "material-contract-schedule",
+        "matter-workspace",
+        "tabular-review",
+        "written-consent"
+      ],
+      "canonicalFiles": [
+        "README.md",
+        "diligence-overlays.md",
+        "governance-records.md",
+        "integration-entity.md",
+        "ma-regulatory.md",
+        "privilege-security.md",
+        "source-register.md"
+      ]
+    },
+    "employment-legal": {
+      "expectedSkillCount": 18,
+      "expectedFilesPerSkill": 8,
+      "expectedProjectedFileCount": 144,
+      "registeredSkills": [
+        "cold-start-interview",
+        "customize",
+        "expansion-kickoff",
+        "expansion-update",
+        "handbook-updates",
+        "hiring-review",
+        "investigation-add",
+        "investigation-memo",
+        "investigation-open",
+        "investigation-query",
+        "investigation-summary",
+        "leave-tracker",
+        "log-leave",
+        "matter-workspace",
+        "policy-drafting",
+        "termination-review",
+        "wage-hour-qa",
+        "worker-classification"
+      ],
+      "canonicalFiles": [
+        "README.md",
+        "hiring-work-rules.md",
+        "international-insurance.md",
+        "leave-harassment.md",
+        "privacy-privilege.md",
+        "source-register.md",
+        "termination-investigations.md",
+        "wage-worker-status.md"
+      ]
+    },
+    "ip-legal": {
+      "expectedSkillCount": 12,
+      "expectedFilesPerSkill": 9,
+      "expectedProjectedFileCount": 108,
+      "registeredSkills": [
+        "cease-desist",
+        "clearance",
+        "cold-start-interview",
+        "customize",
+        "fto-triage",
+        "infringement-triage",
+        "invention-intake",
+        "ip-clause-review",
+        "matter-workspace",
+        "oss-review",
+        "portfolio",
+        "takedown"
+      ],
+      "canonicalFiles": [
+        "README.md",
+        "contracts-ownership.md",
+        "copyright-platform.md",
+        "enforcement-customs.md",
+        "patents-utility-designs.md",
+        "privilege-security.md",
+        "source-register.md",
+        "trade-secrets-oss.md",
+        "trademark-clearance.md"
+      ]
+    },
+    "legal-clinic": {
+      "expectedSkillCount": 14,
+      "expectedFilesPerSkill": 7,
+      "expectedProjectedFileCount": 98,
+      "registeredSkills": [
+        "build-guide",
+        "client-comms-log",
+        "client-intake",
+        "client-letter",
+        "cold-start-interview",
+        "customize",
+        "deadlines",
+        "draft",
+        "memo",
+        "ramp",
+        "research-start",
+        "semester-handoff",
+        "status",
+        "supervisor-review-queue"
+      ],
+      "canonicalFiles": [
+        "README.md",
+        "client-access-and-communications.md",
+        "clinic-law-and-supervision.md",
+        "currency-watch.md",
+        "privacy-client-data.md",
+        "procedure-deadlines.md",
+        "source-register.md"
+      ]
+    },
+    "litigation-legal": {
+      "expectedSkillCount": 19,
+      "expectedFilesPerSkill": 7,
+      "expectedProjectedFileCount": 133,
+      "registeredSkills": [
+        "brief-section-drafter",
+        "chronology",
+        "claim-chart",
+        "cold-start-interview",
+        "customize",
+        "demand-draft",
+        "demand-intake",
+        "demand-received",
+        "deposition-prep",
+        "legal-hold",
+        "matter-briefing",
+        "matter-close",
+        "matter-intake",
+        "matter-update",
+        "matter-workspace",
+        "oc-status",
+        "portfolio-status",
+        "privilege-log-review",
+        "subpoena-triage"
+      ],
+      "canonicalFiles": [
+        "README.md",
+        "civil-procedure-and-digital.md",
+        "currency-watch.md",
+        "demands-limitation-settlement.md",
+        "evidence-confidentiality-preservation.md",
+        "patent-and-claim-charts.md",
+        "source-register.md"
+      ]
+    },
+    "privacy-legal": {
+      "expectedSkillCount": 9,
+      "expectedFilesPerSkill": 10,
+      "expectedProjectedFileCount": 90,
+      "registeredSkills": [
+        "cold-start-interview",
+        "customize",
+        "dpa-review",
+        "dsar-response",
+        "matter-workspace",
+        "pia-generation",
+        "policy-monitor",
+        "reg-gap-analysis",
+        "use-case-triage"
+      ],
+      "canonicalFiles": [
+        "README.md",
+        "appi-core.md",
+        "breach-security.md",
+        "cross-border-dpa.md",
+        "pia-assessments.md",
+        "rights-dsar.md",
+        "sectoral-my-number.md",
+        "source-register.md",
+        "tracking-telecom.md",
+        "workplace-children-biometrics.md"
+      ]
+    },
+    "product-legal": {
+      "expectedSkillCount": 7,
+      "expectedFilesPerSkill": 9,
+      "expectedProjectedFileCount": 63,
+      "registeredSkills": [
+        "cold-start-interview",
+        "customize",
+        "feature-risk-assessment",
+        "is-this-a-problem",
+        "launch-review",
+        "marketing-claims-review",
+        "matter-workspace"
+      ],
+      "canonicalFiles": [
+        "README.md",
+        "accessibility-minors.md",
+        "appi-telecom.md",
+        "consumer-commerce-claims.md",
+        "cyber-ai-ip-content.md",
+        "payments-financial-medical.md",
+        "product-safety-platform.md",
+        "public-company-privilege.md",
+        "source-register.md"
+      ]
+    },
+    "regulatory-legal": {
+      "expectedSkillCount": 8,
+      "expectedFilesPerSkill": 6,
+      "expectedProjectedFileCount": 48,
+      "registeredSkills": [
+        "cold-start-interview",
+        "comments",
+        "customize",
+        "gaps",
+        "matter-workspace",
+        "policy-diff",
+        "policy-redraft",
+        "reg-feed-watcher"
+      ],
+      "canonicalFiles": [
+        "README.md",
+        "currency-watch.md",
+        "legal-status-and-effective-dates.md",
+        "public-comment-procedure.md",
+        "regulator-source-pack.md",
+        "source-register.md"
+      ]
+    }
+  },
+  "transforms": [
+    {
+      "package": "ai-governance-legal",
+      "path": "README.md",
+      "from": "../../original-jurisdiction-logic.md",
+      "to": "../original-jurisdiction-logic.md",
+      "expectedOccurrences": 1
+    }
+  ]
+}

@@ -43,7 +43,7 @@ hidden `international-expansion`は登録せず、
 9. Cowork内DLP必須ならsensitive expansion materialを投入せずproduction停止です。
 
 Japan target/structureには
-`references/common/jurisdictions/ja-jp/international-insurance.md`を使います。
+`references/common/ja-jp/international-insurance.md`を使います。
 
 ## 会話state
 

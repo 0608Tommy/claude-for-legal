@@ -28,7 +28,7 @@ source classification token
 2. exact incoming item/version/hash、service/receipt evidence、recipient entityを確認。
 3. exact user/profile、matter relation、access、evidence/clean-team ACLを確認。
 4. Japanなら
-   `references/common/jurisdictions/ja-jp/evidence-confidentiality-preservation.md`、
+   `references/common/ja-jp/evidence-confidentiality-preservation.md`、
    `civil-procedure-and-digital.md`、`source-register.md`を読む。
 5. issuing authority、instrument、actual statutory/court basisをcurrent official sourceで
    確認。名称だけで分類しない。

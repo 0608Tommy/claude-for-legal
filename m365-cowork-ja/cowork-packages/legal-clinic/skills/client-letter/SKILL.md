@@ -46,7 +46,7 @@ canonical label:
     reviewの両方を同じartifact version/hashに要求する。
 
 Japan:
-`references/common/jurisdictions/ja-jp/client-access-and-communications.md`。
+`references/common/ja-jp/client-access-and-communications.md`。
 
 ## Pedagogy
 

@@ -28,7 +28,7 @@ protocolが要求する場合だけprivilege log形式を使う。
    確認。
 3. exact instrument、court order、production protocol、document set/versionを確認。
 4. Japanなら
-   `references/common/jurisdictions/ja-jp/evidence-confidentiality-preservation.md`と
+   `references/common/ja-jp/evidence-confidentiality-preservation.md`と
    `source-register.md`を読む。
 5. 民訴法197、220、92条、弁護士法23条、特許法105条等のactual basisをcurrent
    official sourceで確認。

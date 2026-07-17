@@ -41,7 +41,7 @@ compatibility: Microsoft 365 Copilot Cowork; SharePoint/OneDrive storage contrac
 8. outputはinternal draft。AIはassert、send、submit、file、takedownをしません。
 
 [source/provenance rule](references/common/source-provenance-and-review.md)と
-[日本法router](references/common/jurisdictions/ja-jp/README.md)を使います。
+[日本法router](references/common/ja-jp/README.md)を使います。
 
 ## Common intake
 
@@ -67,7 +67,7 @@ Lanham factors、TDRA dilution test、common-law priorityを日本ruleとして�
 
 ## Patent / utility model
 
-[特許module](references/common/jurisdictions/ja-jp/patents-utility-designs.md)に従い:
+[特許module](references/common/ja-jp/patents-utility-designs.md)に従い:
 
 - official current claim/status
 - Art. 70 scope、literal mapping
@@ -120,7 +120,7 @@ UCPAの商品形態模倣をtrademark/trade dressと分離し、first Japanese s
 
 dated page/screenshot、physical sample、receipt、hash/version、access log、
 assignment/licence chain、confidentiality controlをpreserve candidateとして示します。
-import goodsなら[Customs route](references/common/jurisdictions/ja-jp/enforcement-customs.md)。
+import goodsなら[Customs route](references/common/ja-jp/enforcement-customs.md)。
 
 evidence preservationは**[I]**であり、AIがcollection/surveillance/purchaseを
 実行したとは表示しません。

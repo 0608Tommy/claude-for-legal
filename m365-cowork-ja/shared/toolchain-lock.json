@@ -43,6 +43,7 @@
     "skillsPerPackage": 20,
     "connectorsPerPackage": 10,
     "companionsPerSkill": 20,
+    "maximumFileNestingDepth": 3,
     "companionFileBytes": 5242880,
     "companionTotalBytes": 10485760,
     "toolkitPackageBytes": 10485760,

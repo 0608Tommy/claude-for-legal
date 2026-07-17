@@ -1906,23 +1906,39 @@ for common_name in clinic_common_names:
                 f"{local_path}: clinic common copy is not synced"
             )
 
-canonical_references = {
-    path.relative_to(ai_root / "references"): path.read_bytes()
-    for path in (ai_root / "references").rglob("*")
-    if path.is_file()
-}
+# Jurisdiction projections are owned by test-m365-reference-projection.sh.
+currency_watch_source = b"jurisdictions/ja-jp/"
+currency_watch_replacement = b"ja-jp/"
+canonical_references = {}
+for path in (ai_root / "references").rglob("*"):
+    relative = path.relative_to(ai_root / "references")
+    if path.is_file() and relative.parts[0] != "jurisdictions":
+        data = path.read_bytes()
+        if relative == pathlib.Path("currency-watch.md"):
+            if data.count(currency_watch_source) != 1:
+                raise SystemExit(
+                    "AI currency watch transform source count changed"
+                )
+            data = data.replace(
+                currency_watch_source,
+                currency_watch_replacement,
+            )
+        canonical_references[relative] = data
 for skill_path in sorted((ai_root / "skills").iterdir()):
     if not skill_path.is_dir():
         continue
     common_root = skill_path / "references" / "common"
-    local_references = {
-        path.relative_to(common_root): path.read_bytes()
-        for path in common_root.rglob("*")
-        if path.is_file()
-    }
+    local_references = {}
+    for path in common_root.rglob("*"):
+        relative = path.relative_to(common_root)
+        if (
+            path.is_file()
+            and relative.parts[0] not in {"jurisdictions", "ja-jp"}
+        ):
+            local_references[relative] = path.read_bytes()
     if local_references != canonical_references:
         raise SystemExit(
-            f"{skill_path}: common references are not byte-for-byte synced"
+            f"{skill_path}: state references are not byte-for-byte synced"
         )
 
 matter_skill = (

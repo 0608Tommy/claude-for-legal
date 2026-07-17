@@ -30,7 +30,7 @@ canonical label:
    user accessを要求する。fresh practice sessionはbindingなしで、過去matterを
    carryしない。
 4. jurisdictionは`request > matter > practice-profile > tenant-default`。日本なら
-   `references/common/jurisdictions/ja-jp/README.md`、
+   `references/common/ja-jp/README.md`、
    `civil-procedure-and-digital.md`、`source-register.md`を読む。
 5. exact pleading/order/evidence item、version、read coverageを確認する。unread sourceを
    読んだと表示しない。

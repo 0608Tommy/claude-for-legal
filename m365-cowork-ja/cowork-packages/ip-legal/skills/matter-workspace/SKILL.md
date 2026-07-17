@@ -48,7 +48,7 @@ compatibility: Microsoft 365 Copilot Cowork; SharePoint/OneDrive storage contrac
 10. Cowork内DLP必須ならtrade secret/未公開発明matterのproduction利用を停止。
 
 [matter record](references/matter-records.md)、
-[日本の秘密性](references/common/jurisdictions/ja-jp/privilege-security.md)を使います。
+[日本の秘密性](references/common/ja-jp/privilege-security.md)を使います。
 
 ## Conversation state
 

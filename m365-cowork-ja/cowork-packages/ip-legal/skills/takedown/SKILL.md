@@ -32,7 +32,7 @@ flagなしならmodeを1回確認します。最初にjurisdiction/provider rout
    territorial nexusを確認。
 3. matter scopeならactive/unexpired binding。practice modeはfresh session。
 4. `request > matter > practice-profile > tenant-default`でroute。
-5. 日本なら[著作権・Platform Act](references/common/jurisdictions/ja-jp/copyright-platform.md)。
+5. 日本なら[著作権・Platform Act](references/common/ja-jp/copyright-platform.md)。
    U.S. DMCAは[original layer](references/common/original-ip-logic.md)の別route。
 6. licence、permission、statutory exception/fair use、misidentificationを確認。
 7. outgoing notice/counter/appealとinternal analysisを別artifactにします。

@@ -33,7 +33,7 @@ state変更を実行しない。
 4. exact user/profile、matter binding/access、destination、external/internal versionを
    確認する。
 5. Japanなら
-   `references/common/jurisdictions/ja-jp/demands-limitation-settlement.md`と
+   `references/common/ja-jp/demands-limitation-settlement.md`と
    `source-register.md`を読む。
 6. current statute、contract notice clause、limitation、delivery requirementを
    official source/exact contractで確認。

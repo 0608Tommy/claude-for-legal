@@ -124,7 +124,7 @@ Japanでは別fieldで
 `bengoshi | benrishi | supervised legal professional | other`とregistration/
 supervising counselを記録し、U.S. `Registered patent agent`とJapanese benrishiを
 同一視しません。日本向けheaderは
-[privilege module](references/common/jurisdictions/ja-jp/privilege-security.md)に従い、
+[privilege module](references/common/ja-jp/privilege-security.md)に従い、
 U.S. work-product/Queen's University headerを自動使用しません。
 
 ## Practice mix

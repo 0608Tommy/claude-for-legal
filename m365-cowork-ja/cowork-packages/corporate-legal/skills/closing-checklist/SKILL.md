@@ -54,9 +54,9 @@ stateのfront endであり、filing、consent、schedule、automation solution�
 
 日本workflow:
 
-- `references/common/jurisdictions/ja-jp/ma-regulatory.md`
-- `references/common/jurisdictions/ja-jp/governance-records.md`
-- `references/common/jurisdictions/ja-jp/integration-entity.md`
+- `references/common/ja-jp/ma-regulatory.md`
+- `references/common/ja-jp/governance-records.md`
+- `references/common/ja-jp/integration-entity.md`
 
 provenanceは
 `references/common/source-provenance-and-review.md`を使う。

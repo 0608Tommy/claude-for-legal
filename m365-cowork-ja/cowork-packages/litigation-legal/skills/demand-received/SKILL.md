@@ -25,7 +25,7 @@ canonical label:
 3. exact user/profileと、matter cross-checkを行うscopeを確認。cross-matterはauthorized
    portfolio indexの最小fieldだけを使う。
 4. Japanなら
-   `references/common/jurisdictions/ja-jp/demands-limitation-settlement.md`と
+   `references/common/ja-jp/demands-limitation-settlement.md`と
    `source-register.md`を読む。
 5. sender-cited lawをcurrent official sourceで確認。取得できなければcharacterize
    せず`[statute unretrieved — verify]`。

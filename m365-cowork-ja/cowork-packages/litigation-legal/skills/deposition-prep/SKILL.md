@@ -34,7 +34,7 @@ prepMode: internal-interview | witness-statement-support | witness-examination |
 2. exact user/profile、active binding、matter/evidence ACL、witness accessを確認。
 3. purpose、prep mode、witness role、friendly/adverse/neutral、court/dateを確認。
 4. Japanなら
-   `references/common/jurisdictions/ja-jp/evidence-confidentiality-preservation.md`と
+   `references/common/ja-jp/evidence-confidentiality-preservation.md`と
    `civil-procedure-and-digital.md`を読む。
 5. current民訴法・民訴規則、case-specific orderをofficial sourceで確認。
 6. exact document/transcript item/versionとcoverageを記録。

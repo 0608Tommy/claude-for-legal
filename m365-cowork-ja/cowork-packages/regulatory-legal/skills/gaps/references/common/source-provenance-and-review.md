@@ -111,8 +111,8 @@ regulatorを使い、Federal Registerをglobal fallbackにしない。
 
 施行日、改正status、deadline、threshold、designation、SRO scope、enforcement
 postureに依存する場合、その会話でcurrent official sourceを確認する。
-[日本法router](jurisdictions/ja-jp/README.md)と
-[source register](jurisdictions/ja-jp/source-register.md)は検索indexであり、
+[日本法router](ja-jp/README.md)と
+[source register](ja-jp/source-register.md)は検索indexであり、
 個別適用判断または将来の正確性を保証しない。
 
 ## 情報不足の3値

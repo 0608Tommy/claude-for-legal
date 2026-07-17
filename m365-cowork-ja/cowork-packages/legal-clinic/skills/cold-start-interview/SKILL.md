@@ -50,9 +50,9 @@ canonical label:
     72 cureでない。
 
 Japan:
-`references/common/jurisdictions/ja-jp/clinic-law-and-supervision.md`、
-`references/common/jurisdictions/ja-jp/privacy-client-data.md`、
-`references/common/jurisdictions/ja-jp/currency-watch.md`。
+`references/common/ja-jp/clinic-law-and-supervision.md`、
+`references/common/ja-jp/privacy-client-data.md`、
+`references/common/ja-jp/currency-watch.md`。
 
 ## State machine
 

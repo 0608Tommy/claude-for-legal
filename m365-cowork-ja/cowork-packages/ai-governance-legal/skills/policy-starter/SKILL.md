@@ -69,7 +69,7 @@ compatibility: Microsoft 365 Copilot Cowork; SharePoint/OneDrive storage contrac
 - Australia: Law Council、OAIC、Australian AI Ethics Framework
 - Singapore: PDPC Model AI Governance Framework、MinLaw、MAS
 - Canada: law societies、OPC、TBS Directive
-- Japan: `references/common/jurisdictions/ja-jp/source-register.md`、AI法、AI事業者ガイドライン、PPC、文化庁、消費者庁、厚労省、デジタル庁等
+- Japan: `references/common/ja-jp/source-register.md`、AI法、AI事業者ガイドライン、PPC、文化庁、消費者庁、厚労省、デジタル庁等
 
 複数法域では相違を示す。二次資料は一次資料探索に使い、ruleとしてそのまま採用しない。
 

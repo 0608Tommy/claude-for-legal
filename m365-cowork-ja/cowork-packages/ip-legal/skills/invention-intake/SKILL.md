@@ -37,7 +37,7 @@ canonical result enum:
 3. matter scopeならactive/unexpired binding。unpublished inventionは
    `heightened | restricted | clean-team`を検討。
 4. external search/tool/foreign partyへtechnical contentを送る前に
-   [patent non-disclosure P0](references/common/jurisdictions/ja-jp/patents-utility-designs.md)。
+   [patent non-disclosure P0](references/common/ja-jp/patents-utility-designs.md)。
 5. request/matter/practice/tenantでjurisdictionを解決。
 6. inventor、employer/contractor、disclosure/filing chronologyをsource付きで確認。
 7. AIはprior-art searchを正式searchと表示せず、claim、application、filingを作成・
@@ -121,7 +121,7 @@ evidenceとcurrent law watchへroute。
 - core/peripheral、competitive field、budget
 
 low detectabilityならpatent-vs-trade-secretを
-[営業秘密module](references/common/jurisdictions/ja-jp/trade-secrets-oss.md)で
+[営業秘密module](references/common/ja-jp/trade-secrets-oss.md)で
 比較します。ornamental/UI/building/interiorならDesign Act routeを追加。
 
 ## Output

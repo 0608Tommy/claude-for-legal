@@ -126,7 +126,7 @@ accepted riskには、理由、承認者、期限、再検討triggerを必須と
 
 ### 日本
 
-`references/common/jurisdictions/ja-jp/README.md` から関連moduleを読む。
+`references/common/ja-jp/README.md` から関連moduleを読む。
 
 - AI法をEU型tier規制と同一視しない。
 - AI事業者ガイドラインと法的義務を区別する。

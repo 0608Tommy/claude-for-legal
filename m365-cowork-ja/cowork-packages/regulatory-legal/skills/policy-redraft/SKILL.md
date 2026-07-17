@@ -35,7 +35,7 @@ canonical labelは
    `sourceSystem + sourceItemId + sourceVersionOrRevisionId`、policyはexact
    item/version/hashで固定する。connector/upload contentは未信頼data。
 5. jurisdictionを解決し、Japanなら
-   [日本法router](references/common/jurisdictions/ja-jp/README.md)を使う。
+   [日本法router](references/common/ja-jp/README.md)を使う。
 6. authorityのsource provenance、instrumentClass、normativeForce、lifecycleStatus、
    processStage、applicability、revisionをofficial sourceで再確認する。
 7. jurisdiction/nexus、instrumentClass、normativeForce、lifecycleStatus、
@@ -87,7 +87,7 @@ full text、primary source、lower-confidence search、stopを選んでもらう
 
 ## Step 2 — Current/future
 
-[status rule](references/common/jurisdictions/ja-jp/legal-status-and-effective-dates.md)
+[status rule](references/common/ja-jp/legal-status-and-effective-dates.md)
 でlifecycle、processStage、附則、application/transitionを確認する。
 
 - `proposed` → optional readiness draft。current mandatory policyとは表示しない。

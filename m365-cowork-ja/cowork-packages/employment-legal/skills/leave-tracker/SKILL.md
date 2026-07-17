@@ -42,7 +42,7 @@ non-scheduling behaviorを本skillへmergeしています。
 9. Cowork内DLP必須ならmedical/leave dataを投入せずproduction停止です。
 
 Japan:
-`references/common/jurisdictions/ja-jp/leave-harassment.md`。
+`references/common/ja-jp/leave-harassment.md`。
 record: `references/leave-records.md`。
 
 ## 会話state
