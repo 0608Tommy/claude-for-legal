@@ -17,7 +17,8 @@ counterparties:
   - "[name]"
 matterType: DPA review
 opened: "2026-07-16"
-status: active
+status: active | close-pending | archived
+bindingGeneration: 0
 confidentiality: heightened
 jurisdictions:
   - ja-JP
@@ -53,8 +54,17 @@ revokedBy: "[Entra object ID or null]"
 revocationReason: "[reason or null]"
 ```
 
-`status != active`、`expiresAt <= now`、またはmatter archivedならbindingを
-拒否する。
+binding `status != active`、`expiresAt <= now`、またはmatter
+`status != active`ならaccessを拒否する。bindingがactive/unexpiredでもmatterが
+`close-pending`、`archived`、`closed`その他のnon-active statusなら拒否する。
+
+## Close
+
+最初のatomic conditional operationでmatterを`close-pending`へfenceし、
+`bindingGeneration`を増やす。fence成功後に全bindingをenumerateし、active
+bindingだけをrevokeする。already-revokedはsatisfiedとして再更新せず、zero active
+確認後だけ`archived`へfinalizeする。fence前にcommitしたcreateはenumerationで
+捕捉され、fence後のcreateはmatter precondition/generationで失敗する。
 
 ## Audit
 

@@ -104,28 +104,104 @@ student、AI system、cloud provider、translator、interpreter、vendorは、�
 
 ## Expiring session–matter binding
 
-matter scopeの唯一のactive sourceはserver-side recordである。
+matter scopeの唯一のactive sourceはshared state-service contractに従う
+server-side recordである。
+
+| Field | Value |
+|---|---|
+| `scopeType` | `session` |
+| `scopeId` | `userObjectId:sessionId` |
+| `recordType` | `session-matter-binding` |
+| `recordId` | `active-matter` |
+
+### Binding create
 
 ```yaml
+tenantId: tenant-1
+practiceId: legal-clinic
+scopeType: session
+scopeId: user-1:session-1
 recordType: session-matter-binding
-tenantId: "[tenant id]"
-practiceId: "[practice id]"
-userObjectId: "[Microsoft Entra object ID]"
-sessionId: "[Cowork session ID]"
-matterId: "[matter ID]"
-matterBindingGeneration: 1
-status: active | revoked
-boundAt: "[ISO-8601]"
-boundBy: "[Microsoft Entra object ID]"
-expiresAt: "[ISO-8601]"
-revokedAt: "[ISO-8601 or null]"
-revokedBy: "[Microsoft Entra object ID or null]"
-revocationReason: "[reason or null]"
+recordId: active-matter
+idempotencyKey: binding-create-0001
+expectedAbsent: true
+matterPrecondition:
+  itemId: matter-item-1
+  eTag: '"5"'
+  version: 5
+  bindingGeneration: 0
+  expectedStatus: active
+  atomicWithBindingExpectedAbsent: true
+payload:
+  tenantId: tenant-1
+  practiceId: legal-clinic
+  userObjectId: user-1
+  sessionId: session-1
+  matterId: matter-1
+  status: active
+  boundAt: "2026-07-16T09:00:00+09:00"
+  boundBy: lawyer-1
+  expiresAt: "2026-07-16T17:00:00+09:00"
+  revokedAt: null
+  revokedBy: null
+  revocationReason: null
 ```
 
+gatewayはexact matter preconditionとbinding `expectedAbsent: true`を同一transaction
+で評価し、一方でもstale/failedならcreateしない。
+
+### Persisted binding
+
+```yaml
+tenantId: tenant-1
+practiceId: legal-clinic
+scopeType: session
+scopeId: user-1:session-1
+recordType: session-matter-binding
+recordId: active-matter
+itemId: binding-item-1
+eTag: '"1"'
+version: 1
+payload:
+  tenantId: tenant-1
+  practiceId: legal-clinic
+  userObjectId: user-1
+  sessionId: session-1
+  matterId: matter-1
+  status: active
+  boundAt: "2026-07-16T09:00:00+09:00"
+  boundBy: lawyer-1
+  expiresAt: "2026-07-16T17:00:00+09:00"
+  revokedAt: null
+  revokedBy: null
+  revocationReason: null
+updatedAt: "2026-07-16T09:00:00+09:00"
+```
+
+### Binding revoke
+
+```yaml
+tenantId: tenant-1
+practiceId: legal-clinic
+scopeType: session
+scopeId: user-1:session-1
+recordType: session-matter-binding
+recordId: active-matter
+itemId: binding-item-1
+eTag: '"1"'
+idempotencyKey: binding-revoke-0001
+patch:
+  status: revoked
+  revokedAt: "2026-07-16T10:00:00+09:00"
+  revokedBy: lawyer-1
+  revocationReason: matter-close
+```
+
+gatewayはpatch merge後のpayload全体をsession-binding schemaで再検証する。
 active bindingは非nullの`matterId`と`expiresAt`を持ち、`expiresAt > now`、matter
-`status: active`、current user access、engagement/scope status、current matter
-`bindingGeneration`との一致を要求する。
+`status == active`、current user access、engagement/scope statusを要求する。
+bindingがactive/unexpiredでもmatterが`archive-pending`、`close-pending`、
+`archived`、`closed`その他のnon-active statusならaccessを拒否する。
 practice modeはfresh sessionでbinding不在。`matterId: null`のactive bindingを
 作らない。
 
@@ -138,16 +214,18 @@ new conversationでそのmatterへのfresh bindingを作る。
 新しいCowork conversationを要求する。verified hard context resetなしにsame-session
 switchを許可せず、旧document、quote、draft、cursorをcarryしない。
 
-archive/closeは
-`binding-revocation-batch`を使う。gatewayがmatter status transitionと対象
-`matterId + bindingGeneration`の全active binding revokeをall-or-none transactionで
-保証する場合だけ実行する。1件でもrevocationが失敗すればmatter statusを変更せず
-transitionをblockする。best-effort連続updateを「atomic」と呼ばない。
+archive/closeは`binding-revocation-batch`を使う。最初のatomic conditional
+operationでmatterを`archive-pending`又は`close-pending`へtransitionし、
+`bindingGeneration`を増やしてnew binding createをfenceする。fence後に全bindingを
+enumerateし、activeだけをrevokeする。already-revokedはsatisfiedとして
+再更新せず、zero activeを確認後に`archived`又は`closed`へfinalizeする。
+fence前にcommitしたcreateはenumerationで捕捉され、fence後のcreateはexact matter
+precondition/generationで失敗する。途中失敗はfenced stateを維持してfail closed。
 
-success responseは`bindingItemIds`と`results[*].bindingItemId`がuniqueなexact
-one-to-one setで、全result `outcome: revoked`でなければrejectする。
-`archive -> archived`、`close -> closed`だけを許し、archive targeting closed等を
-rejectする。JSON Schemaに加えpackage-local semantic validatorで検証する。
+success responseはactive binding IDsと`results[*].bindingItemId`がuniqueなexact
+one-to-one setで、全result `outcome: revoked`、post active count 0でなければrejectする。
+enumerated IDsはactiveとalready-revokedのdisjoint unionに一致させる。JSON Schemaに
+加えpackage-local semantic validatorで検証する。
 
 reactivateはmatter `bindingGeneration`を増やし、旧bindingを再利用しない。
 reactivation後は新しいCowork conversationでfresh bindingを作るまでsubstantive accessを
@@ -193,6 +271,11 @@ conditional create/update、append-only auditをlive preflightする。
 3. responseのexact `itemId`、`eTag`、`version`を保存。
 4. duplicate/timeout/partialは再createせず同じkey/idempotencyを照合。
 5. canonical auditへappend。
+
+session binding createだけは参照matterのexact `itemId`、latest `eTag` /
+`version`またはbinding-generation token、expected active statusを追加し、
+binding absenceとatomically評価する。create対象binding自身の既存item/eTagは
+要求しない。
 
 ### Update
 

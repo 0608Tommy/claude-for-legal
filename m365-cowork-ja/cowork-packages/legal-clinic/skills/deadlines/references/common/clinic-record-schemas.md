@@ -164,17 +164,22 @@ originals、access plan、binding revocation batchを記録する。
 
 archive又はcloseは`binding-revocation-batch`を使う。
 
-1. exact matterと`bindingGeneration`をfreeze。
-2. そのmatter/generationを参照する全active binding item IDを列挙。
-3. gatewayのall-or-none transactionで全binding revokeとmatter transitionを行う。
-4. `atomicOutcome: succeeded`では`bindingItemIds`と`results[*].bindingItemId`が
-   uniqueなexact one-to-one setで、全resultが`revoked`でなければならない。
-5. `archive -> archived`、`close -> closed`だけを許し、cross-targetを拒否する。
-6. 1件でも欠落、重複、余分、失敗があれば`atomicOutcome: failed`とし、matter statusを
-   変更しない。
-7. gatewayがatomic batchを保証できなければarchive/closeは利用不可。
-8. reactivateは`bindingGeneration`を増やし、既存bindingを再利用しない。
-9. reactivation後のsubstantive accessは新しいCowork conversationでfresh bindingを
+1. exact active matter item/eTag/versionと`bindingGeneration`を取得する。
+2. 最初のatomic conditional operationで`archive-pending`又は`close-pending`へ
+   transitionし、generationを1増やしてnew binding createをfenceする。
+3. fence後に全bindingをenumerateし、activeとalready-revokedへ分ける。
+4. active bindingだけをconditional revokeし、already-revokedはsatisfiedとして
+   再更新しない。
+5. enumerated IDsはactive IDsとalready-revoked IDsのdisjoint unionに一致し、
+   `results[*].bindingItemId`はactive IDsのunique exact setとする。
+6. zero activeを再照合後にだけ`archive -> archived`又は`close -> closed`へfinalizeする。
+7. fence前にcommitしたcreateはenumerationで捕捉し、fence後のcreateはexact matter
+   precondition/generationでrejectする。
+8. 1件でも欠落、重複、余分、failure、post active count非zeroならfenced stateを
+   維持してfail closedとし、finalizeしない。
+9. gatewayがatomic fenceを保証できなければarchive/closeは利用不可。
+10. reactivateは`bindingGeneration`を増やし、既存bindingを再利用しない。
+11. reactivation後のsubstantive accessは新しいCowork conversationでfresh bindingを
    作成した後だけ。
 
 `blockTransitionOnAnyFailure: true`と

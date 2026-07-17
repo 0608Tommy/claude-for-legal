@@ -111,10 +111,15 @@ deadline、originals、fees/legal aid、appeal/execution、retention/destruction
 preservation control/court orderを別close processで確認する。全binding revoke失敗時は
 closeをblockする。
 
-archive/close processはmatter statusと対象generationの**全binding** revokeをgatewayの
-all-or-none transactionで行う。1件でも失敗すればtransitionしない。reactivateは
-binding generationを増やし、incoming/outgoingを含む旧bindingを再利用せず、fresh
-conversation/bindingを要求する。
+archive/close processは最初のatomic conditional operationでmatterを
+`archive-pending`又は`close-pending`へfenceし、binding generationを増やす。
+fence成功後に全bindingをenumerateし、activeだけをrevocation対象としてrevokeする。
+already-revokedはsatisfiedとして再更新せず、zero active確認後だけ`archived`又は
+`closed`へconditional finalizeする。fence前にcommitしたcreateはenumerationで
+捕捉され、fence後のcreateはexact
+matter precondition/generationで失敗する。途中失敗はfenced stateを維持して
+fail closed。reactivateはgenerationを増やし、incoming/outgoingを含む旧bindingを
+再利用せず、fresh conversation/bindingを要求する。
 
 ## Cohort summary
 

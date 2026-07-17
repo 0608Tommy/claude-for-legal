@@ -30,13 +30,113 @@
 
 共有practice profileへ単一利用者のrole、attorney contact、単一active matterを保存しない。別利用者のprofile、権限、同意、matter bindingを代用しない。
 
+## Session–matter binding
+
+| Field | Value |
+|---|---|
+| `scopeType` | `session` |
+| `scopeId` | `userObjectId:sessionId` |
+| `recordType` | `session-matter-binding` |
+| `recordId` | `active-matter` |
+
+### Binding create
+
+```yaml
+tenantId: tenant-1
+practiceId: privacy
+scopeType: session
+scopeId: user-1:session-1
+recordType: session-matter-binding
+recordId: active-matter
+idempotencyKey: binding-create-0001
+expectedAbsent: true
+matterPrecondition:
+  itemId: matter-item-1
+  eTag: '"5"'
+  version: 5
+  bindingGeneration: 0
+  expectedStatus: active
+  atomicWithBindingExpectedAbsent: true
+payload:
+  tenantId: tenant-1
+  practiceId: privacy
+  userObjectId: user-1
+  sessionId: session-1
+  matterId: matter-1
+  status: active
+  boundAt: "2026-07-16T09:00:00+09:00"
+  boundBy: user-1
+  expiresAt: "2026-07-16T17:00:00+09:00"
+  revokedAt: null
+  revokedBy: null
+  revocationReason: null
+```
+
+gatewayはexact matter preconditionとbinding `expectedAbsent: true`を同一transaction
+で評価し、一方でもstale/failedならcreateしない。
+
+### Persisted binding
+
+```yaml
+tenantId: tenant-1
+practiceId: privacy
+scopeType: session
+scopeId: user-1:session-1
+recordType: session-matter-binding
+recordId: active-matter
+itemId: binding-item-1
+eTag: '"1"'
+version: 1
+payload:
+  tenantId: tenant-1
+  practiceId: privacy
+  userObjectId: user-1
+  sessionId: session-1
+  matterId: matter-1
+  status: active
+  boundAt: "2026-07-16T09:00:00+09:00"
+  boundBy: user-1
+  expiresAt: "2026-07-16T17:00:00+09:00"
+  revokedAt: null
+  revokedBy: null
+  revocationReason: null
+updatedAt: "2026-07-16T09:00:00+09:00"
+```
+
+### Binding revoke
+
+```yaml
+tenantId: tenant-1
+practiceId: privacy
+scopeType: session
+scopeId: user-1:session-1
+recordType: session-matter-binding
+recordId: active-matter
+itemId: binding-item-1
+eTag: '"1"'
+idempotencyKey: binding-revoke-0001
+patch:
+  status: revoked
+  revokedAt: "2026-07-16T10:00:00+09:00"
+  revokedBy: user-1
+  revocationReason: matter-close
+```
+
+gatewayはpatch merge後のpayload全体をsession-binding schemaで再検証する。
+matter closeは最初にmatterを`close-pending`等のnon-active stateへatomic
+conditional updateし、new binding createをfenceする。fence後に全bindingを
+enumerateし、activeだけをrevokeし、already-revokedはsatisfiedとして再更新しない。
+zero activeを再照合後にだけ`archived`へfinalizeする。fence前にcommitしたcreateは
+enumerationで捕捉され、fence後のcreateはmatter preconditionで失敗する。途中失敗は
+fenced stateを維持し、substantive accessをfail closedで拒否する。
+
 ## 読取り順序
 
 1. 現在利用者の`user-profile`を読む。
 2. `company-profile`と`privacy-practice-profile`を読む。
 3. matter workspaceが有効でmatter scopeを選ぶ場合、server-side
    session–matter bindingを完全な複合キーで読み、`status: active`、
-   `expiresAt > now`、matter IDを確認する。
+   `expiresAt > now`、matter ID、matter `status == active`を確認する。
 4. workspaceが無効、またはfresh sessionで明示的にpractice-levelを選ぶ場合、
    bindingなしの`scopeType: practice`を許可するが、過去matter contextを
    carryしない。
@@ -48,12 +148,14 @@
 
 - 複数matter候補、会話名とserver bindingの矛盾
 - bindingが`revoked`または期限切れ
-- matterが`archived`, `closed`, `deleted-pending`等で`active`ではない
+- matterが`close-pending`, `archived`, `closed`その他の`status != active`
 - 利用者またはmatterへの権限不足
 - `scopeType` / `scopeId`欠落
 - 別tenant、別practice、別user、別sessionのrecordしかない
 
-archived/revoked後は、そのbindingから資料を読み続けず、draft作成、state更新、外部送信をすべて拒否する。既定のcross-matter accessは`false`。
+bindingがactive/unexpiredでもmatter `status != active`ならaccessを拒否する。
+close-pending、archived、closedから資料を読み続けず、draft作成、state更新、
+外部送信をすべて拒否する。既定のcross-matter accessは`false`。
 
 ## State gateway preflight
 
@@ -97,6 +199,10 @@ scope、source、filter、sort、query条件が変われば別cursorとする。
 5. 作成者、scope、結果を`audit`へ追記する。
 
 createに架空の既存`itemId`または`eTag`を要求しない。createをupdateとして実行しない。
+
+session binding createだけは参照matterのexact `itemId`、latest `eTag` /
+`version`またはbinding-generation token、expected active statusを追加し、
+binding absenceとatomically評価する。
 
 ### Update
 

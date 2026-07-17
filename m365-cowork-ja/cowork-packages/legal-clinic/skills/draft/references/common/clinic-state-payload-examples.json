@@ -180,6 +180,38 @@
       "updatedAt": "2026-07-16T10:00:00+09:00"
     }
   },
+  "bindingCreateRequest": {
+    "tenantId": "tenant-example",
+    "practiceId": "practice-example",
+    "scopeType": "session",
+    "scopeId": "student-object-1:cowork-session-1",
+    "recordType": "session-matter-binding",
+    "recordId": "active-matter",
+    "idempotencyKey": "binding-create-0001",
+    "expectedAbsent": true,
+    "matterPrecondition": {
+      "itemId": "matter-item-1",
+      "eTag": "\"7\"",
+      "version": 7,
+      "bindingGeneration": 1,
+      "expectedStatus": "active",
+      "atomicWithBindingExpectedAbsent": true
+    },
+    "payload": {
+      "tenantId": "tenant-example",
+      "practiceId": "practice-example",
+      "userObjectId": "student-object-1",
+      "sessionId": "cowork-session-1",
+      "matterId": "matter-example-1",
+      "status": "active",
+      "boundAt": "2026-07-16T09:00:00+09:00",
+      "boundBy": "lawyer-object-1",
+      "expiresAt": "2026-07-16T17:00:00+09:00",
+      "revokedAt": null,
+      "revokedBy": null,
+      "revocationReason": null
+    }
+  },
   "sessionMatterBinding": {
     "recordType": "session-matter-binding",
     "tenantId": "tenant-example",
@@ -187,7 +219,6 @@
     "userObjectId": "student-object-1",
     "sessionId": "cowork-session-1",
     "matterId": "matter-example-1",
-    "matterBindingGeneration": 2,
     "status": "active",
     "boundAt": "2026-07-16T09:00:00+09:00",
     "boundBy": "lawyer-object-1",
@@ -205,11 +236,26 @@
     "practiceId": "practice-example",
     "matterId": "matter-example-1",
     "transition": "archive",
+    "sourceMatterStatus": "active",
+    "fencedMatterStatus": "archive-pending",
     "targetMatterStatus": "archived",
+    "sourceBindingGeneration": 1,
     "targetBindingGeneration": 2,
+    "matterItemId": "matter-item-1",
+    "matterETagBefore": "\"7\"",
+    "matterETagAfter": "\"8\"",
+    "fenceOutcome": "succeeded",
+    "enumeratedBindingItemIds": [
+      "binding-item-1",
+      "binding-item-2",
+      "binding-item-3"
+    ],
     "bindingItemIds": [
       "binding-item-1",
       "binding-item-2"
+    ],
+    "alreadyRevokedBindingItemIds": [
+      "binding-item-3"
     ],
     "results": [
       {
@@ -225,6 +271,7 @@
         "eTagAfter": "\"5\""
       }
     ],
+    "postRevocationActiveCount": 0,
     "atomicOutcome": "succeeded",
     "blockTransitionOnAnyFailure": true,
     "reactivationRequiresFreshBinding": true,
@@ -238,16 +285,106 @@
     "practiceId": "practice-example",
     "matterId": "matter-example-1",
     "itemId": "matter-item-1",
-    "eTag": "\"8\"",
-    "version": 8,
-    "status": "archived",
-    "bindingGeneration": 2,
-    "lastBindingRevocationBatchId": "correlation-archive-0001",
-    "freshBindingRequired": true,
+    "eTag": "\"7\"",
+    "version": 7,
+    "status": "active",
+    "bindingGeneration": 1,
+    "lastBindingRevocationBatchId": null,
+    "freshBindingRequired": false,
     "conflictStatus": "clear",
     "engagementStatus": "active",
     "scopeSourceItemId": "scope-item-1",
     "responsibleLawyerObjectId": "lawyer-object-1"
+  },
+  "clinicMatterArchivePending": {
+    "$baseExample": "clinicMatter",
+    "$patch": [
+      {
+        "op": "replace",
+        "path": "/eTag",
+        "value": "\"8\""
+      },
+      {
+        "op": "replace",
+        "path": "/version",
+        "value": 8
+      },
+      {
+        "op": "replace",
+        "path": "/status",
+        "value": "archive-pending"
+      },
+      {
+        "op": "replace",
+        "path": "/bindingGeneration",
+        "value": 2
+      },
+      {
+        "op": "replace",
+        "path": "/lastBindingRevocationBatchId",
+        "value": "correlation-archive-0001"
+      },
+      {
+        "op": "replace",
+        "path": "/freshBindingRequired",
+        "value": true
+      }
+    ]
+  },
+  "clinicMatterArchived": {
+    "$baseExample": "clinicMatterArchivePending",
+    "$patch": [
+      {
+        "op": "replace",
+        "path": "/eTag",
+        "value": "\"9\""
+      },
+      {
+        "op": "replace",
+        "path": "/version",
+        "value": 9
+      },
+      {
+        "op": "replace",
+        "path": "/status",
+        "value": "archived"
+      }
+    ]
+  },
+  "clinicMatterClosePending": {
+    "$baseExample": "clinicMatterArchivePending",
+    "$patch": [
+      {
+        "op": "replace",
+        "path": "/status",
+        "value": "close-pending"
+      },
+      {
+        "op": "replace",
+        "path": "/lastBindingRevocationBatchId",
+        "value": "correlation-close-0001"
+      }
+    ]
+  },
+  "clinicMatterClosed": {
+    "$baseExample": "clinicMatterClosePending",
+    "$patch": [
+      {
+        "op": "replace",
+        "path": "/eTag",
+        "value": "\"9\""
+      },
+      {
+        "op": "replace",
+        "path": "/version",
+        "value": 9
+      },
+      {
+        "op": "replace",
+        "path": "/status",
+        "value": "closed"
+      }
+    ]
   },
   "workflowCursorPractice": {
     "tenantId": "tenant-example",

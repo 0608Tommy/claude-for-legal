@@ -1,5 +1,6 @@
 {
   "include": [
+    "references/clinic_lifecycle_validation.py",
     "references/validate_clinic_state_payloads.py"
   ],
   "pythonVersion": "3.14",

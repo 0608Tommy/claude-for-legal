@@ -1,7 +1,7 @@
 ---
 name: matter-workspace
 description: >
-  複数依頼者・案件のcontextを分離する。SharePointのmatter recordとserver-side session–matter bindingを、new、list、switch、close、noneの会話状態で管理し、権限、confidentiality、retention、cross-matter isolationを維持する。
+  複数依頼者・案件のcontextを分離する。SharePointのmatter recordとserver-side session–matter bindingを、new、list、switch、close、noneの会話状態で管理し、fence-first active-only revoke、権限、confidentiality、retention、cross-matter isolationを維持する。
 license: Apache-2.0
 metadata:
   locale: ja-JP
@@ -29,14 +29,20 @@ Coworkではsubcommandを会話stateとして扱う。本skillはSharePoint / Po
 
 1. **保存契約:** `references/common/cowork-runtime-contract.md`を必ず読む。local folderを作成・移動しない。
 2. **Setup/user:** practice profileの`matterWorkspaces.enabled`と、現在利用者の`user-profile`をexact keyで読む。`false`ならerrorにせず、in-house等のpractice-level運用であることを説明する。
-3. **Binding:** active matterの唯一のsourceはserver-side binding record。会話履歴、表示名、個人profileから推測しない。
+3. **Binding:** active matterの唯一のsourceはserver-side binding record。会話履歴、
+   表示名、個人profileから推測しない。substantive accessにはbinding
+   `status: active`、`expiresAt > now`、matter `status == active`を要求し、
+   bindingがactive/unexpiredでもclose-pending、archived、closedその他の
+   non-active matterを拒否する。
 4. **Jurisdiction:** new matterにjurisdictionが不明なら、実質作業を開始できるactive matterとして確定しない。resolutionは`request > matter > practice-profile > tenant-default`。
 5. **Source/permission:** exact matter item、status、authorized viewers、client/counterpartyを読む。権限のないmatterは存在も漏らさない。
 6. **Confidentiality:** `standard | heightened | clean-team`、legal hold、retention、保存境界DLP、cross-matterを確認する。
 7. **Human review:** workspace作成はconflicts clearance、engagement acceptance、retention decisionではない。
 8. **Write:** `new`はcanonical composite key、`matterId`、unique
    `idempotencyKey`による条件付きcreateを使い、返された`itemId`/`eTag`を
-   保存する。`switch`, `close`, `none`はexact`itemId`、latest`eTag`、
+   保存する。new session bindingはexact matter precondition、generation、
+   expected active statusをbinding absenceとatomically評価する。
+   `switch`, `close`, `none`はexact`itemId`、latest`eTag`、
    unique`idempotencyKey`によるupdateとする。削除しない。
 
 ## 会話state
@@ -45,8 +51,8 @@ Coworkではsubcommandを会話stateとして扱う。本skillはSharePoint / Po
 |---|---|
 | `new <slug>` | intake後、SharePoint `matters`へrecord作成 |
 | `list` | authorized active/archived matterを一覧 |
-| `switch <slug>` | server-side bindingを変更 |
-| `close <slug>` | recordを保持して`archived`へ |
+| `switch <slug>` | current binding revoke後、新sessionでexact binding create |
+| `close <slug>` | fence → enumerate → active-only revoke → zero active確認 → archived finalize |
 | `none` | binding解除、practice-levelへ |
 
 意図不明なら5つを提示する。移行元のargument変数やfilesystemは使わない。
@@ -89,7 +95,9 @@ activeはserver bindingから`*`。archivedは別表。10件超ならstatus、cl
 4. 同じ会話内でbindingを書き換えない。旧matterのdocument、quote、draftが
    conversation contextに残るため、current bindingをrevokedへ更新して停止し、
    新しいCowork conversationを開始してnew matterを選ぶよう案内する。
-5. new sessionで新しいbindingをconditional createする。
+5. new sessionで新しいbindingをconditional createする。exact matter `itemId`、
+   latest `eTag` / `version`またはbinding-generation token、expected active statusを
+   binding absenceと同一transactionで評価する。
 6. `audit`へold/new matter ID、old/new session ID、actor、time、
    idempotency keyを追記。
 7. verified hard context resetがMicrosoftに提供・検証されるまで、同一sessionの
@@ -99,16 +107,20 @@ activeはserver bindingから`*`。archivedは別表。10件超ならstatus、cl
 
 「close」はdeleteではない。
 
-1. matterと、その`matterId`を参照する全session bindingを確認。
-2. unsaved draft、open renewal、pending proposal、unrouted escalation、legal hold、retention、sharing linkを確認。
-3. close date、reason、approver、影響を示す。
-4. 明示確認後`status: archived`。
-5. その`matterId`を参照する全bindingを`revoked`へ条件付き更新し、各sessionの
-   actor、旧binding、revocation reasonをauditする。current sessionだけを
-   解除して終わらない。
-6. revocationに失敗したbindingが1件でもあれば、archived matterを実質作業で
-   使用しないようblock eventを残し、管理者対応へ回す。
-7. closeと各binding revocationをauditへ追記。
+1. exact active matter、latest `eTag` / `version`、current binding generation。
+2. unsaved draft、open renewal、pending proposal、unrouted escalation、legal hold、
+   retention、sharing linkを確認。
+3. close date、reason、approver、fence方法、影響を示す。
+4. 最初のatomic conditional operationでmatterを`close-pending`等のnon-active
+   stateへtransitionし、bindingGenerationを増やしてnew createをfence。
+5. fence成功後、その`matterId`を参照する全bindingをexact query。
+6. activeだけをrevocation対象とし、already-revokedはsatisfiedとして再更新しない。
+7. active bindingだけをexact item/eTagで`revoked`へconditional updateし、
+   各sessionのactor、旧binding、revocation reasonをaudit。
+8. 全bindingを再照合し、zero activeを確認。
+9. zero active確認後だけpost-fence matterを`archived`へconditional finalize。
+10. fence前にcommitしたcreateはstep 5で捕捉され、fence後のcreateはmatter
+    precondition/generationで失敗。途中失敗はfenced stateを維持してfail closed。
 
 retention満了後のdeleteは本skill範囲外。
 
@@ -138,3 +150,4 @@ changed matter ID、binding、status、destination、unresolved conflict/retenti
 - external send
 - local folder operation
 - Power Platform solutionの作成・変更
+- archive-first / revoke-every close

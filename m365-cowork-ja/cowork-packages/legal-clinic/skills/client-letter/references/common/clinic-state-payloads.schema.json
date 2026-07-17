@@ -11,6 +11,9 @@
       "$ref": "#/$defs/setupSession"
     },
     {
+      "$ref": "#/$defs/bindingCreateRequest"
+    },
+    {
       "$ref": "#/$defs/sessionMatterBinding"
     },
     {
@@ -1025,6 +1028,154 @@
         }
       }
     },
+    "bindingCreateRequest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tenantId",
+        "practiceId",
+        "scopeType",
+        "scopeId",
+        "recordType",
+        "recordId",
+        "idempotencyKey",
+        "expectedAbsent",
+        "matterPrecondition",
+        "payload"
+      ],
+      "properties": {
+        "tenantId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "practiceId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "scopeType": {
+          "const": "session"
+        },
+        "scopeId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "recordType": {
+          "const": "session-matter-binding"
+        },
+        "recordId": {
+          "const": "active-matter"
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 16,
+          "maxLength": 256
+        },
+        "expectedAbsent": {
+          "const": true
+        },
+        "matterPrecondition": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "itemId",
+            "expectedStatus",
+            "atomicWithBindingExpectedAbsent"
+          ],
+          "properties": {
+            "itemId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "eTag": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "version": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "bindingGeneration": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "expectedStatus": {
+              "const": "active"
+            },
+            "atomicWithBindingExpectedAbsent": {
+              "const": true
+            }
+          },
+          "anyOf": [
+            {
+              "required": [
+                "eTag"
+              ]
+            },
+            {
+              "required": [
+                "version"
+              ]
+            },
+            {
+              "required": [
+                "bindingGeneration"
+              ]
+            }
+          ]
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tenantId",
+            "practiceId",
+            "userObjectId",
+            "sessionId",
+            "matterId",
+            "status",
+            "boundAt",
+            "boundBy",
+            "expiresAt",
+            "revokedAt",
+            "revokedBy",
+            "revocationReason"
+          ],
+          "properties": {
+            "tenantId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "practiceId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "userObjectId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "sessionId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "matterId": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "status": {
+              "const": "active"
+            },
+            "boundAt": {
+              "$ref": "#/$defs/isoDateTime"
+            },
+            "boundBy": {
+              "$ref": "#/$defs/nonEmptyString"
+            },
+            "expiresAt": {
+              "$ref": "#/$defs/isoDateTime"
+            },
+            "revokedAt": {
+              "type": "null"
+            },
+            "revokedBy": {
+              "type": "null"
+            },
+            "revocationReason": {
+              "type": "null"
+            }
+          }
+        }
+      }
+    },
     "sessionMatterBinding": {
       "type": "object",
       "additionalProperties": false,
@@ -1035,7 +1186,6 @@
         "userObjectId",
         "sessionId",
         "matterId",
-        "matterBindingGeneration",
         "status",
         "boundAt",
         "boundBy",
@@ -1065,10 +1215,6 @@
         },
         "matterId": {
           "$ref": "#/$defs/nonEmptyString"
-        },
-        "matterBindingGeneration": {
-          "type": "integer",
-          "minimum": 1
         },
         "status": {
           "type": "string",
@@ -1168,10 +1314,20 @@
         "practiceId",
         "matterId",
         "transition",
+        "sourceMatterStatus",
+        "fencedMatterStatus",
         "targetMatterStatus",
+        "sourceBindingGeneration",
         "targetBindingGeneration",
+        "matterItemId",
+        "matterETagBefore",
+        "matterETagAfter",
+        "fenceOutcome",
+        "enumeratedBindingItemIds",
         "bindingItemIds",
+        "alreadyRevokedBindingItemIds",
         "results",
+        "postRevocationActiveCount",
         "atomicOutcome",
         "blockTransitionOnAnyFailure",
         "reactivationRequiresFreshBinding",
@@ -1199,6 +1355,16 @@
             "close"
           ]
         },
+        "sourceMatterStatus": {
+          "const": "active"
+        },
+        "fencedMatterStatus": {
+          "type": "string",
+          "enum": [
+            "archive-pending",
+            "close-pending"
+          ]
+        },
         "targetMatterStatus": {
           "type": "string",
           "enum": [
@@ -1206,11 +1372,45 @@
             "closed"
           ]
         },
+        "sourceBindingGeneration": {
+          "type": "integer",
+          "minimum": 0
+        },
         "targetBindingGeneration": {
           "type": "integer",
-          "minimum": 1
+          "minimum": 0
+        },
+        "matterItemId": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "matterETagBefore": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "matterETagAfter": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "fenceOutcome": {
+          "type": "string",
+          "enum": [
+            "succeeded",
+            "failed"
+          ]
+        },
+        "enumeratedBindingItemIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          },
+          "uniqueItems": true
         },
         "bindingItemIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          },
+          "uniqueItems": true
+        },
+        "alreadyRevokedBindingItemIds": {
           "type": "array",
           "items": {
             "$ref": "#/$defs/nonEmptyString"
@@ -1250,6 +1450,10 @@
             }
           }
         },
+        "postRevocationActiveCount": {
+          "type": "integer",
+          "minimum": 0
+        },
         "atomicOutcome": {
           "type": "string",
           "enum": [
@@ -1288,6 +1492,12 @@
           },
           "then": {
             "properties": {
+              "fenceOutcome": {
+                "const": "succeeded"
+              },
+              "postRevocationActiveCount": {
+                "const": 0
+              },
               "results": {
                 "items": {
                   "properties": {
@@ -1313,6 +1523,9 @@
           },
           "then": {
             "properties": {
+              "fencedMatterStatus": {
+                "const": "archive-pending"
+              },
               "targetMatterStatus": {
                 "const": "archived"
               }
@@ -1332,6 +1545,9 @@
           },
           "then": {
             "properties": {
+              "fencedMatterStatus": {
+                "const": "close-pending"
+              },
               "targetMatterStatus": {
                 "const": "closed"
               }
@@ -1346,6 +1562,18 @@
           "left": "bindingItemIds",
           "right": "results[*].bindingItemId",
           "rule": "same-length-unique-exact-set"
+        },
+        {
+          "id": "fence-increments-generation",
+          "left": "sourceBindingGeneration",
+          "right": "targetBindingGeneration",
+          "rule": "right-equals-left-plus-one"
+        },
+        {
+          "id": "enumeration-partition",
+          "left": "enumeratedBindingItemIds",
+          "right": "bindingItemIds + alreadyRevokedBindingItemIds",
+          "rule": "disjoint-union-exact-set"
         }
       ]
     },
@@ -1405,7 +1633,7 @@
         },
         "bindingGeneration": {
           "type": "integer",
-          "minimum": 1
+          "minimum": 0
         },
         "lastBindingRevocationBatchId": {
           "$ref": "#/$defs/nullableString"
@@ -1445,7 +1673,9 @@
             "properties": {
               "status": {
                 "enum": [
+                  "archive-pending",
                   "archived",
+                  "close-pending",
                   "closed",
                   "reactivation-pending"
                 ]
@@ -1465,6 +1695,28 @@
               }
             }
           }
+        },
+        {
+           "if": {
+             "properties": {
+               "status": {
+                 "const": "active"
+               }
+             },
+             "required": [
+               "status"
+             ]
+           },
+           "then": {
+             "properties": {
+               "lastBindingRevocationBatchId": {
+                 "type": "null"
+               },
+               "freshBindingRequired": {
+                 "const": false
+               }
+             }
+           }
         }
       ]
     },

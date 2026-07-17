@@ -32,12 +32,112 @@
 
 共有practice profileに単一利用者のroleまたは単一active matterを保存しない。別利用者のrole、attorney contact、承認権限を代用しない。
 
+## Session–matter binding
+
+| Field | Value |
+|---|---|
+| `scopeType` | `session` |
+| `scopeId` | `userObjectId:sessionId` |
+| `recordType` | `session-matter-binding` |
+| `recordId` | `active-matter` |
+
+### Binding create
+
+```yaml
+tenantId: tenant-1
+practiceId: commercial
+scopeType: session
+scopeId: user-1:session-1
+recordType: session-matter-binding
+recordId: active-matter
+idempotencyKey: binding-create-0001
+expectedAbsent: true
+matterPrecondition:
+  itemId: matter-item-1
+  eTag: '"5"'
+  version: 5
+  bindingGeneration: 0
+  expectedStatus: active
+  atomicWithBindingExpectedAbsent: true
+payload:
+  tenantId: tenant-1
+  practiceId: commercial
+  userObjectId: user-1
+  sessionId: session-1
+  matterId: matter-1
+  status: active
+  boundAt: "2026-07-16T09:00:00+09:00"
+  boundBy: user-1
+  expiresAt: "2026-07-16T17:00:00+09:00"
+  revokedAt: null
+  revokedBy: null
+  revocationReason: null
+```
+
+gatewayはexact matter preconditionとbinding `expectedAbsent: true`を同一transaction
+で評価し、一方でもstale/failedならcreateしない。
+
+### Persisted binding
+
+```yaml
+tenantId: tenant-1
+practiceId: commercial
+scopeType: session
+scopeId: user-1:session-1
+recordType: session-matter-binding
+recordId: active-matter
+itemId: binding-item-1
+eTag: '"1"'
+version: 1
+payload:
+  tenantId: tenant-1
+  practiceId: commercial
+  userObjectId: user-1
+  sessionId: session-1
+  matterId: matter-1
+  status: active
+  boundAt: "2026-07-16T09:00:00+09:00"
+  boundBy: user-1
+  expiresAt: "2026-07-16T17:00:00+09:00"
+  revokedAt: null
+  revokedBy: null
+  revocationReason: null
+updatedAt: "2026-07-16T09:00:00+09:00"
+```
+
+### Binding revoke
+
+```yaml
+tenantId: tenant-1
+practiceId: commercial
+scopeType: session
+scopeId: user-1:session-1
+recordType: session-matter-binding
+recordId: active-matter
+itemId: binding-item-1
+eTag: '"1"'
+idempotencyKey: binding-revoke-0001
+patch:
+  status: revoked
+  revokedAt: "2026-07-16T10:00:00+09:00"
+  revokedBy: user-1
+  revocationReason: matter-close
+```
+
+gatewayはpatch merge後のpayload全体をsession-binding schemaで再検証する。
+matter closeは最初にmatterを`close-pending`等のnon-active stateへatomic
+conditional updateし、new binding createをfenceする。fence後に全bindingを
+enumerateし、activeだけをrevokeし、already-revokedはsatisfiedとして再更新しない。
+zero activeを再照合後にだけ`archived`へfinalizeする。fence前にcommitしたcreateは
+enumerationで捕捉され、fence後のcreateはmatter preconditionで失敗する。途中失敗は
+fenced stateを維持し、substantive accessをfail closedで拒否する。
+
 ## 読取り順序
 
 1. 現在利用者の`user-profile`を読む。
 2. `company-profile`と`commercial-practice-profile`を読む。
 3. matter scopeではserver-side bindingを読み、`status: active`、
-   `expiresAt > now`、matter `status: active`を確認する。
+   `expiresAt > now`、matter `status == active`を確認する。
 4. fresh sessionでpractice-levelを明示した場合はbindingなしを許可し、
    過去matter contextをcarryしない。
 5. matterが有効なら、権限ある`matter-profile`と指定資料だけを読む。
@@ -48,7 +148,8 @@
 期限切れ・revoked binding、`scopeType/scopeId`欠落がある場合は停止する。
 既定でcross-matter accessは
 `false`。通常の実質作業ではbinding先matterの`status`が`active`であること
-を確認し、`archived`またはbinding revokedなら処理しない。
+を確認する。bindingがactive/unexpiredでもmatterが`close-pending`、`archived`、
+`closed`その他の`status != active`なら処理しない。
 
 ## Cursor
 
@@ -76,6 +177,10 @@ create時は完全なcanonical composite key、`recordId`、一意な
 `idempotencyKey`を用い、同一keyが存在しない条件付きcreateを行う。成功後に
 返された`itemId`と`eTag`を保存し、duplicateまたはpartial successなら再作成
 せず既存recordを照合する。
+
+session binding createだけは参照matterのexact `itemId`、latest `eTag` /
+`version`またはbinding-generation token、expected active statusを追加し、
+binding absenceとatomically評価する。
 
 ### Update
 

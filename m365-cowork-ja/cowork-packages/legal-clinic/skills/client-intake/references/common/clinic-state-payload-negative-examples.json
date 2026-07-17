@@ -100,6 +100,107 @@
       ]
     },
     {
+      "id": "revocation-generation-not-incremented",
+      "baseExample": "bindingRevocationBatch",
+      "expectedFailure": "semantic",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/targetBindingGeneration",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "revocation-enumeration-missing-satisfied-binding",
+      "baseExample": "bindingRevocationBatch",
+      "expectedFailure": "semantic",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/enumeratedBindingItemIds",
+          "value": [
+            "binding-item-1",
+            "binding-item-2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "revocation-active-already-revoked-overlap",
+      "baseExample": "bindingRevocationBatch",
+      "expectedFailure": "semantic",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/alreadyRevokedBindingItemIds",
+          "value": [
+            "binding-item-2",
+            "binding-item-3"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "revocation-post-active-nonzero",
+      "baseExample": "bindingRevocationBatch",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/postRevocationActiveCount",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "binding-create-missing-matter-precondition",
+      "baseExample": "bindingCreateRequest",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "remove",
+          "path": "/matterPrecondition"
+        }
+      ]
+    },
+    {
+      "id": "binding-create-negative-generation",
+      "baseExample": "bindingCreateRequest",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/matterPrecondition/bindingGeneration",
+          "value": -1
+        }
+      ]
+    },
+    {
+      "id": "binding-create-wrong-matter-status",
+      "baseExample": "bindingCreateRequest",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/matterPrecondition/expectedStatus",
+          "value": "close-pending"
+        }
+      ]
+    },
+    {
+      "id": "clinic-matter-direct-archive",
+      "baseExample": "clinicMatter",
+      "expectedFailure": "schema",
+      "patch": [
+        {
+          "op": "replace",
+          "path": "/status",
+          "value": "archived"
+        }
+      ]
+    },
+    {
       "id": "setup-partial-profile-reference-version-null",
       "baseExample": "setupSession",
       "expectedFailure": "schema",

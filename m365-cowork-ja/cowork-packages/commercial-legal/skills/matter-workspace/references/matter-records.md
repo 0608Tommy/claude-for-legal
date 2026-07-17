@@ -14,7 +14,8 @@ client: "[represented party]"
 counterparties:
   - "[name]"
 matterType: vendor MSA | customer agreement | NDA | SaaS subscription | amendment | renewal | other
-status: active | archived
+status: active | close-pending | archived
+bindingGeneration: 0
 opened: "[ISO date]"
 closed: "[ISO date or null]"
 confidentiality: standard | heightened | clean-team
@@ -52,8 +53,18 @@ revocationReason: "[matter closed / user selected none / access revoked / null]"
 ```
 
 一意keyは`tenantId + practiceId + userObjectId + sessionId`。shared practice
-profileにactive matterを書かない。matter close時は、その`matterId`を参照
-する全bindingをrevokedにする。
+profileにactive matterを書かない。
+
+bindingがactive/unexpiredでもmatter `status != active`ならaccessを拒否する。
+`close-pending`、`archived`、`closed`その他のnon-active matterを処理しない。
+
+## Close
+
+最初のatomic conditional operationでmatterを`close-pending`へfenceし、
+`bindingGeneration`を増やす。fence成功後に全bindingをenumerateし、active
+bindingだけをrevokeする。already-revokedはsatisfiedとして再更新せず、zero active
+確認後だけ`archived`へfinalizeする。fence前にcommitしたcreateはenumerationで
+捕捉され、fence後のcreateはmatter precondition/generationで失敗する。
 
 ## Audit event
 

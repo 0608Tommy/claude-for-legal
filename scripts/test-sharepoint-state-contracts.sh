@@ -591,14 +591,78 @@ if not any(
     )
 
 packages_root = root.parent / "cowork-packages"
-affected_binding_packages = {
-    "corporate-legal",
-    "employment-legal",
-    "ip-legal",
-    "litigation-legal",
-    "product-legal",
-    "regulatory-legal",
-}
+
+
+def declared_matter_workflow(package_root):
+    matter_workspace = (
+        package_root / "skills" / "matter-workspace" / "SKILL.md"
+    )
+    if matter_workspace.is_file():
+        return matter_workspace
+    candidates = []
+    for skill_path in sorted(
+        (package_root / "skills").glob("*/SKILL.md")
+    ):
+        skill_text = skill_path.read_text(encoding="utf-8")
+        if (
+            "## Matter closure" in skill_text
+            and "matter close" in skill_text
+        ):
+            candidates.append(skill_path)
+    if len(candidates) == 1:
+        return candidates[0]
+    if candidates:
+        raise SystemExit(
+            f"{package_root}: multiple equivalent matter workflows"
+        )
+    return None
+
+
+matter_workflow_paths = {}
+no_close_packages = set()
+for package_root_candidate in sorted(packages_root.iterdir()):
+    if (
+        not package_root_candidate.is_dir()
+        or not (package_root_candidate / "manifest.json").is_file()
+    ):
+        continue
+    workflow_path = declared_matter_workflow(
+        package_root_candidate
+    )
+    if workflow_path is not None:
+        matter_workflow_paths[package_root_candidate.name] = (
+            workflow_path
+        )
+        continue
+    runtime_path_candidate = (
+        package_root_candidate
+        / "references"
+        / "cowork-runtime-contract.md"
+    )
+    runtime_text_candidate = (
+        runtime_path_candidate.read_text(encoding="utf-8")
+        if runtime_path_candidate.is_file()
+        else ""
+    )
+    skill_text_candidate = "\n".join(
+        path.read_text(encoding="utf-8")
+        for path in sorted(
+            (package_root_candidate / "skills").glob("*/SKILL.md")
+        )
+    )
+    if (
+        "session-matter-binding" in runtime_text_candidate
+        or "matter close" in skill_text_candidate
+    ):
+        raise SystemExit(
+            f"{package_root_candidate}: matter close workflow missing"
+        )
+    no_close_packages.add(package_root_candidate.name)
+
+if not no_close_packages:
+    raise SystemExit("expected at least one genuine no-close package")
+
+affected_binding_packages = set(matter_workflow_paths)
 
 
 def binding_example_kind(document):
@@ -686,6 +750,59 @@ for runtime_contract in runtime_contracts:
     if package_examples:
         binding_examples[package] = package_examples
 
+
+def synthetic_persist_example(create_example):
+    return {
+        "tenantId": create_example["tenantId"],
+        "practiceId": create_example["practiceId"],
+        "scopeType": create_example["scopeType"],
+        "scopeId": create_example["scopeId"],
+        "recordType": create_example["recordType"],
+        "recordId": create_example["recordId"],
+        "itemId": "synthetic-binding-item",
+        "eTag": "\"1\"",
+        "version": 1,
+        "payload": copy.deepcopy(create_example["payload"]),
+        "updatedAt": "2026-07-16T09:00:00+09:00",
+    }
+
+
+def synthetic_revoke_example(create_example):
+    return {
+        "tenantId": create_example["tenantId"],
+        "practiceId": create_example["practiceId"],
+        "scopeType": create_example["scopeType"],
+        "scopeId": create_example["scopeId"],
+        "recordType": create_example["recordType"],
+        "recordId": create_example["recordId"],
+        "itemId": "synthetic-binding-item",
+        "eTag": "\"1\"",
+        "idempotencyKey": "synthetic-revoke-0001",
+        "patch": {
+            "status": "revoked",
+            "revokedAt": "2026-07-16T10:00:00+09:00",
+            "revokedBy": "synthetic-user",
+            "revocationReason": "matter-close",
+        },
+    }
+
+
+for package in affected_binding_packages:
+    examples = binding_examples.get(package)
+    if examples is None or "create" not in examples:
+        raise SystemExit(
+            f"{package}: binding create example is missing"
+        )
+    create_example = examples["create"]
+    examples.setdefault(
+        "persist",
+        synthetic_persist_example(create_example),
+    )
+    examples.setdefault(
+        "revoke",
+        synthetic_revoke_example(create_example),
+    )
+
 for package, examples in binding_examples.items():
     create_example = examples.get("create")
     persist_example = examples.get("persist")
@@ -760,33 +877,107 @@ for package in affected_binding_packages:
     )
     canonical_runtime = runtime_path.read_bytes()
     package_runtime_text = canonical_runtime.decode("utf-8")
-    runtime_close_fragments = (
-        "matter closeは最初に",
-        "fence後に全binding",
-        "activeだけをrevoke",
-        "already-revokedはsatisfied",
-        "zero active",
-        "`archived`へfinalize",
+    normalized_package_runtime = re.sub(
+        r"\s+",
+        " ",
+        package_runtime_text,
+    )
+    if (
+        "matter `status == active`" not in normalized_package_runtime
+        and "matter `status: active`" not in normalized_package_runtime
+    ):
+        raise SystemExit(
+            f"{runtime_path}: active matter access requirement missing"
+        )
+    for access_fragment in (
+        "close-pending",
+        "non-active",
+        "access",
+    ):
+        if access_fragment not in normalized_package_runtime:
+            raise SystemExit(
+                f"{runtime_path}: access coverage missing "
+                f"{access_fragment}"
+            )
+    runtime_variant_groups = (
+        (
+            "enumeration",
+            (
+                "fence後に全binding",
+                "fence後に対象matterの全binding",
+            ),
+        ),
+        (
+            "active-only revoke",
+            (
+                "activeだけをrevoke",
+                "statusが`active`のbindingだけ",
+            ),
+        ),
+        (
+            "already-revoked satisfied",
+            (
+                "already-revokedはsatisfied",
+                "既に`revoked`のbindingはsatisfied",
+            ),
+        ),
+        (
+            "zero active",
+            (
+                "zero active",
+                "active bindingが0件",
+            ),
+        ),
+        (
+            "atomic binding create",
+            (
+                "binding absenceとatomically",
+                "binding `expectedAbsent: true`を同一transactionで評価",
+            ),
+        ),
+    )
+    runtime_variant_positions = {}
+    for label, variants in runtime_variant_groups:
+        positions_for_label = [
+            package_runtime_text.index(variant)
+            for variant in variants
+            if variant in package_runtime_text
+        ]
+        if not positions_for_label:
+            raise SystemExit(
+                f"{runtime_path}: runtime binding rule missing {label}"
+            )
+        runtime_variant_positions[label] = min(positions_for_label)
+    for fragment in (
+        "finalize",
         "fence前にcommitしたcreate",
         "fence後のcreate",
         "fail closed",
-        "binding absenceとatomically",
-    )
-    for fragment in runtime_close_fragments:
+    ):
         if fragment not in package_runtime_text:
             raise SystemExit(
                 f"{runtime_path}: runtime binding rule missing {fragment}"
             )
-    runtime_order_fragments = (
+    runtime_start_candidates = (
         "matter closeは最初に",
-        "fence後に全binding",
-        "activeだけをrevoke",
-        "zero active",
-        "`archived`へfinalize",
+        "matter closeは、最初の",
+        "最初のatomic conditional",
     )
-    runtime_positions = tuple(
+    runtime_start_positions = [
         package_runtime_text.index(fragment)
-        for fragment in runtime_order_fragments
+        for fragment in runtime_start_candidates
+        if fragment in package_runtime_text
+    ]
+    if not runtime_start_positions:
+        raise SystemExit(
+            f"{runtime_path}: fence-first close start is missing"
+        )
+    runtime_positions = (
+        min(runtime_start_positions),
+        runtime_variant_positions["enumeration"],
+        runtime_variant_positions["active-only revoke"],
+        runtime_variant_positions["zero active"],
+        package_runtime_text.index("finalize"),
     )
     if runtime_positions != tuple(sorted(runtime_positions)):
         raise SystemExit(
@@ -816,53 +1007,178 @@ for package in affected_binding_packages:
                 f"{local_runtime}: runtime contract is not synced"
             )
 
-for package in affected_binding_packages:
-    matter_skill_path = (
-        packages_root
-        / package
-        / "skills"
-        / "matter-workspace"
-        / "SKILL.md"
+
+def simple_matter_fence_errors(current, updated):
+    errors = []
+    current_generation = current.get("bindingGeneration")
+    updated_generation = updated.get("bindingGeneration")
+    if (
+        not isinstance(current_generation, int)
+        or isinstance(current_generation, bool)
+        or current_generation < 0
+        or not isinstance(updated_generation, int)
+        or isinstance(updated_generation, bool)
+        or updated_generation < 0
+    ):
+        errors.append("bindingGeneration must be nonnegative integer")
+    current_status = current.get("status")
+    updated_status = updated.get("status")
+    if current_status == "active":
+        if updated_status != "close-pending":
+            errors.append("matter must fence before archive")
+        if (
+            isinstance(current_generation, int)
+            and not isinstance(current_generation, bool)
+            and updated_generation != current_generation + 1
+        ):
+            errors.append("fence must increment generation")
+    elif current_status == "close-pending":
+        if updated_status != "archived":
+            errors.append("fenced matter must finalize archived")
+        if updated_generation != current_generation:
+            errors.append("finalize must preserve generation")
+    else:
+        errors.append("matter transition source is invalid")
+    return errors
+
+
+def matter_access_allowed(
+    binding_status,
+    binding_unexpired,
+    matter_status,
+):
+    return (
+        binding_status == "active"
+        and binding_unexpired is True
+        and matter_status == "active"
     )
+
+
+if not matter_access_allowed("active", True, "active"):
+    raise SystemExit("valid active matter access was rejected")
+for nonactive_status in ("close-pending", "archived", "closed"):
+    if matter_access_allowed("active", True, nonactive_status):
+        raise SystemExit(
+            "privacy active binding accessed non-active matter "
+            f"{nonactive_status}"
+        )
+
+
+for package in affected_binding_packages:
+    matter_skill_path = matter_workflow_paths[package]
     package_matter_skill = matter_skill_path.read_text(
         encoding="utf-8"
     )
+    if package in {"commercial-legal", "privacy-legal"}:
+        runtime_access_text = (
+            packages_root
+            / package
+            / "references"
+            / "cowork-runtime-contract.md"
+        ).read_text(encoding="utf-8")
+        normalized_runtime_access = re.sub(
+            r"\s+",
+            " ",
+            runtime_access_text,
+        )
+        normalized_skill_access = re.sub(
+            r"\s+",
+            " ",
+            package_matter_skill,
+        )
+        for path, text in (
+            (matter_skill_path, normalized_skill_access),
+            (
+                packages_root
+                / package
+                / "references"
+                / "cowork-runtime-contract.md",
+                normalized_runtime_access,
+            ),
+        ):
+            for fragment in (
+                "status == active",
+                "active/unexpired",
+                "close-pending",
+                "archived",
+                "closed",
+                "non-active",
+            ):
+                if fragment not in text:
+                    raise SystemExit(
+                        f"{path}: matter access rule missing {fragment}"
+                    )
     close_match = re.search(
-        r"^## `close(?: <slug>)?`\n(.*?)(?=^## )",
+        r"^## `close(?: <slug>)?`[^\n]*\n(.*?)(?=^## )",
         package_matter_skill,
         flags=re.DOTALL | re.MULTILINE,
     )
+    if close_match is None:
+        close_match = re.search(
+            r"^## Matter closure\n(.*?)(?=^## )",
+            package_matter_skill,
+            flags=re.DOTALL | re.MULTILINE,
+        )
     if close_match is None:
         raise SystemExit(
             f"{matter_skill_path}: close section is missing"
         )
     close_section_candidate = close_match.group(1)
-    close_fragments = (
+    for fragment in (
         "最初のatomic conditional operation",
         "fence成功後",
-        "activeだけをrevocation対象",
-        "already-revokedはsatisfied",
-        "zero active",
-        "archived`へconditional finalize",
+        "conditional finalize",
         "fence前にcommitしたcreate",
         "fence後のcreate",
         "fail closed",
-    )
-    for fragment in close_fragments:
+    ):
         if fragment not in close_section_candidate:
             raise SystemExit(
                 f"{matter_skill_path}: close rule missing {fragment}"
             )
-    ordered_fragments = (
-        "最初のatomic conditional operation",
-        "fence成功後",
-        "activeだけをrevocation対象",
-        "zero active",
-        "archived`へconditional finalize",
+    close_variant_groups = (
+        (
+            "active-only revoke",
+            (
+                "activeだけをrevocation対象",
+                "statusが`active`のbindingだけ",
+            ),
+        ),
+        (
+            "already-revoked satisfied",
+            (
+                "already-revokedはsatisfied",
+                "既に`revoked`のbindingはsatisfied",
+            ),
+        ),
+        (
+            "zero active",
+            (
+                "zero active",
+                "active bindingが0件",
+            ),
+        ),
     )
-    positions = tuple(
-        close_section_candidate.index(fragment)
-        for fragment in ordered_fragments
+    close_variant_positions = {}
+    for label, variants in close_variant_groups:
+        positions_for_label = [
+            close_section_candidate.index(variant)
+            for variant in variants
+            if variant in close_section_candidate
+        ]
+        if not positions_for_label:
+            raise SystemExit(
+                f"{matter_skill_path}: close rule missing {label}"
+            )
+        close_variant_positions[label] = min(positions_for_label)
+    positions = (
+        close_section_candidate.index(
+            "最初のatomic conditional operation"
+        ),
+        close_section_candidate.index("fence成功後"),
+        close_variant_positions["active-only revoke"],
+        close_variant_positions["zero active"],
+        close_section_candidate.index("conditional finalize"),
     )
     if positions != tuple(sorted(positions)):
         raise SystemExit(
@@ -891,7 +1207,12 @@ for package in affected_binding_packages:
                 raise SystemExit(
                     f"{matter_records_path}: matter fence field missing"
                 )
-        if package in {"employment-legal", "ip-legal"}:
+        if package in {
+            "commercial-legal",
+            "employment-legal",
+            "ip-legal",
+            "privacy-legal",
+        }:
             normalized_records = re.sub(
                 r"\s+",
                 " ",
@@ -922,6 +1243,98 @@ for package in affected_binding_packages:
                     raise SystemExit(
                         f"{matter_records_path}: stale revoke-every "
                         "guidance"
+                    )
+        if package in {"commercial-legal", "privacy-legal"}:
+            normalized_access_records = re.sub(
+                r"\s+",
+                " ",
+                matter_records_text,
+            )
+            for fragment in (
+                "active/unexpired",
+                "status != active",
+                "close-pending",
+                "archived",
+                "closed",
+                "accessを拒否",
+            ):
+                if fragment not in normalized_access_records:
+                    raise SystemExit(
+                        f"{matter_records_path}: access rule missing "
+                        f"{fragment}"
+                    )
+        if package in {"commercial-legal", "privacy-legal"}:
+            matter_block = re.search(
+                r"## Matter\n.*?```yaml\n(.*?)```",
+                matter_records_text,
+                flags=re.DOTALL,
+            )
+            if matter_block is None:
+                raise SystemExit(
+                    f"{matter_records_path}: matter profile missing"
+                )
+            matter_template = yaml.safe_load(matter_block.group(1))
+            if (
+                matter_template.get("status")
+                != "active | close-pending | archived"
+                or matter_template.get("bindingGeneration") != 0
+            ):
+                raise SystemExit(
+                    f"{matter_records_path}: matter lifecycle invalid"
+                )
+            active_profile = {
+                "status": "active",
+                "bindingGeneration": 0,
+            }
+            fenced_profile = {
+                "status": "close-pending",
+                "bindingGeneration": 1,
+            }
+            archived_profile = {
+                "status": "archived",
+                "bindingGeneration": 1,
+            }
+            if simple_matter_fence_errors(
+                active_profile,
+                fenced_profile,
+            ):
+                raise SystemExit(
+                    f"{package}: valid matter fence rejected"
+                )
+            if simple_matter_fence_errors(
+                fenced_profile,
+                archived_profile,
+            ):
+                raise SystemExit(
+                    f"{package}: valid matter finalize rejected"
+                )
+            invalid_transitions = (
+                (
+                    active_profile,
+                    {
+                        "status": "archived",
+                        "bindingGeneration": 0,
+                    },
+                ),
+                (
+                    active_profile,
+                    {
+                        "status": "close-pending",
+                        "bindingGeneration": 0,
+                    },
+                ),
+                (
+                    fenced_profile,
+                    {
+                        "status": "archived",
+                        "bindingGeneration": 2,
+                    },
+                ),
+            )
+            for transition in invalid_transitions:
+                if not simple_matter_fence_errors(*transition):
+                    raise SystemExit(
+                        f"{package}: invalid matter transition accepted"
                     )
 
 
@@ -1347,6 +1760,151 @@ for forbidden in (
         raise SystemExit(
             "litigation matter-close contains archive-first guidance"
         )
+
+clinic_root = packages_root / "legal-clinic"
+clinic_references = clinic_root / "references"
+clinic_schema_path = (
+    clinic_references / "clinic-state-payloads.schema.json"
+)
+clinic_examples_path = (
+    clinic_references / "clinic-state-payload-examples.json"
+)
+clinic_negative_path = (
+    clinic_references / "clinic-state-payload-negative-examples.json"
+)
+clinic_schema = json.loads(
+    clinic_schema_path.read_text(encoding="utf-8")
+)
+clinic_examples = json.loads(
+    clinic_examples_path.read_text(encoding="utf-8")
+)
+clinic_negative = json.loads(
+    clinic_negative_path.read_text(encoding="utf-8")
+)
+jsonschema.Draft202012Validator.check_schema(clinic_schema)
+clinic_validator = jsonschema.Draft202012Validator(
+    clinic_schema,
+    format_checker=format_checker,
+)
+for example_name in (
+    "bindingCreateRequest",
+    "sessionMatterBinding",
+    "bindingRevocationBatch",
+    "clinicMatter",
+):
+    clinic_validator.validate(clinic_examples[example_name])
+
+clinic_create = clinic_examples["bindingCreateRequest"]
+validate("create-request", clinic_create)
+validate_session_binding_create(
+    cast(SessionBindingCreateRequest, clinic_create),
+    cast(MatterSnapshot, current_matter_for_create(clinic_create)),
+)
+
+clinic_batch = clinic_examples["bindingRevocationBatch"]
+active_ids = set(clinic_batch["bindingItemIds"])
+satisfied_ids = set(clinic_batch["alreadyRevokedBindingItemIds"])
+enumerated_ids = set(clinic_batch["enumeratedBindingItemIds"])
+result_ids = {
+    result["bindingItemId"]
+    for result in clinic_batch["results"]
+}
+if active_ids.intersection(satisfied_ids):
+    raise SystemExit("clinic active/already-revoked sets overlap")
+if enumerated_ids != active_ids.union(satisfied_ids):
+    raise SystemExit("clinic binding enumeration partition invalid")
+if result_ids != active_ids:
+    raise SystemExit("clinic revoke results must match active bindings")
+if clinic_batch["postRevocationActiveCount"] != 0:
+    raise SystemExit("clinic revocation did not verify zero active")
+if (
+    clinic_batch["targetBindingGeneration"]
+    != clinic_batch["sourceBindingGeneration"] + 1
+):
+    raise SystemExit("clinic fence generation did not increment")
+
+clinic_active_matter = copy.deepcopy(clinic_examples["clinicMatter"])
+clinic_archive_pending = copy.deepcopy(clinic_active_matter)
+clinic_archive_pending.update(
+    {
+        "status": "archive-pending",
+        "bindingGeneration": (
+            clinic_active_matter["bindingGeneration"] + 1
+        ),
+        "lastBindingRevocationBatchId": (
+            "correlation-archive-0001"
+        ),
+        "freshBindingRequired": True,
+    }
+)
+clinic_archived = copy.deepcopy(clinic_archive_pending)
+clinic_archived["status"] = "archived"
+clinic_close_pending = copy.deepcopy(clinic_archive_pending)
+clinic_close_pending.update(
+    {
+        "status": "close-pending",
+        "lastBindingRevocationBatchId": "correlation-close-0001",
+    }
+)
+clinic_closed = copy.deepcopy(clinic_close_pending)
+clinic_closed["status"] = "closed"
+for clinic_matter in (
+    clinic_archive_pending,
+    clinic_archived,
+    clinic_close_pending,
+    clinic_closed,
+):
+    clinic_validator.validate(clinic_matter)
+if matter_access_allowed("active", True, "archive-pending"):
+    raise SystemExit("clinic archive-pending matter access was allowed")
+if matter_access_allowed("active", True, "close-pending"):
+    raise SystemExit("clinic close-pending matter access was allowed")
+if matter_access_allowed("active", True, "archived"):
+    raise SystemExit("clinic archived matter access was allowed")
+if matter_access_allowed("active", True, "closed"):
+    raise SystemExit("clinic closed matter access was allowed")
+
+negative_ids = {
+    fixture["id"]
+    for fixture in clinic_negative["fixtures"]
+}
+required_clinic_negatives = {
+    "revocation-generation-not-incremented",
+    "revocation-enumeration-missing-satisfied-binding",
+    "revocation-active-already-revoked-overlap",
+    "revocation-post-active-nonzero",
+    "binding-create-missing-matter-precondition",
+    "binding-create-negative-generation",
+    "binding-create-wrong-matter-status",
+    "clinic-matter-direct-archive",
+}
+if not required_clinic_negatives.issubset(negative_ids):
+    raise SystemExit("clinic lifecycle negative fixtures are incomplete")
+
+clinic_common_names = (
+    "cowork-runtime-contract.md",
+    "clinic-record-schemas.md",
+    "clinic-state-payloads.schema.json",
+    "clinic-state-payload-examples.json",
+    "clinic-state-payload-negative-examples.json",
+)
+for common_name in clinic_common_names:
+    canonical_path = clinic_references / common_name
+    canonical_bytes = canonical_path.read_bytes()
+    local_paths = sorted(
+        (clinic_root / "skills").glob(
+            f"*/references/common/{common_name}"
+        )
+    )
+    if not local_paths:
+        raise SystemExit(
+            f"legal-clinic: no common copies for {common_name}"
+        )
+    for local_path in local_paths:
+        if local_path.read_bytes() != canonical_bytes:
+            raise SystemExit(
+                f"{local_path}: clinic common copy is not synced"
+            )
 
 canonical_references = {
     path.relative_to(ai_root / "references"): path.read_bytes()

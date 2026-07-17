@@ -96,10 +96,11 @@ matterをcloseせず、handoff/access-review candidateを作る。integration st
 なしに`connected`へ変更しない。
 
 matter archive/close/reactivateを依頼された場合はprofile customizationとして処理しない。
-archive/closeはgatewayのatomic `binding-revocation-batch`へrouteし、全binding revokeの
-1件でも失敗すればtransitionをblockする。reactivateは別transitionでbinding generationを
-増やし、`reactivation-pending`中はaccessを拒否し、新しいconversationでfresh bindingを
-要求する。
+archive/closeはgatewayの`binding-revocation-batch`へrouteし、matterを先に
+pending statusへfenceする。active bindingだけをrevokeし、already-revokedは
+satisfiedとして扱い、zero active後だけfinalizeする。failure時はfenced stateを
+維持する。reactivateは別transitionでbinding generationを増やし、
+`reactivation-pending`中はaccessを拒否し、新しいconversationでfresh bindingを要求する。
 
 ## Completion
 

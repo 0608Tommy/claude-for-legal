@@ -13,6 +13,14 @@ validation pass. Cursor records must keep source metadata inside ``payload``,
 use lowercase 64-character SHA-256 fingerprints, and repeat the exact
 fingerprint as the final colon-delimited component of ``recordId``.
 
+Matter archive and close batches must increment the binding generation and
+partition the complete fenced enumeration into disjoint active and
+already-revoked sets before finalization.
+
+Lifecycle-specific checks are delegated to a focused companion module so the
+fixture runner remains independently auditable while both modules retain
+strict type, lint, security, and complexity gates.
+
 Every validation class must contain at least one example so a missing fixture
 set cannot produce a vacuous success.
 """
@@ -26,6 +34,13 @@ import sys
 from pathlib import Path
 from typing import Final, NamedTuple, cast
 
+from clinic_lifecycle_validation import (
+    binding_create_errors,
+    clinic_matter_errors,
+    matter_lifecycle_failures,
+    revocation_enumeration_errors,
+    revocation_generation_errors,
+)
 from jsonschema import Draft202012Validator, FormatChecker
 
 type JsonScalar = str | int | float | bool | None
@@ -368,12 +383,16 @@ def _revocation_transition_errors(
 ) -> list[str]:
     transition = document.get("transition")
     expected = {
-        "archive": "archived",
-        "close": "closed",
+        "archive": ("archive-pending", "archived"),
+        "close": ("close-pending", "closed"),
     }.get(transition) if isinstance(transition, str) else None
-    if expected == document.get("targetMatterStatus"):
+    actual = (
+        document.get("fencedMatterStatus"),
+        document.get("targetMatterStatus"),
+    )
+    if expected == actual:
         return []
-    return ["transition and target status do not correlate"]
+    return ["transition, fence status, and target status do not correlate"]
 
 
 def _revocation_errors(document: JsonObject) -> list[str]:
@@ -385,6 +404,10 @@ def _revocation_errors(document: JsonObject) -> list[str]:
     errors = _revocation_coverage_errors(binding_ids, result_ids)
     errors.extend(_revocation_outcome_errors(results))
     errors.extend(_revocation_transition_errors(document))
+    errors.extend(revocation_generation_errors(document))
+    errors.extend(revocation_enumeration_errors(document))
+    if document.get("postRevocationActiveCount") != 0:
+        errors.append("successful revocation must verify zero active bindings")
     return errors
 
 
@@ -398,14 +421,38 @@ def _successful_revocation_batch(
     )
 
 
-def _semantic_errors(document: JsonValue) -> list[str]:
-    if not isinstance(document, dict):
-        return []
-    record_type = document.get("recordType")
+def _direct_record_errors(
+    document: JsonObject,
+    record_type: JsonValue,
+) -> list[str] | None:
     if record_type == "tracker-record":
         return _tracker_errors(document)
     if record_type == "workflow-cursor":
         return _cursor_errors(document)
+    if record_type == "clinic-matter":
+        return clinic_matter_errors(document)
+    return None
+
+
+def _binding_create_request(
+    document: JsonObject,
+    record_type: JsonValue,
+) -> bool:
+    return (
+        record_type == "session-matter-binding"
+        and "expectedAbsent" in document
+    )
+
+
+def _semantic_errors(document: JsonValue) -> list[str]:
+    if not isinstance(document, dict):
+        return []
+    record_type = document.get("recordType")
+    direct_errors = _direct_record_errors(document, record_type)
+    if direct_errors is not None:
+        return direct_errors
+    if _binding_create_request(document, record_type):
+        return binding_create_errors(document)
     if _successful_revocation_batch(document, record_type):
         return _revocation_errors(document)
     return []
@@ -552,6 +599,7 @@ def _setup_without_profile(
 def _close_batch(examples: dict[str, JsonValue]) -> JsonObject:
     document = _example_object(examples, "bindingRevocationBatch")
     document["transition"] = "close"
+    document["fencedMatterStatus"] = "close-pending"
     document["targetMatterStatus"] = "closed"
     return document
 
@@ -738,6 +786,7 @@ def main() -> int:
             state_envelope_validator,
             examples,
         ),
+        *matter_lifecycle_failures(examples),
     ]
     envelope_failures, envelope_counts = _shared_envelope_failures(
         state_envelope_validator,
