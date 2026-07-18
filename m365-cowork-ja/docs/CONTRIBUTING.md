@@ -25,6 +25,13 @@
 - source pluginを変更せず、`m365-cowork-ja/cowork-packages/<plugin>`へ追加する。
 - strict frontmatterは`name`, `description`, `license`, `metadata`,
   `compatibility`だけを使う。
+- `name`は1--64 charactersのlowercase alphanumeric groupをsingle hyphenで
+  連結し、先頭・末尾・連続hyphen、uppercase、underscoreを使わない。
+- frontmatterは実際にsafe YAMLとしてparseされる。duplicate key、malformed
+  YAML、mapping以外、string以外の`name`/`description`を入れない。
+- `description`は1--1,024 charactersとする。外部marketplace/URLへの
+  purchase/subscribe CTAを入れない。local lintは保守的heuristicに限られるため、
+  public publicationでは人間がlisting descriptionを必ず再確認する。
 - skill ID、path、enum、URL、citationを翻訳しない。
 - shared referenceをskill rootの外へ参照しない。
 - manifestのraw `agentSkills[].folder`は`./`込み256文字以下とし、宣言skillと
@@ -43,6 +50,9 @@
   rootの正本とbyte-for-byteで一致させる。extensionlessまたは別拡張子の
   skill-level legal fileは同梱しない。
 - connectorとPower Platform solutionをCowork ZIPへ混在させない。
+- packageあたり20 skills以下とし、standalone normalizerでも20/21境界を確認する。
+- color iconはopaque RGBまたはopaque RGBA、outline iconはtransparent
+  backgroundを持つRGBAかつvisible pixelをpure whiteにする。
 - Cowork DLPが対応済みと表示しない。
 - 日本法moduleをqualified reviewerの記録なしに`approved`へ変更しない。
 
@@ -67,3 +77,5 @@ Microsoft Learnのsize表記は、このrepositoryではbinary MiBのexact byte�
 runtime-only情報であり、local static testがnetwork timeoutを模擬するものでは
 ありません。公式ruleと追加のWindows hardeningの区別は
 [`SOURCE-MAINTENANCE.md`](SOURCE-MAINTENANCE.md)を参照してください。
+connector runtime/auth/tenant acceptanceは引き続きdelegated/blockedです。local
+contractの10-connector parityだけでproduction-readyとは扱いません。

@@ -49,6 +49,36 @@ AT_PATH="$SCRATCH/at-path"
 UNICODE_PATH="$SCRATCH/unicode-path"
 TRAILING_DOT="$SCRATCH/trailing-dot"
 TRAILING_SPACE="$SCRATCH/trailing-space"
+NAME_ONE="$SCRATCH/name-one"
+NAME_64="$SCRATCH/name-64"
+NAME_65="$SCRATCH/name-65"
+NAME_LEADING_HYPHEN="$SCRATCH/name-leading-hyphen"
+NAME_TRAILING_HYPHEN="$SCRATCH/name-trailing-hyphen"
+NAME_CONSECUTIVE_HYPHENS="$SCRATCH/name-consecutive-hyphens"
+NAME_UPPERCASE="$SCRATCH/name-uppercase"
+NAME_UNDERSCORE="$SCRATCH/name-underscore"
+NAME_PLAIN_TRUE="$SCRATCH/name-plain-true"
+NAME_PLAIN_NULL="$SCRATCH/name-plain-null"
+NAME_PLAIN_INTEGER="$SCRATCH/name-plain-integer"
+NAME_YAML_12_ON="$SCRATCH/name-yaml-12-on"
+NAME_YAML_12_OFF="$SCRATCH/name-yaml-12-off"
+NAME_YAML_12_YES="$SCRATCH/name-yaml-12-yes"
+NAME_YAML_12_DATE="$SCRATCH/name-yaml-12-date"
+MALFORMED_YAML="$SCRATCH/malformed-yaml"
+DUPLICATE_YAML="$SCRATCH/duplicate-yaml"
+EXPLICIT_STR_TAG="$SCRATCH/explicit-str-tag"
+EXPLICIT_BOOL_TAG="$SCRATCH/explicit-bool-tag"
+EXPLICIT_TIMESTAMP_TAG="$SCRATCH/explicit-timestamp-tag"
+UNSUPPORTED_YAML_TAG="$SCRATCH/unsupported-yaml-tag"
+NON_MAPPING_YAML="$SCRATCH/non-mapping-yaml"
+NON_STRING_NAME="$SCRATCH/non-string-name"
+NON_STRING_DESCRIPTION="$SCRATCH/non-string-description"
+DESCRIPTION_ONE="$SCRATCH/description-one"
+DESCRIPTION_1024="$SCRATCH/description-1024"
+DESCRIPTION_1025="$SCRATCH/description-1025"
+CTA_ENGLISH="$SCRATCH/cta-english"
+CTA_JAPANESE="$SCRATCH/cta-japanese"
+CTA_NEUTRAL="$SCRATCH/cta-neutral"
 
 mkdir -p "$VALID/example/skills/example/references"
 
@@ -71,6 +101,14 @@ license: Apache-2.0
 compatibility: Microsoft 365 Copilot Cowork
 metadata:
   locale: ja-JP
+  plain-values:
+    - true
+    - null
+    - 123
+    - 2026-01-01
+    - on
+  nested:
+    enabled: false
 ---
 
 > **変更通知:** 検証用の派生ファイルです。
@@ -119,6 +157,217 @@ clone_valid() {
   mkdir -p "$destination"
   cp -R "$VALID/example" "$destination/example"
 }
+
+clone_named_valid() {
+  local destination="$1"
+  local name="$2"
+
+  clone_valid "$destination"
+  python3 - "$destination/example" "$name" <<'PY'
+from __future__ import annotations
+
+import json
+import pathlib
+import sys
+
+package = pathlib.Path(sys.argv[1])
+name = sys.argv[2]
+old_skill = package / "skills" / "example"
+new_skill = package / "skills" / name
+old_skill.rename(new_skill)
+skill_path = new_skill / "SKILL.md"
+skill_path.write_text(
+    skill_path.read_text(encoding="utf-8").replace(
+        "name: example",
+        f"name: {name}",
+        1,
+    ),
+    encoding="utf-8",
+)
+manifest_path = package / "manifest.json"
+manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+manifest["agentSkills"] = [{"folder": f"./skills/{name}"}]
+manifest_path.write_text(
+    json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+    encoding="utf-8",
+)
+PY
+}
+
+clone_description_valid() {
+  local destination="$1"
+  local character_count="$2"
+
+  clone_valid "$destination"
+  python3 - \
+    "$destination/example/skills/example/SKILL.md" \
+    "$character_count" <<'PY'
+from __future__ import annotations
+
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+description = "あ" * int(sys.argv[2])
+path.write_text(
+    (
+        "---\n"
+        "name: example\n"
+        f"description: {description}\n"
+        "license: Apache-2.0\n"
+        "---\n\n"
+        "> **変更通知:** 検証用の派生ファイルです。\n\n"
+        "# description boundary\n"
+    ),
+    encoding="utf-8",
+)
+PY
+}
+
+name_64="$(python3 -c 'print("a" * 64)')"
+name_65="$(python3 -c 'print("a" * 65)')"
+clone_named_valid "$NAME_ONE" "a"
+clone_named_valid "$NAME_64" "$name_64"
+clone_named_valid "$NAME_65" "$name_65"
+clone_named_valid "$NAME_LEADING_HYPHEN" "-example"
+clone_named_valid "$NAME_TRAILING_HYPHEN" "example-"
+clone_named_valid "$NAME_CONSECUTIVE_HYPHENS" "example--skill"
+clone_named_valid "$NAME_UPPERCASE" "Example"
+clone_named_valid "$NAME_UNDERSCORE" "example_skill"
+clone_named_valid "$NAME_PLAIN_TRUE" "true"
+clone_named_valid "$NAME_PLAIN_NULL" "null"
+clone_named_valid "$NAME_PLAIN_INTEGER" "123"
+clone_named_valid "$NAME_YAML_12_ON" "on"
+clone_named_valid "$NAME_YAML_12_OFF" "off"
+clone_named_valid "$NAME_YAML_12_YES" "yes"
+clone_named_valid "$NAME_YAML_12_DATE" "2026-01-01"
+
+clone_description_valid "$DESCRIPTION_ONE" 1
+clone_description_valid "$DESCRIPTION_1024" 1024
+clone_description_valid "$DESCRIPTION_1025" 1025
+
+clone_valid "$MALFORMED_YAML"
+cat >"$MALFORMED_YAML/example/skills/example/SKILL.md" <<'EOF'
+---
+name: example
+description: [malformed
+---
+
+> **変更通知:** 検証用の派生ファイルです。
+EOF
+
+clone_valid "$DUPLICATE_YAML"
+cat >"$DUPLICATE_YAML/example/skills/example/SKILL.md" <<'EOF'
+---
+name: example
+name: duplicate
+description: 日本語の重複key検証です。
+---
+
+> **変更通知:** 検証用の派生ファイルです。
+EOF
+
+clone_valid "$EXPLICIT_STR_TAG"
+cat >"$EXPLICIT_STR_TAG/example/skills/example/SKILL.md" <<'EOF'
+---
+name: !!str example
+description: 日本語の明示str tag検証です。
+---
+
+> **変更通知:** 検証用の派生ファイルです。
+EOF
+
+clone_valid "$EXPLICIT_BOOL_TAG"
+cat >"$EXPLICIT_BOOL_TAG/example/skills/example/SKILL.md" <<'EOF'
+---
+name: !!bool true
+description: 日本語の明示bool tag検証です。
+---
+
+> **変更通知:** 検証用の派生ファイルです。
+EOF
+
+clone_valid "$EXPLICIT_TIMESTAMP_TAG"
+cat >"$EXPLICIT_TIMESTAMP_TAG/example/skills/example/SKILL.md" <<'EOF'
+---
+name: !!timestamp 2026-01-01
+description: 日本語の明示timestamp tag検証です。
+---
+
+> **変更通知:** 検証用の派生ファイルです。
+EOF
+
+clone_valid "$UNSUPPORTED_YAML_TAG"
+cat >"$UNSUPPORTED_YAML_TAG/example/skills/example/SKILL.md" <<'EOF'
+---
+name: !unsupported example
+description: 日本語のunsupported tag検証です。
+---
+
+> **変更通知:** 検証用の派生ファイルです。
+EOF
+
+clone_valid "$NON_MAPPING_YAML"
+cat >"$NON_MAPPING_YAML/example/skills/example/SKILL.md" <<'EOF'
+---
+- name: example
+- description: 日本語のmapping検証です。
+---
+
+> **変更通知:** 検証用の派生ファイルです。
+EOF
+
+clone_valid "$NON_STRING_NAME"
+cat >"$NON_STRING_NAME/example/skills/example/SKILL.md" <<'EOF'
+---
+name: [example]
+description: 日本語のname型検証です。
+---
+
+> **変更通知:** 検証用の派生ファイルです。
+EOF
+
+clone_valid "$NON_STRING_DESCRIPTION"
+cat >"$NON_STRING_DESCRIPTION/example/skills/example/SKILL.md" <<'EOF'
+---
+name: example
+description:
+  - 日本語
+  - list
+---
+
+> **変更通知:** 検証用の派生ファイルです。
+EOF
+
+clone_valid "$CTA_ENGLISH"
+cat >"$CTA_ENGLISH/example/skills/example/SKILL.md" <<'EOF'
+---
+name: example
+description: Purchase a subscription at https://example.com/marketplace. 日本語案内です。
+---
+
+> **変更通知:** 検証用の派生ファイルです。
+EOF
+
+clone_valid "$CTA_JAPANESE"
+cat >"$CTA_JAPANESE/example/skills/example/SKILL.md" <<'EOF'
+---
+name: example
+description: 外部マーケットプレイスでサブスクリプションを購入してください。
+---
+
+> **変更通知:** 検証用の派生ファイルです。
+EOF
+
+clone_valid "$CTA_NEUTRAL"
+cat >"$CTA_NEUTRAL/example/skills/example/SKILL.md" <<'EOF'
+---
+name: example
+description: reviews SaaS subscription terms（SaaS契約条件をレビューします）。
+---
+
+> **変更通知:** 検証用の派生ファイルです。
+EOF
 
 clone_valid "$INVALID"
 cat >"$INVALID/example/skills/example/SKILL.md" <<'EOF'
@@ -445,6 +694,10 @@ from m365_cowork_path_policy import (
     CoworkPathError,
     validate_manifest_skill_folder,
 )
+from m365_cowork_frontmatter import (
+    has_marketplace_purchase_cta,
+    parse_frontmatter,
+)
 from validate_m365_cowork_target import load_limits, validate_target
 
 scratch = pathlib.Path(sys.argv[1])
@@ -453,8 +706,33 @@ toolchain_lock_path = pathlib.Path(sys.argv[3])
 expected_extensions = frozenset({".md", ".json", ".py", ".txt"})
 limits = load_limits(target_contract_path, toolchain_lock_path)
 
+valid_skill = scratch / "valid/example/skills/example/SKILL.md"
+valid_frontmatter = parse_frontmatter(
+    valid_skill.read_text(encoding="utf-8"),
+    valid_skill,
+)
+metadata = valid_frontmatter.get("metadata")
+if metadata != {
+    "locale": "ja-JP",
+    "plain-values": ["true", "null", "123", "2026-01-01", "on"],
+    "nested": {"enabled": "false"},
+}:
+    raise SystemExit(f"BaseLoader-style frontmatter was not preserved: {metadata}")
+if not isinstance(valid_frontmatter.get("description"), str):
+    raise SystemExit("block scalar frontmatter was not preserved as a string")
+
 if limits.maximum_file_nesting_depth != 3:
     raise SystemExit("maximumFileNestingDepth contract was not loaded")
+if limits.name_minimum != 1 or limits.name_maximum != 64:
+    raise SystemExit("skill name character boundaries were not loaded")
+if limits.name_pattern != r"^[a-z0-9]+(?:-[a-z0-9]+)*$":
+    raise SystemExit("skill name pattern was not loaded exactly")
+if limits.description_minimum != 1 or limits.description_limit != 1024:
+    raise SystemExit("skill description boundaries were not loaded")
+if limits.maximum_skills != 20:
+    raise SystemExit("maximumPerPackage contract was not loaded")
+if limits.maximum_connectors != 10:
+    raise SystemExit("connector maximumPerPackage contract was not loaded")
 if limits.maximum_companion_files != 20:
     raise SystemExit("maximumCompanionFiles contract was not loaded")
 if limits.maximum_companion_file_bytes != 5_242_880:
@@ -465,6 +743,14 @@ if limits.maximum_manifest_skill_folder_characters != 256:
     raise SystemExit("manifest skill folder limit was not loaded")
 if limits.companion_download_timeout_seconds != 15:
     raise SystemExit("companion download timeout was not loaded")
+if limits.maximum_toolkit_package_bytes != 10_485_760:
+    raise SystemExit("toolkit package byte limit was not loaded")
+if limits.character_limit != 20_000:
+    raise SystemExit("strict skill character limit was not loaded")
+if limits.recommended_lines != 500:
+    raise SystemExit("recommended skill line limit was not loaded")
+if limits.recommended_activated_tokens != 5_000:
+    raise SystemExit("recommended activated token limit was not loaded")
 if limits.fleet_converter_extensions != expected_extensions:
     raise SystemExit(
         "unexpected fleet/converter compatibility extension set: "
@@ -486,7 +772,7 @@ expected_source = {
     "gitCommit": "ccf9e7d4473352536ff966995ed7cf305ff40292",
     "msDate": "2026-06-29",
     "pageUpdated": "2026-07-07",
-    "checkedAt": "2026-07-18",
+    "checkedAt": "2026-07-19",
 }
 if target_contract.get("officialValidationSource") != expected_source:
     raise SystemExit("target contract official provenance is incomplete")
@@ -495,7 +781,38 @@ if (
     != expected_source
 ):
     raise SystemExit("toolchain official provenance is incomplete")
-if toolchain_lock.get("checkedAt") != "2026-07-18":
+expected_icon_sources = [
+    {
+        "title": "root.icons object",
+        "url": (
+            "https://learn.microsoft.com/en-us/microsoft-365/"
+            "extensibility/schema/root-icons?view=m365-app-1.28"
+        ),
+        "gitCommit": "6b6977d3ecac88e4bb94edb4693b7c8d42362aec",
+        "msDate": "2026-06-19",
+        "pageUpdated": "2026-06-19",
+        "checkedAt": "2026-07-19",
+    },
+    {
+        "title": "Design App Icon for Teams Store",
+        "url": (
+            "https://learn.microsoft.com/en-us/microsoftteams/platform/"
+            "concepts/design/design-teams-app-icon-store-appbar"
+        ),
+        "gitCommit": "17e3ba5912e75ce4fd10a82b77be0c07a5d08d8f",
+        "msDate": "2026-06-03",
+        "pageUpdated": "2026-06-04",
+        "checkedAt": "2026-07-19",
+    },
+]
+if target_contract.get("officialIconSources") != expected_icon_sources:
+    raise SystemExit("target contract icon provenance is incomplete")
+if (
+    toolchain_lock["cowork"].get("officialIconSources")
+    != expected_icon_sources
+):
+    raise SystemExit("toolchain icon provenance is incomplete")
+if toolchain_lock.get("checkedAt") != "2026-07-19":
     raise SystemExit("toolchain checkedAt was not updated")
 if (
     toolchain_lock.get("sourceRevision")
@@ -517,6 +834,17 @@ if frozenset(target_extensions) != expected_extensions:
 for compatibility in (target_compatibility, toolchain_compatibility):
     if "not a universal Microsoft allowlist" not in compatibility["scope"]:
         raise SystemExit("compatibility extension scope is overbroad")
+
+if has_marketplace_purchase_cta("reviews SaaS subscription terms"):
+    raise SystemExit("neutral SaaS subscription language was rejected")
+if not has_marketplace_purchase_cta(
+    "Subscribe at https://example.com/marketplace",
+):
+    raise SystemExit("English marketplace CTA was not detected")
+if not has_marketplace_purchase_cta(
+    "外部マーケットプレイスで購読してください",
+):
+    raise SystemExit("Japanese marketplace CTA was not detected")
 
 folder_prefix = "./skills/"
 folder_at_limit = folder_prefix + (
@@ -573,6 +901,86 @@ except ValueError as error:
 else:
     raise SystemExit("target/toolchain extension mismatch was accepted")
 
+for key, value in toolchain_lock["limits"].items():
+    mismatched_toolchain = copy.deepcopy(toolchain_lock)
+    mismatched_toolchain["limits"][key] = (
+        f"{value}x" if isinstance(value, str) else value + 1
+    )
+    mismatched_path = scratch / f"toolchain-limit-mismatch-{key}.json"
+    mismatched_path.write_text(
+        json.dumps(mismatched_toolchain, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    try:
+        load_limits(target_contract_path, mismatched_path)
+    except ValueError as error:
+        if "must match exactly" not in str(error):
+            raise SystemExit(
+                f"{key} parity mismatch reported the wrong error: {error}",
+            ) from error
+    else:
+        raise SystemExit(f"target/toolchain {key} mismatch was accepted")
+
+extra_limit_toolchain = copy.deepcopy(toolchain_lock)
+extra_limit_toolchain["limits"]["uncheckedLimit"] = 1
+extra_limit_path = scratch / "toolchain-extra-limit.json"
+extra_limit_path.write_text(
+    json.dumps(extra_limit_toolchain, ensure_ascii=False, indent=2) + "\n",
+    encoding="utf-8",
+)
+try:
+    load_limits(target_contract_path, extra_limit_path)
+except ValueError as error:
+    if "keys must match the validated limit set" not in str(error):
+        raise SystemExit(
+            f"extra limit reported the wrong error: {error}",
+        ) from error
+else:
+    raise SystemExit("unchecked toolchain limit was accepted")
+
+mismatched_provenance = copy.deepcopy(toolchain_lock)
+mismatched_provenance["cowork"]["officialValidationSource"]["checkedAt"] = (
+    "2026-07-18"
+)
+mismatched_path = scratch / "toolchain-provenance-mismatch.json"
+mismatched_path.write_text(
+    json.dumps(mismatched_provenance, ensure_ascii=False, indent=2) + "\n",
+    encoding="utf-8",
+)
+try:
+    load_limits(target_contract_path, mismatched_path)
+except ValueError as error:
+    if "must match exactly" not in str(error):
+        raise SystemExit(
+            f"provenance mismatch reported the wrong error: {error}",
+        ) from error
+else:
+    raise SystemExit("target/toolchain provenance mismatch was accepted")
+
+mismatched_icon_provenance = copy.deepcopy(toolchain_lock)
+mismatched_icon_provenance["cowork"]["officialIconSources"][0][
+    "checkedAt"
+] = "2026-07-18"
+mismatched_path = scratch / "toolchain-icon-provenance-mismatch.json"
+mismatched_path.write_text(
+    json.dumps(
+        mismatched_icon_provenance,
+        ensure_ascii=False,
+        indent=2,
+    )
+    + "\n",
+    encoding="utf-8",
+)
+try:
+    load_limits(target_contract_path, mismatched_path)
+except ValueError as error:
+    if "must match exactly" not in str(error):
+        raise SystemExit(
+            f"icon provenance mismatch reported the wrong error: {error}",
+        ) from error
+else:
+    raise SystemExit("target/toolchain icon provenance mismatch was accepted")
+
 
 def fixture_errors(name: str) -> list[str]:
     errors, _ = validate_target(scratch / name, limits)
@@ -595,6 +1003,18 @@ def require_fragments(name: str, fragments: tuple[str, ...]) -> None:
 
 
 require_clean("valid")
+require_clean("name-one")
+require_clean("name-64")
+require_clean("name-plain-true")
+require_clean("name-plain-null")
+require_clean("name-plain-integer")
+require_clean("name-yaml-12-on")
+require_clean("name-yaml-12-off")
+require_clean("name-yaml-12-yes")
+require_clean("name-yaml-12-date")
+require_clean("description-one")
+require_clean("description-1024")
+require_clean("cta-neutral")
 require_clean("depth-three")
 require_clean("companion-count-exact")
 require_clean("file-size-exact")
@@ -610,6 +1030,45 @@ require_fragments(
         "absolute local reference is forbidden",
         "unsupported source runtime marker",
     ),
+)
+require_fragments(
+    "name-65",
+    ("name has 65 characters; expected 1-64",),
+)
+for name_fixture in (
+    "name-leading-hyphen",
+    "name-trailing-hyphen",
+    "name-consecutive-hyphens",
+    "name-uppercase",
+    "name-underscore",
+):
+    require_fragments(name_fixture, ("name does not match",))
+require_fragments("malformed-yaml", ("malformed YAML frontmatter",))
+require_fragments("duplicate-yaml", ("duplicate YAML key 'name'",))
+require_fragments("explicit-str-tag", ("malformed YAML frontmatter",))
+require_fragments("explicit-bool-tag", ("malformed YAML frontmatter",))
+require_fragments("explicit-timestamp-tag", ("malformed YAML frontmatter",))
+require_fragments("unsupported-yaml-tag", ("malformed YAML frontmatter",))
+require_fragments(
+    "non-mapping-yaml",
+    ("frontmatter must be a YAML mapping",),
+)
+require_fragments("non-string-name", ("name must be a string",))
+require_fragments(
+    "non-string-description",
+    ("description must be a string",),
+)
+require_fragments(
+    "description-1025",
+    ("description has 1025 characters; expected 1-1024",),
+)
+require_fragments(
+    "cta-english",
+    ("external-marketplace purchase or subscription call to action",),
+)
+require_fragments(
+    "cta-japanese",
+    ("external-marketplace purchase or subscription call to action",),
 )
 require_fragments("too-long", ("characters exceeds",))
 require_fragments("too-many", ("skills exceeds",))

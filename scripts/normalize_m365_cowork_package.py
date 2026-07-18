@@ -13,6 +13,9 @@ import zipfile
 from pathlib import Path, PurePosixPath
 from typing import Final, NamedTuple, cast
 
+from m365_cowork_frontmatter import (
+    skill_set_frontmatter_errors,
+)
 from m365_cowork_path_policy import (
     CompanionItem,
     CoworkPathError,
@@ -258,6 +261,7 @@ def _declared_skills(
         return manifest_skill_slugs(
             manifest.get("agentSkills"),
             limits.maximum_manifest_skill_folder_characters,
+            limits.maximum_skills,
         )
     except CoworkPathError as error:
         raise _error(context, str(error)) from error
@@ -646,6 +650,14 @@ def _validate_archive_contents(
         context,
         "source",
     )
+    frontmatter_errors = skill_set_frontmatter_errors(
+        source_entries,
+        declared,
+        limits.frontmatter_policy(),
+        limits.character_limit,
+    )
+    if frontmatter_errors:
+        raise _error(context, frontmatter_errors[0])
     entry_names = set(entry_map)
     _validate_companion_limits(
         entry_map,
@@ -846,12 +858,15 @@ def normalize_package(
     then applied to source paths and archive members. Manifest folder length
     is measured on the raw value, including the leading ``./``.
 
-    The manifest skill set must exactly equal the source directory set.
-    Source and archive companion counts, sizes, totals, and nesting depths
-    are evaluated independently. Required legal copies must retain canonical
-    names and package-root bytes. Icons, the manifest, every skill byte, and
-    the complete member set must match source before deterministic metadata
-    is written and verified by reopening the normalized archive.
+    The manifest skill set must contain no more than the shared 20-skill
+    maximum and must exactly equal the source directory set. Each source
+    ``SKILL.md`` is decoded as UTF-8 and checked with the same strict
+    safe-YAML, duplicate-key, name, description, and marketplace-CTA policy
+    as source validation. Source and archive companion counts, sizes, totals,
+    and nesting depths are evaluated independently. Required legal copies
+    must retain canonical names and package-root bytes. Icons, the manifest,
+    every skill byte, and the complete member set must match source before
+    deterministic metadata is written and verified by reopening the archive.
 
     """
     if not source_dir.is_dir() or source_dir.is_symlink():

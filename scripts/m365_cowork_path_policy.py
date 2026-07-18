@@ -10,6 +10,8 @@ import re
 from pathlib import Path, PurePosixPath
 from typing import Final, NamedTuple, cast
 
+from m365_cowork_frontmatter import FrontmatterPolicy
+
 ROOT: Final = Path(__file__).resolve().parent.parent
 CONTRACT_PATH: Final = (
     ROOT / "m365-cowork-ja" / "shared" / "target-contract.json"
@@ -30,6 +32,27 @@ WINDOWS_RESERVED_BASENAMES: Final = frozenset(
         "prn",
         *(f"com{number}" for number in range(1, 10)),
         *(f"lpt{number}" for number in range(1, 10)),
+    },
+)
+TOOLCHAIN_LIMIT_KEYS: Final = frozenset(
+    {
+        "companionDownloadTimeoutSeconds",
+        "companionFileBytes",
+        "companionTotalBytes",
+        "companionsPerSkill",
+        "connectorsPerPackage",
+        "maximumFileNestingDepth",
+        "recommendedActivatedTokens",
+        "recommendedSkillLines",
+        "skillDescriptionCharacters",
+        "skillDescriptionMinimumCharacters",
+        "skillFolderPathCharacters",
+        "skillMarkdownCharacters",
+        "skillNameMaximumCharacters",
+        "skillNameMinimumCharacters",
+        "skillNamePattern",
+        "skillsPerPackage",
+        "toolkitPackageBytes",
     },
 )
 
@@ -60,16 +83,34 @@ class Limits(NamedTuple):
 
     allowed_fields: frozenset[str]
     character_limit: int
+    name_minimum: int
+    name_maximum: int
+    name_pattern: str
+    description_minimum: int
     description_limit: int
     maximum_skills: int
+    maximum_connectors: int
     maximum_companion_files: int
     maximum_companion_file_bytes: int
     maximum_companion_total_bytes: int
     maximum_file_nesting_depth: int
     maximum_manifest_skill_folder_characters: int
     companion_download_timeout_seconds: int
+    maximum_toolkit_package_bytes: int
     recommended_lines: int
+    recommended_activated_tokens: int
     fleet_converter_extensions: frozenset[str]
+
+    def frontmatter_policy(self) -> FrontmatterPolicy:
+        """Return official frontmatter limits in their shared value object."""
+        return FrontmatterPolicy(
+            allowed_fields=self.allowed_fields,
+            name_minimum=self.name_minimum,
+            name_maximum=self.name_maximum,
+            name_pattern=self.name_pattern,
+            description_minimum=self.description_minimum,
+            description_maximum=self.description_limit,
+        )
 
 
 def _error(detail: str) -> CoworkPathError:
@@ -89,6 +130,14 @@ def _require_int(value: object, context: str) -> int:
     """Require a JSON integer."""
     if not isinstance(value, int) or isinstance(value, bool):
         message = f"{context} must be an integer"
+        raise TypeError(message)
+    return value
+
+
+def _require_string(value: object, context: str) -> str:
+    """Require a nonempty JSON string."""
+    if not isinstance(value, str) or not value:
+        message = f"{context} must be a nonempty string"
         raise TypeError(message)
     return value
 
@@ -187,6 +236,140 @@ def _matching_limit(
     return target_limit
 
 
+def _matching_text(
+    target_value: object,
+    target_context: str,
+    toolchain_value: object,
+    toolchain_context: str,
+) -> str:
+    """Require one target string to match its toolchain lock value."""
+    target_text = _require_string(target_value, target_context)
+    toolchain_text = _require_string(toolchain_value, toolchain_context)
+    if target_text != toolchain_text:
+        message = (
+            f"{target_context} and {toolchain_context} must match exactly"
+        )
+        raise ValueError(message)
+    return target_text
+
+
+def _matching_pattern(
+    target_value: object,
+    target_context: str,
+    toolchain_value: object,
+    toolchain_context: str,
+) -> str:
+    """Require one matching, compilable target regular expression."""
+    pattern = _matching_text(
+        target_value,
+        target_context,
+        toolchain_value,
+        toolchain_context,
+    )
+    try:
+        re.compile(pattern)
+    except re.error as error:
+        message = f"{target_context} must be a valid regular expression"
+        raise ValueError(message) from error
+    return pattern
+
+
+def _require_matching_value(
+    target_value: object,
+    target_context: str,
+    toolchain_value: object,
+    toolchain_context: str,
+) -> None:
+    """Require structurally identical target and toolchain values."""
+    if target_value != toolchain_value:
+        message = (
+            f"{target_context} and {toolchain_context} must match exactly"
+        )
+        raise ValueError(message)
+
+
+def _validate_provenance(
+    contract: dict[str, object],
+    cowork: dict[str, object],
+) -> None:
+    """Require exact official-source provenance parity."""
+    target_source = _require_object(
+        contract.get("officialValidationSource"),
+        "target contract.officialValidationSource",
+    )
+    toolchain_source = _require_object(
+        cowork.get("officialValidationSource"),
+        "toolchain lock.cowork.officialValidationSource",
+    )
+    _require_matching_value(
+        target_source,
+        "target contract.officialValidationSource",
+        toolchain_source,
+        "toolchain lock.cowork.officialValidationSource",
+    )
+    target_icon_sources = contract.get("officialIconSources")
+    toolchain_icon_sources = cowork.get("officialIconSources")
+    if not isinstance(target_icon_sources, list):
+        message = "target contract.officialIconSources must be an array"
+        raise TypeError(message)
+    if not isinstance(toolchain_icon_sources, list):
+        message = "toolchain lock.cowork.officialIconSources must be an array"
+        raise TypeError(message)
+    target_icon_source_items = cast("list[object]", target_icon_sources)
+    toolchain_icon_source_items = cast("list[object]", toolchain_icon_sources)
+    _require_matching_value(
+        target_icon_source_items,
+        "target contract.officialIconSources",
+        toolchain_icon_source_items,
+        "toolchain lock.cowork.officialIconSources",
+    )
+
+
+def _validate_toolchain_limit_keys(limits: dict[str, object]) -> None:
+    """Require every locked limit to have an explicit parity check."""
+    actual = frozenset(limits)
+    if actual == TOOLCHAIN_LIMIT_KEYS:
+        return
+    missing = sorted(TOOLCHAIN_LIMIT_KEYS - actual)
+    extra = sorted(actual - TOOLCHAIN_LIMIT_KEYS)
+    message = (
+        "toolchain lock.limits keys must match the validated limit set; "
+        f"missing={missing}, extra={extra}"
+    )
+    raise ValueError(message)
+
+
+def _validate_limit_ranges(limits: Limits) -> None:
+    """Require coherent positive machine-contract boundaries."""
+    positive_values = (
+        limits.character_limit,
+        limits.name_minimum,
+        limits.name_maximum,
+        limits.description_minimum,
+        limits.description_limit,
+        limits.maximum_skills,
+        limits.maximum_connectors,
+        limits.maximum_companion_files,
+        limits.maximum_companion_file_bytes,
+        limits.maximum_companion_total_bytes,
+        limits.maximum_file_nesting_depth,
+        limits.maximum_manifest_skill_folder_characters,
+        limits.companion_download_timeout_seconds,
+        limits.maximum_toolkit_package_bytes,
+        limits.recommended_lines,
+        limits.recommended_activated_tokens,
+    )
+    if any(value <= 0 for value in positive_values):
+        message = "all numeric Cowork limits must be positive"
+        raise ValueError(message)
+    if limits.name_minimum > limits.name_maximum:
+        message = "skill name minimum must not exceed maximum"
+        raise ValueError(message)
+    if limits.description_minimum > limits.description_limit:
+        message = "skill description minimum must not exceed maximum"
+        raise ValueError(message)
+
+
 def load_limits(
     contract_path: Path = CONTRACT_PATH,
     toolchain_lock_path: Path = TOOLCHAIN_LOCK_PATH,
@@ -199,10 +382,15 @@ def load_limits(
         "frontmatter",
     )
     skill = _require_object(contract.get("skill"), "skill")
+    connector = _require_object(contract.get("connector"), "connector")
+    package = _require_object(contract.get("package"), "package")
+    cowork = _require_object(toolchain_lock.get("cowork"), "cowork")
     toolchain_limits = _require_object(
         toolchain_lock.get("limits"),
         "toolchain lock.limits",
     )
+    _validate_toolchain_limit_keys(toolchain_limits)
+    _validate_provenance(contract, cowork)
     target_extensions = _compatibility_extensions(
         contract,
         "skill",
@@ -228,19 +416,53 @@ def load_limits(
             frontmatter.get("allowedFields"),
             "frontmatter.allowedFields",
         ),
-        character_limit=_require_int(
+        character_limit=_matching_limit(
             frontmatter.get("strictCharacterLimit"),
             "frontmatter.strictCharacterLimit",
+            toolchain_limits.get("skillMarkdownCharacters"),
+            "toolchain lock.limits.skillMarkdownCharacters",
         ),
-        description_limit=_require_int(
+        name_minimum=_matching_limit(
+            frontmatter.get("nameMinimumCharacters"),
+            "frontmatter.nameMinimumCharacters",
+            toolchain_limits.get("skillNameMinimumCharacters"),
+            "toolchain lock.limits.skillNameMinimumCharacters",
+        ),
+        name_maximum=_matching_limit(
+            frontmatter.get("nameMaximumCharacters"),
+            "frontmatter.nameMaximumCharacters",
+            toolchain_limits.get("skillNameMaximumCharacters"),
+            "toolchain lock.limits.skillNameMaximumCharacters",
+        ),
+        name_pattern=_matching_pattern(
+            frontmatter.get("namePattern"),
+            "frontmatter.namePattern",
+            toolchain_limits.get("skillNamePattern"),
+            "toolchain lock.limits.skillNamePattern",
+        ),
+        description_minimum=_matching_limit(
+            frontmatter.get("descriptionMinimumCharacters"),
+            "frontmatter.descriptionMinimumCharacters",
+            toolchain_limits.get("skillDescriptionMinimumCharacters"),
+            "toolchain lock.limits.skillDescriptionMinimumCharacters",
+        ),
+        description_limit=_matching_limit(
             frontmatter.get("descriptionCharacterLimit"),
             "frontmatter.descriptionCharacterLimit",
+            toolchain_limits.get("skillDescriptionCharacters"),
+            "toolchain lock.limits.skillDescriptionCharacters",
         ),
         maximum_skills=_matching_limit(
             skill.get("maximumPerPackage"),
             "skill.maximumPerPackage",
             toolchain_limits.get("skillsPerPackage"),
             "toolchain lock.limits.skillsPerPackage",
+        ),
+        maximum_connectors=_matching_limit(
+            connector.get("maximumPerPackage"),
+            "connector.maximumPerPackage",
+            toolchain_limits.get("connectorsPerPackage"),
+            "toolchain lock.limits.connectorsPerPackage",
         ),
         maximum_companion_files=_matching_limit(
             skill.get("maximumCompanionFiles"),
@@ -278,15 +500,27 @@ def load_limits(
             toolchain_limits.get("companionDownloadTimeoutSeconds"),
             "toolchain lock.limits.companionDownloadTimeoutSeconds",
         ),
-        recommended_lines=_require_int(
+        maximum_toolkit_package_bytes=_matching_limit(
+            package.get("maximumToolkitPackageBytes"),
+            "package.maximumToolkitPackageBytes",
+            toolchain_limits.get("toolkitPackageBytes"),
+            "toolchain lock.limits.toolkitPackageBytes",
+        ),
+        recommended_lines=_matching_limit(
             skill.get("recommendedMaximumLines"),
             "skill.recommendedMaximumLines",
+            toolchain_limits.get("recommendedSkillLines"),
+            "toolchain lock.limits.recommendedSkillLines",
+        ),
+        recommended_activated_tokens=_matching_limit(
+            skill.get("recommendedMaximumActivatedTokens"),
+            "skill.recommendedMaximumActivatedTokens",
+            toolchain_limits.get("recommendedActivatedTokens"),
+            "toolchain lock.limits.recommendedActivatedTokens",
         ),
         fleet_converter_extensions=target_extensions,
     )
-    if limits.companion_download_timeout_seconds <= 0:
-        message = "companion download timeout must be positive"
-        raise ValueError(message)
+    _validate_limit_ranges(limits)
     return limits
 
 
@@ -464,6 +698,7 @@ def _validate_unique_slugs(slugs: list[str]) -> None:
 def manifest_skill_slugs(
     value: object,
     maximum_characters: int,
+    maximum_skills: int,
 ) -> tuple[str, ...]:
     """Return the sorted, validated ``agentSkills`` folder slugs.
 
@@ -473,6 +708,8 @@ def manifest_skill_slugs(
         Raw ``agentSkills`` manifest value.
     maximum_characters:
         Maximum raw ``folder`` character count.
+    maximum_skills:
+        Maximum number of declared skill folders.
 
     Returns
     -------
@@ -493,6 +730,9 @@ def manifest_skill_slugs(
         maximum_characters,
     )
     _validate_unique_slugs(slugs)
+    if len(slugs) > maximum_skills:
+        detail = f"{len(slugs)} declared skills exceeds {maximum_skills}"
+        raise _error(detail)
     return tuple(sorted(slugs))
 
 

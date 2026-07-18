@@ -51,12 +51,21 @@ def filtered_row(
     row: bytes,
     previous: bytes,
     filter_type: int,
+    bytes_per_pixel: int = 4,
 ) -> bytes:
     encoded = bytearray()
     for index, value in enumerate(row):
-        left = row[index - 4] if index >= 4 else 0
+        left = (
+            row[index - bytes_per_pixel]
+            if index >= bytes_per_pixel
+            else 0
+        )
         above = previous[index]
-        upper_left = previous[index - 4] if index >= 4 else 0
+        upper_left = (
+            previous[index - bytes_per_pixel]
+            if index >= bytes_per_pixel
+            else 0
+        )
         predictors = (
             0,
             left,
@@ -97,6 +106,16 @@ def color_rows(first_alpha: int) -> list[bytes]:
     return rows
 
 
+def rgb_color_rows() -> list[bytes]:
+    rows = []
+    for row_index in range(HEIGHT):
+        row = bytearray()
+        for column in range(WIDTH):
+            row.extend((20 + row_index, 40 + column, 60))
+        rows.append(bytes(row))
+    return rows
+
+
 def outline_rows(
     *,
     transparent_background: bool,
@@ -121,11 +140,19 @@ def outline_rows(
 def scanlines(
     rows: list[bytes],
     filters: tuple[int, ...] = (0, 1, 2, 3, 4),
+    bytes_per_pixel: int = 4,
 ) -> bytes:
-    previous = bytes(ROW_BYTES)
+    previous = bytes(WIDTH * bytes_per_pixel)
     encoded = bytearray()
     for row, filter_type in zip(rows, filters, strict=True):
-        encoded.extend(filtered_row(row, previous, filter_type))
+        encoded.extend(
+            filtered_row(
+                row,
+                previous,
+                filter_type,
+                bytes_per_pixel,
+            ),
+        )
         previous = row
     return bytes(encoded)
 
@@ -195,6 +222,15 @@ validate_png_bytes(
     icon_kind="color",
 )
 validate_png_bytes(
+    png(
+        scanlines(rgb_color_rows(), bytes_per_pixel=3),
+        color_type=2,
+    ),
+    (WIDTH, HEIGHT),
+    "valid-rgb-color",
+    icon_kind="color",
+)
+validate_png_bytes(
     png(scanlines(outline_rows(transparent_background=True))),
     (WIDTH, HEIGHT),
     "valid-outline",
@@ -207,8 +243,8 @@ bad_crc[idat_offset + 5] ^= 1
 expect_failure("crc", bytes(bad_crc), "CRC mismatch")
 expect_failure("signature", b"not-png", "signature")
 expect_failure("dimensions", png(valid_raw, width=WIDTH + 1), "dimensions")
-expect_failure("bit-depth", png(valid_raw, bit_depth=16), "8-bit RGBA")
-expect_failure("color-type", png(valid_raw, color_type=2), "8-bit RGBA")
+expect_failure("bit-depth", png(valid_raw, bit_depth=16), "8-bit RGB or RGBA")
+expect_failure("color-type", png(valid_raw, color_type=0), "8-bit RGB or RGBA")
 expect_failure("interlace", png(valid_raw, interlace=1), "no interlace")
 expect_failure(
     "short-decode",
@@ -252,6 +288,15 @@ expect_failure(
         ),
     ),
     "pure white",
+    icon_kind="outline",
+)
+expect_failure(
+    "rgb-outline",
+    png(
+        scanlines(rgb_color_rows(), bytes_per_pixel=3),
+        color_type=2,
+    ),
+    "outline IHDR must declare 8-bit RGBA",
     icon_kind="outline",
 )
 expect_failure("trailing", valid + b"x", "trailing data")
@@ -301,6 +346,33 @@ validate_png_bytes(
     valid_unknown_ancillary,
     (WIDTH, HEIGHT),
     "valid-unknown-ancillary",
+)
+
+rgb_header = struct.pack(
+    ">IIBBBBB",
+    WIDTH,
+    HEIGHT,
+    8,
+    2,
+    0,
+    0,
+    0,
+)
+rgb_compressed = zlib.compress(
+    scanlines(rgb_color_rows(), bytes_per_pixel=3),
+)
+rgb_transparency = (
+    SIGNATURE
+    + chunk(b"IHDR", rgb_header)
+    + chunk(b"tRNS", b"\x00\x14\x00\x28\x00\x3c")
+    + chunk(b"IDAT", rgb_compressed)
+    + chunk(b"IEND", b"")
+)
+expect_failure(
+    "rgb-transparency",
+    rgb_transparency,
+    "tRNS transparency is not allowed",
+    icon_kind="color",
 )
 
 invalid_reserved_type = (

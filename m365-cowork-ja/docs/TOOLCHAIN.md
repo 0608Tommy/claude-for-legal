@@ -2,7 +2,7 @@
 
 # 固定ツールチェーン
 
-基準日は2026-07-18です。機械可読な正本は
+基準日は2026-07-19です。機械可読な正本は
 `../shared/toolchain-lock.json` です。
 
 | 用途 | 固定値 |
@@ -10,6 +10,7 @@
 | Unified App Manifest | 1.28 |
 | M365 Agents Toolkit CLI | `@microsoft/m365agentstoolkit-cli@1.1.12` |
 | Agent Skills reference validator | `skills-ref==0.1.1` |
+| Strict YAML parser | `PyYAML==6.0.3` (`SafeLoader` + duplicate-key rejection) |
 | Power Platform CLI | `Microsoft.PowerApps.CLI.Tool@2.9.3` |
 | Power Platform runtime | .NET 10 |
 
@@ -22,7 +23,10 @@
 | Docs git commit | `ccf9e7d4473352536ff966995ed7cf305ff40292` |
 | `ms.date` | 2026-06-29 |
 | Page updated | 2026-07-07 |
-| Checked | 2026-07-18 |
+| Checked | 2026-07-19 |
+| Skill name | 1--64, `^[a-z0-9]+(?:-[a-z0-9]+)*$` |
+| Skill description | 1--1,024 characters |
+| Skills/package | 20 |
 | Companion count | 20 / skill（`SKILL.md`以外） |
 | Companion file | 5,242,880 uncompressed bytes |
 | Companion total | 10,485,760 uncompressed bytes / skill |
@@ -40,6 +44,11 @@ explicit ASCII、末尾dot/space、case-insensitive reserved basename/collision�
 保守的に拒否します。ZIP全体の20 MiB/memberと100 MiB expanded security limitは
 companionの5 MiB/10 MiB limitとは別に維持します。
 
+`target-contract.json`と`toolchain-lock.json`はname min/max/pattern、
+description min/max、skill/connector/companion count、file/total bytes、depth、
+folder path、timeout、SKILL.md characters、package bytes、recommended line/token
+値をexact parityでloadします。片側だけを変更するとfixtureが失敗します。
+
 ## ローカルのみで行う検証
 
 ```bash
@@ -52,6 +61,10 @@ m365-cowork-ja/.cache/skills-ref-venv/bin/python \
   -m skills_ref.cli validate \
   m365-cowork-ja/cowork-packages/<plugin>/skills/<skill>
 ```
+
+build preflightはexecutableの存在だけでなくinstalled distribution versionを
+`importlib.metadata`で読み、`skills-ref==0.1.1`と`PyYAML==6.0.3`を
+`toolchain-lock.json`どおりに要求します。
 
 `scripts/build-m365-cowork-packages.sh` はmanifest、skill、Apache通知、
 package上限を検証し、skills-only ZIPを再現可能に生成します。検証済みの正本は
@@ -87,6 +100,18 @@ Microsoftの `Convert-ClaudePluginToMOS3.ps1` はversion/checksumが公開され
 いないため、scaffoldとしてのみ使用します。現在のscriptはplaceholder
 icons/OAuth、`devPreview`、未正規化SKILL.mdを生成し得るため、そのまま
 配布しません。
+
+## Icon parser profile
+
+Microsoft 365 manifest 1.28の
+[`root.icons`](https://learn.microsoft.com/en-us/microsoft-365/extensibility/schema/root-icons?view=m365-app-1.28)
+は192x192 colorをfull-color PNG、32x32 outlineをtransparent PNGかつwhite
+borderとします。Microsoftのicon design guidanceはcolored/white backgroundと
+full flat-color backgroundを例示します。そのためcolorはopaque RGB
+（PNG color type 2）とopaque RGBA（type 6）の両方を許可します。outlineは
+alphaが必要なのでtype 6だけです。noninterlaced 8-bit、type 2/6限定、bounded
+inflate、`tRNS`拒否、critical chunk allowlistはfleet security profileであり、
+Microsoft platform全体のuniversal PNG ruleではありません。
 
 ## Power Platform
 

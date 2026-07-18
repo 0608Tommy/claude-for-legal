@@ -8,8 +8,26 @@
     "gitCommit": "ccf9e7d4473352536ff966995ed7cf305ff40292",
     "msDate": "2026-06-29",
     "pageUpdated": "2026-07-07",
-    "checkedAt": "2026-07-18"
+    "checkedAt": "2026-07-19"
   },
+  "officialIconSources": [
+    {
+      "title": "root.icons object",
+      "url": "https://learn.microsoft.com/en-us/microsoft-365/extensibility/schema/root-icons?view=m365-app-1.28",
+      "gitCommit": "6b6977d3ecac88e4bb94edb4693b7c8d42362aec",
+      "msDate": "2026-06-19",
+      "pageUpdated": "2026-06-19",
+      "checkedAt": "2026-07-19"
+    },
+    {
+      "title": "Design App Icon for Teams Store",
+      "url": "https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/design/design-teams-app-icon-store-appbar",
+      "gitCommit": "17e3ba5912e75ce4fd10a82b77be0c07a5d08d8f",
+      "msDate": "2026-06-03",
+      "pageUpdated": "2026-06-04",
+      "checkedAt": "2026-07-19"
+    }
+  ],
   "frontmatter": {
     "allowedFields": [
       "name",
@@ -19,6 +37,10 @@
       "compatibility"
     ],
     "strictCharacterLimit": 20000,
+    "nameMinimumCharacters": 1,
+    "nameMaximumCharacters": 64,
+    "namePattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+    "descriptionMinimumCharacters": 1,
     "descriptionCharacterLimit": 1024
   },
   "skill": {
@@ -46,6 +68,9 @@
     "maximumPerPackage": 10,
     "requiredTransport": "https-streamable-http",
     "localStdioSupported": false
+  },
+  "package": {
+    "maximumToolkitPackageBytes": 10485760
   },
   "jurisdictionResolution": [
     "request",

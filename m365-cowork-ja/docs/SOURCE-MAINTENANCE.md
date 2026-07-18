@@ -55,6 +55,16 @@ READMEのsecurity表、YAML comments、実際のtool scopeを一致させます�
 - `shared/migration-map.json`で全artifactの処置を管理する。
 - `shared/package-catalog.json`でapp ID・日本語表示名を固定する。
 - manifestは1.28 skills-onlyを既定とする。
+- skill `name`は1--64 charactersの
+  `^[a-z0-9]+(?:-[a-z0-9]+)*$`とし、folder名と完全一致させる。
+- `SKILL.md` frontmatterはsafe YAMLとしてparseし、malformed YAML、duplicate
+  key、mapping以外のroot、string以外の`name`/`description`を拒否する。
+  block scalarと許可済みfieldは保持する。
+- `description`は1--1,024 charactersとする。外部URLまたはmarketplace表現と
+  purchase/subscribe CTAが同時にある場合だけconservative lintで拒否する。
+  このlintは意味論の完全証明ではないため、公開時のhuman reviewを必須とする。
+- 1 packageの宣言skillは20件以下とし、source validatorだけでなくstandalone
+  ZIP normalizerでも同じ上限を強制する。
 - internal helperはcallerへflattenし、登録skillとして露出しない。
 - mandatory safety gateをoptional referenceだけへ移さない。
 - referenceはskill root内に閉じる。
@@ -75,6 +85,12 @@ READMEのsecurity表、YAML comments、実際のtool scopeを一致させます�
   skill-level legal fileは許可しない。
 - source-derived fileへApache変更通知を付ける。
 - connector、Power Platform solution、Cowork app ZIPを分離する。
+- connector数10件のcontract parityだけをlocalで確認する。transport、auth、
+  runtime availability、tenant registrationの受入は従来どおりdelegated/
+  blockedであり、offline validatorが完了扱いにしない。
+- color iconは192x192のopaque 8-bit RGBまたはopaque 8-bit RGBAを許可する。
+  outline iconは32x32 RGBA、transparent background、visible pure-white
+  pixelを必須とする。
 - CoCounselは書面承認までblockする。
 - 日本法moduleはqualified reviewer承認までproductionへ含めない。
 
@@ -84,10 +100,11 @@ READMEのsecurity表、YAML comments、実際のtool scopeを一致させます�
 [`Build plugins for Copilot Cowork`](https://learn.microsoft.com/en-us/microsoft-365/copilot/cowork/cowork-plugin-development)
 （git commit
 `ccf9e7d4473352536ff966995ed7cf305ff40292`、`ms.date`
-2026-06-29、page updated 2026-07-07、確認日2026-07-18）です。
+2026-06-29、page updated 2026-07-07、確認日2026-07-19）です。
 companion count、file/total size、relative path、traversal・backslash・NUL・
 hidden segment・Windows reserved nameの禁止、安全な文字、folder長、
-15秒download timeoutを公式ruleとして記録します。
+15秒download timeout、skill name/description、公開descriptionのmarketplace
+CTA注意を公式ruleとして記録します。
 
 Microsoft Learnの`5 MB`と`10 MB`は、このrepositoryでは再現可能な境界値として
 それぞれ5 MiB（5,242,880 bytes）と10 MiB（10,485,760 bytes）に固定します。
@@ -100,3 +117,14 @@ static validatorはnetwork時間を計測・強制しません。
 拒否はcross-platform展開を安定させるconservative Windows hardeningです。
 最大depth 3、lowercase extension allowlist、skill-level legal filename規約も
 Microsoft universal allowlistではなくrepository/fleet互換ruleです。
+
+icon根拠はMicrosoft Learnの
+[`root.icons object`](https://learn.microsoft.com/en-us/microsoft-365/extensibility/schema/root-icons?view=m365-app-1.28)
+（git commit `6b6977d3ecac88e4bb94edb4693b7c8d42362aec`）と
+[`Design App Icon for Teams Store`](https://learn.microsoft.com/en-us/microsoftteams/platform/concepts/design/design-teams-app-icon-store-appbar)
+（git commit `17e3ba5912e75ce4fd10a82b77be0c07a5d08d8f`、確認日
+2026-07-19）です。前者はoutlineだけをtransparent PNGと明記し、colorを
+full-color PNGとします。後者はcolored/white/full-flat-color backgroundを
+例示するため、opaque color PNGを受け入れます。noninterlaced 8-bitとcolor type
+2/6限定はparserのattack surfaceを狭めるrepository fleet security profileであり、
+Microsoftの全PNGに対する普遍的制約とは主張しません。

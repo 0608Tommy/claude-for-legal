@@ -15,9 +15,12 @@ DIST="$M365_ROOT/dist"
 CACHE="$M365_ROOT/.cache"
 CATALOG="$M365_ROOT/shared/package-catalog.json"
 MIGRATION_MAP="$M365_ROOT/shared/migration-map.json"
+TOOLCHAIN_LOCK="$M365_ROOT/shared/toolchain-lock.json"
 NORMALIZER="$ROOT/scripts/normalize_m365_cowork_package.py"
 ICON_VALIDATOR="$ROOT/scripts/validate_m365_cowork_icons.py"
 ATK_VERSION="1.1.12"
+SKILLS_REF_VERSION="0.1.1"
+PYYAML_VERSION="6.0.3"
 MAX_PACKAGE_BYTES=$((10 * 1024 * 1024))
 EXPECTED_PACKAGE_COUNT=12
 SKILLS_REF_PYTHON="${SKILLS_REF_PYTHON:-$CACHE/skills-ref-venv/bin/python}"
@@ -163,14 +166,43 @@ pause_at() {
 inject_failure "after-recovery"
 mkdir "$FIRST_STAGE" "$SECOND_STAGE"
 
-for tool in atk cmp cp diff find git jq mv sha256sum stat; do
+for tool in atk cmp cp diff find git jq mv python3 sha256sum stat; do
   command -v "$tool" >/dev/null || {
     echo "requires $tool" >&2
     exit 2
   }
 done
 [[ -x "$SKILLS_REF_PYTHON" ]] || {
-  echo "requires skills-ref 0.1.1 at $SKILLS_REF_PYTHON" >&2
+  echo "requires skills-ref $SKILLS_REF_VERSION at $SKILLS_REF_PYTHON" >&2
+  exit 2
+}
+
+locked_skills_ref_version="$(
+  jq -er '.tools.agentSkillsReference.version' "$TOOLCHAIN_LOCK"
+)"
+[[ "$locked_skills_ref_version" == "$SKILLS_REF_VERSION" ]] || {
+  echo "toolchain must pin skills-ref $SKILLS_REF_VERSION" >&2
+  exit 2
+}
+actual_skills_ref_version="$(
+  "$SKILLS_REF_PYTHON" -c \
+    'from importlib.metadata import version; print(version("skills-ref"))'
+)"
+[[ "$actual_skills_ref_version" == "$SKILLS_REF_VERSION" ]] || {
+  echo "requires skills-ref $SKILLS_REF_VERSION; found $actual_skills_ref_version" >&2
+  exit 2
+}
+
+locked_pyyaml_version="$(jq -er '.tools.pyYaml.version' "$TOOLCHAIN_LOCK")"
+[[ "$locked_pyyaml_version" == "$PYYAML_VERSION" ]] || {
+  echo "toolchain must pin PyYAML $PYYAML_VERSION" >&2
+  exit 2
+}
+actual_pyyaml_version="$(
+  python3 -c 'from importlib.metadata import version; print(version("PyYAML"))'
+)"
+[[ "$actual_pyyaml_version" == "$PYYAML_VERSION" ]] || {
+  echo "requires PyYAML $PYYAML_VERSION; found $actual_pyyaml_version" >&2
   exit 2
 }
 

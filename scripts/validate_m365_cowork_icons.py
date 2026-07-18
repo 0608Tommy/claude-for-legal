@@ -18,6 +18,10 @@ if TYPE_CHECKING:
 PNG_SIGNATURE: Final = b"\x89PNG\r\n\x1a\n"
 IHDR_FORMAT: Final = ">IIBBBBB"
 IHDR_LENGTH: Final = 13
+PNG_BIT_DEPTH: Final = 8
+PNG_COLOR_TYPE_RGB: Final = 2
+PNG_COLOR_TYPE_RGBA: Final = 6
+RGB_BYTES_PER_PIXEL: Final = 3
 RGBA_BYTES_PER_PIXEL: Final = 4
 TRANSPARENT_ALPHA: Final = 0
 OPAQUE_ALPHA: Final = 255
@@ -68,6 +72,8 @@ class PngHeader(NamedTuple):
 
     width: int
     height: int
+    color_type: int
+    bytes_per_pixel: int
 
 
 class PngChunk(NamedTuple):
@@ -136,27 +142,79 @@ def _parse_header(
     payload: bytes,
     expected_dimensions: tuple[int, int],
     context: str,
+    icon_kind: str | None,
 ) -> PngHeader:
-    """Validate the exact Microsoft 365 icon IHDR contract."""
+    """Validate the repository's bounded Microsoft icon IHDR profile."""
     if len(payload) != IHDR_LENGTH:
         raise _error(context, "IHDR must contain exactly 13 bytes")
     width, height, bit_depth, color_type, compression, filtering, interlace = (
         struct.unpack(IHDR_FORMAT, payload)
     )
+    _validate_dimensions(width, height, expected_dimensions, context)
+    bytes_per_pixel = _pixel_layout(
+        bit_depth,
+        color_type,
+        icon_kind,
+        context,
+    )
+    _validate_encoding_methods(compression, filtering, interlace, context)
+    return PngHeader(width, height, color_type, bytes_per_pixel)
+
+
+def _validate_dimensions(
+    width: int,
+    height: int,
+    expected_dimensions: tuple[int, int],
+    context: str,
+) -> None:
+    """Require the exact manifest icon dimensions."""
     if (width, height) != expected_dimensions:
         expected_width, expected_height = expected_dimensions
         raise _error(
             context,
             f"dimensions must be {expected_width}x{expected_height}",
         )
-    if (bit_depth, color_type) != (8, 6):
-        raise _error(context, "IHDR must declare 8-bit RGBA pixels")
+
+
+def _pixel_layout(
+    bit_depth: int,
+    color_type: int,
+    icon_kind: str | None,
+    context: str,
+) -> int:
+    """Return bytes per pixel for the bounded RGB/RGBA profile."""
+    if bit_depth != PNG_BIT_DEPTH:
+        raise _error(context, "IHDR must declare 8-bit RGB or RGBA pixels")
+    if color_type not in {
+        PNG_COLOR_TYPE_RGB,
+        PNG_COLOR_TYPE_RGBA,
+    }:
+        raise _error(context, "IHDR must declare 8-bit RGB or RGBA pixels")
+    if icon_kind == "outline":
+        _validate_outline_color_type(color_type, context)
+    if color_type == PNG_COLOR_TYPE_RGB:
+        return RGB_BYTES_PER_PIXEL
+    return RGBA_BYTES_PER_PIXEL
+
+
+def _validate_outline_color_type(color_type: int, context: str) -> None:
+    """Require alpha-capable pixels for a transparent outline icon."""
+    if color_type != PNG_COLOR_TYPE_RGBA:
+        raise _error(context, "outline IHDR must declare 8-bit RGBA pixels")
+
+
+def _validate_encoding_methods(
+    compression: int,
+    filtering: int,
+    interlace: int,
+    context: str,
+) -> None:
+    """Require standard PNG methods and noninterlaced scanlines."""
     if (compression, filtering, interlace) != (0, 0, 0):
         raise _error(
             context,
             "IHDR must use standard compression/filtering and no interlace",
         )
-    return PngHeader(width, height)
 
 
 def _inflate_scanlines(
@@ -241,20 +299,21 @@ def _reconstruct_row(
     filtered: bytearray,
     previous: bytearray,
     context: str,
+    bytes_per_pixel: int,
 ) -> bytearray:
     """Reconstruct one PNG row for filter types zero through four."""
     if filter_type not in PNG_FILTER_TYPES:
         raise _error(context, f"unsupported PNG filter type {filter_type}")
     for index, value in enumerate(filtered):
         left = (
-            filtered[index - RGBA_BYTES_PER_PIXEL]
-            if index >= RGBA_BYTES_PER_PIXEL
+            filtered[index - bytes_per_pixel]
+            if index >= bytes_per_pixel
             else 0
         )
         above = previous[index]
         upper_left = (
-            previous[index - RGBA_BYTES_PER_PIXEL]
-            if index >= RGBA_BYTES_PER_PIXEL
+            previous[index - bytes_per_pixel]
+            if index >= bytes_per_pixel
             else 0
         )
         predictor = _filter_predictor(
@@ -290,8 +349,8 @@ def _reconstructed_rows(
     header: PngHeader,
     context: str,
 ) -> Iterator[bytearray]:
-    """Yield each reconstructed RGBA scanline."""
-    row_length = header.width * RGBA_BYTES_PER_PIXEL
+    """Yield each reconstructed RGB or RGBA scanline."""
+    row_length = header.width * header.bytes_per_pixel
     stride = row_length + 1
     previous = bytearray(row_length)
     for row_index in range(header.height):
@@ -303,6 +362,7 @@ def _reconstructed_rows(
             filtered,
             previous,
             context,
+            header.bytes_per_pixel,
         )
         yield current
         previous = current
@@ -322,18 +382,26 @@ def _pixel_profile(
     )
     for current in _reconstructed_rows(decoded, header, context):
         row_length = len(current)
-        for index in range(0, row_length, RGBA_BYTES_PER_PIXEL):
-            pixel = current[index:index + RGBA_BYTES_PER_PIXEL]
+        for index in range(0, row_length, header.bytes_per_pixel):
+            pixel = current[index:index + header.bytes_per_pixel]
             profile = _merge_pixel_profiles(
                 profile,
-                _profile_pixel(pixel),
+                _profile_pixel(pixel, header.color_type),
             )
     return profile
 
 
-def _profile_pixel(pixel: bytearray) -> PngPixelProfile:
-    """Summarize one reconstructed RGBA pixel."""
-    red, green, blue, alpha = pixel
+def _profile_pixel(
+    pixel: bytearray,
+    color_type: int,
+) -> PngPixelProfile:
+    """Summarize one reconstructed RGB or RGBA pixel."""
+    red, green, blue = pixel[:RGB_BYTES_PER_PIXEL]
+    alpha = (
+        pixel[RGB_BYTES_PER_PIXEL]
+        if color_type == PNG_COLOR_TYPE_RGBA
+        else OPAQUE_ALPHA
+    )
     transparent = alpha == TRANSPARENT_ALPHA
     return PngPixelProfile(
         has_transparent=transparent,
@@ -419,7 +487,7 @@ def validate_png_bytes(
     *,
     icon_kind: str | None = None,
 ) -> None:
-    """Validate one complete non-interlaced, 8-bit RGBA PNG image.
+    """Validate one complete noninterlaced 8-bit RGB or RGBA PNG.
 
     Parameters
     ----------
@@ -443,8 +511,9 @@ def validate_png_bytes(
         chunks,
         expected_dimensions,
         context,
+        icon_kind,
     )
-    row_length = header.width * RGBA_BYTES_PER_PIXEL + 1
+    row_length = header.width * header.bytes_per_pixel + 1
     expected_length = header.height * row_length
     decoded = _inflate_scanlines(
         compressed,
@@ -594,6 +663,7 @@ def _validate_chunk_structure(
     chunks: list[PngChunk],
     expected_dimensions: tuple[int, int],
     context: str,
+    icon_kind: str | None,
 ) -> tuple[PngHeader, bytes]:
     """Validate PNG chunk ordering and return its header and IDAT bytes."""
     _validate_critical_chunks(chunks, context)
@@ -604,9 +674,20 @@ def _validate_chunk_structure(
         chunks[0].payload,
         expected_dimensions,
         context,
+        icon_kind,
     )
+    _validate_transparency_chunks(chunks, context)
     compressed = b"".join(chunks[index].payload for index in idat_indices)
     return header, compressed
+
+
+def _validate_transparency_chunks(
+    chunks: list[PngChunk],
+    context: str,
+) -> None:
+    """Reject palette-style transparency from the opaque/alpha profile."""
+    if any(chunk.chunk_type == b"tRNS" for chunk in chunks):
+        raise _error(context, "tRNS transparency is not allowed")
 
 
 def validate_png(

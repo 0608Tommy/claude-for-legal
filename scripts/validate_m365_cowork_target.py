@@ -13,10 +13,9 @@ from pathlib import Path
 from typing import Final
 
 from m365_cowork_frontmatter import (
-    extract_frontmatter,
-    frontmatter_fields,
-    frontmatter_scalar,
-    frontmatter_text,
+    FrontmatterError,
+    frontmatter_validation_errors,
+    parse_frontmatter,
 )
 from m365_cowork_path_policy import (
     CompanionItem,
@@ -33,7 +32,6 @@ from m365_cowork_path_policy import (
 
 ROOT: Final = Path(__file__).resolve().parent.parent
 TARGET_ROOT: Final = ROOT / "m365-cowork-ja" / "cowork-packages"
-TARGET_ID_RE: Final = re.compile(r"^[a-z0-9][a-z0-9-]{1,63}$")
 MARKDOWN_LINK_RE: Final = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 BACKTICK_PATH_RE: Final = re.compile(
     r"`((?:(?:/|\./|\.\./)[^`\n]+|references/[A-Za-z0-9_./-]+))`",
@@ -97,6 +95,7 @@ def _manifest_declared_skills(
         declared = manifest_skill_slugs(
             manifest.get("agentSkills"),
             limits.maximum_manifest_skill_folder_characters,
+            limits.maximum_skills,
         )
     except CoworkPathError as error:
         return (), [f"{relative}: {error}"]
@@ -389,53 +388,13 @@ def _hidden_control_errors(
     return []
 
 
-def _unexpected_frontmatter_errors(
-    fields: tuple[str, ...],
-    limits: Limits,
-    relative: str,
-) -> list[str]:
-    """Return errors for unsupported frontmatter fields."""
-    unsupported = sorted(set(fields) - limits.allowed_fields)
-    if unsupported:
-        return [f"{relative}: unexpected frontmatter fields {unsupported}"]
-    return []
-
-
-def _name_errors(
-    name: str | None,
-    skill_path: Path,
-    relative: str,
-) -> list[str]:
-    """Return target skill name errors."""
-    expected_name = skill_path.parent.name
-    errors: list[str] = []
-    if name != expected_name:
-        errors.append(f"{relative}: name must match folder {expected_name}")
-    if name is None or TARGET_ID_RE.fullmatch(name) is None:
-        errors.append(f"{relative}: invalid target skill name {name!r}")
-    errors.extend(_hidden_control_errors(name, "name", relative))
-    return errors
-
-
-def _description_errors(
-    description: str | None,
-    limits: Limits,
-    relative: str,
-) -> list[str]:
-    """Return target skill description errors."""
-    if not description:
-        return [f"{relative}: description is required"]
-    errors: list[str] = []
-    if len(description) > limits.description_limit:
-        errors.append(
-            f"{relative}: description has {len(description)} characters",
-        )
-    elif JAPANESE_CHARACTER_RE.search(description) is None:
-        errors.append(f"{relative}: description must contain Japanese text")
-    errors.extend(
-        _hidden_control_errors(description, "description", relative),
-    )
-    return errors
+def _string_value(
+    document: dict[str, object],
+    field: str,
+) -> str | None:
+    """Return one parsed string field when its YAML type is correct."""
+    value = document.get(field)
+    return value if isinstance(value, str) else None
 
 
 def _frontmatter_errors(
@@ -445,17 +404,27 @@ def _frontmatter_errors(
     relative: str,
 ) -> list[str]:
     """Return strict frontmatter errors."""
-    errors: list[str] = []
     try:
-        frontmatter = extract_frontmatter(text, skill_path)
-    except ValueError as error:
+        document = parse_frontmatter(text, skill_path)
+    except FrontmatterError as error:
         return [str(error)]
-    fields = frontmatter_fields(frontmatter)
-    name = frontmatter_scalar(frontmatter, "name")
-    description = frontmatter_text(frontmatter, "description")
-    errors.extend(_unexpected_frontmatter_errors(fields, limits, relative))
-    errors.extend(_name_errors(name, skill_path, relative))
-    errors.extend(_description_errors(description, limits, relative))
+    errors = [
+        f"{relative}: {detail}"
+        for detail in frontmatter_validation_errors(
+            document,
+            skill_path.parent.name,
+            limits.frontmatter_policy(),
+        )
+    ]
+    name = _string_value(document, "name")
+    description = _string_value(document, "description")
+    errors.extend(_hidden_control_errors(name, "name", relative))
+    errors.extend(_hidden_control_errors(description, "description", relative))
+    if (
+        description is not None
+        and JAPANESE_CHARACTER_RE.search(description) is None
+    ):
+        errors.append(f"{relative}: description must contain Japanese text")
     return errors
 
 

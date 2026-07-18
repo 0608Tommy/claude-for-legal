@@ -9,6 +9,7 @@ M365_ROOT="$ROOT/m365-cowork-ja"
 SOURCE="$M365_ROOT/cowork-packages/legal-clinic"
 SCRATCH="$M365_ROOT/.cache/package-build-test.${BASHPID:-$$}"
 PYTHON_FILES=(
+  "$ROOT/scripts/m365_cowork_frontmatter.py"
   "$ROOT/scripts/m365_cowork_path_policy.py"
   "$ROOT/scripts/normalize_m365_cowork_package.py"
   "$ROOT/scripts/validate_m365_cowork_icons.py"
@@ -37,7 +38,8 @@ mkdir -p "$TMPDIR"
 
 ruff check --no-cache --select ALL "${PYTHON_FILES[@]}"
 flake8 "${PYTHON_FILES[@]}"
-mypy --strict --cache-dir "$SCRATCH/mypy" "${PYTHON_FILES[@]}"
+MYPYPATH="$ROOT/scripts/typings" \
+  mypy --strict --cache-dir "$SCRATCH/mypy" "${PYTHON_FILES[@]}"
 pylint --fail-under=10 "${PYTHON_FILES[@]}"
 bandit -q "${PYTHON_FILES[@]}"
 pydocstyle --convention=numpy "${PYTHON_FILES[@]}"
@@ -55,6 +57,25 @@ maintainability="$(radon mi -s -n B "${PYTHON_FILES[@]}")"
   exit 1
 }
 pyright --project "$ROOT/scripts/pyrightconfig.m365-build.json"
+
+WRONG_SKILLS_REF="$SCRATCH/wrong-skills-ref-python"
+cat >"$WRONG_SKILLS_REF" <<'EOF'
+#!/usr/bin/env bash
+printf '0.1.0\n'
+EOF
+chmod 755 "$WRONG_SKILLS_REF"
+if version_output="$(
+  SKILLS_REF_PYTHON="$WRONG_SKILLS_REF" \
+    bash "$ROOT/scripts/build-m365-cowork-packages.sh" 2>&1
+)"; then
+  echo "build accepted the wrong skills-ref version" >&2
+  exit 1
+fi
+[[ "$version_output" == *"requires skills-ref 0.1.1; found 0.1.0"* ]] || {
+  echo "wrong skills-ref fixture reported an unexpected error:" >&2
+  echo "$version_output" >&2
+  exit 1
+}
 
 python3 - "$SCRATCH" "$SOURCE" <<'PY'
 from __future__ import annotations
@@ -326,6 +347,85 @@ def single_skill_source(
         json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+    write_minimal_frontmatter(source_root, replacement_slug)
+    return source_root
+
+
+def write_manifest(source_root: Path, manifest: dict[str, object]) -> None:
+    manifest_path = source_root / "manifest.json"
+    manifest_path.write_text(
+        json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+def load_manifest(source_root: Path) -> dict[str, object]:
+    value = json.loads(
+        (source_root / "manifest.json").read_text(encoding="utf-8"),
+    )
+    if not isinstance(value, dict):
+        raise AssertionError("fixture manifest must be an object")
+    return value
+
+
+def write_minimal_frontmatter(
+    source_root: Path,
+    slug: str,
+    *,
+    description: str = "日本語のnormalizer fixtureです。",
+    include_name: bool = True,
+    include_description: bool = True,
+) -> None:
+    fields = []
+    if include_name:
+        fields.append(f"name: {slug}")
+    if include_description:
+        fields.append(f"description: {description}")
+    fields.append("license: Apache-2.0")
+    write_frontmatter(source_root, slug, fields)
+
+
+def write_frontmatter(
+    source_root: Path,
+    slug: str,
+    fields: list[str],
+) -> None:
+    path = source_root / "skills" / slug / "SKILL.md"
+    text = path.read_text(encoding="utf-8")
+    parts = text.split("---", 2)
+    if len(parts) != 3:
+        raise AssertionError("fixture SKILL.md has invalid boundaries")
+    path.write_text(
+        "---\n" + "\n".join(fields) + "\n---" + parts[2],
+        encoding="utf-8",
+    )
+
+
+def skill_count_source(label: str, count: int) -> Path:
+    source_root = clone_source(label)
+    skills_root = source_root / "skills"
+    template = skills_root / skill_slug
+    template_copy = scratch / f"{label}-skill-template"
+    shutil.copytree(template, template_copy)
+    for child in sorted(skills_root.iterdir()):
+        shutil.rmtree(child)
+    slugs = [f"skill-{number:02d}" for number in range(1, count + 1)]
+    for slug in slugs:
+        shutil.copytree(template_copy, skills_root / slug)
+        write_minimal_frontmatter(source_root, slug)
+    manifest = load_manifest(source_root)
+    manifest["agentSkills"] = [
+        {"folder": f"./skills/{slug}"} for slug in slugs
+    ]
+    write_manifest(source_root, manifest)
+    return source_root
+
+
+def manifest_fixture(label: str, agent_skills: list[object]) -> Path:
+    source_root = clone_source(label)
+    manifest = load_manifest(source_root)
+    manifest["agentSkills"] = agent_skills
+    write_manifest(source_root, manifest)
     return source_root
 
 
@@ -397,6 +497,237 @@ with zipfile.ZipFile(normalized_one) as archive:
     for name in notice_names:
         if archive.read(name) != canonical_legal["NOTICE"]:
             raise AssertionError(f"notice bytes differ: {name}")
+
+twenty_skills = skill_count_source("twenty-skills", limits.maximum_skills)
+expect_success(
+    "twenty-skills",
+    twenty_skills,
+    members_for(twenty_skills),
+)
+twenty_one_skills = skill_count_source(
+    "twenty-one-skills",
+    limits.maximum_skills + 1,
+)
+expect_failure(
+    "twenty-one-skills",
+    members_for(twenty_one_skills),
+    "21 declared skills exceeds 20",
+    twenty_one_skills,
+)
+
+folder_value = f"./skills/{skill_slug}"
+missing_folder = manifest_fixture("missing-folder", [{}])
+expect_failure(
+    "missing-folder",
+    members_for(missing_folder),
+    "folder must be a nonempty string",
+    missing_folder,
+)
+non_string_folder = manifest_fixture(
+    "non-string-folder",
+    [{"folder": 123}],
+)
+expect_failure(
+    "non-string-folder",
+    members_for(non_string_folder),
+    "folder must be a nonempty string",
+    non_string_folder,
+)
+duplicate_folder = manifest_fixture(
+    "duplicate-folder",
+    [{"folder": folder_value}, {"folder": folder_value}],
+)
+expect_failure(
+    "duplicate-folder",
+    members_for(duplicate_folder),
+    "agentSkills contains duplicate folders",
+    duplicate_folder,
+)
+case_duplicate_folder = manifest_fixture(
+    "case-duplicate-folder",
+    [
+        {"folder": folder_value},
+        {"folder": f"./skills/{skill_slug.upper()}"},
+    ],
+)
+expect_failure(
+    "case-duplicate-folder",
+    members_for(case_duplicate_folder),
+    "agentSkills contains case-colliding folders",
+    case_duplicate_folder,
+)
+
+missing_skills_root = clone_source("missing-skills-root")
+shutil.rmtree(missing_skills_root / "skills")
+expect_failure(
+    "missing-skills-root",
+    members_for(missing_skills_root),
+    "must be a regular directory",
+    missing_skills_root,
+)
+
+missing_skill_md = clone_source("missing-skill-md")
+(
+    missing_skill_md / "skills" / skill_slug / "SKILL.md"
+).unlink()
+expect_failure(
+    "missing-skill-md",
+    members_for(missing_skill_md),
+    "required source file missing or empty",
+    missing_skill_md,
+)
+
+missing_name = clone_source("missing-name")
+write_minimal_frontmatter(
+    missing_name,
+    skill_slug,
+    include_name=False,
+)
+expect_failure(
+    "missing-name",
+    members_for(missing_name),
+    "name is required",
+    missing_name,
+)
+
+missing_description = clone_source("missing-description")
+write_minimal_frontmatter(
+    missing_description,
+    skill_slug,
+    include_description=False,
+)
+expect_failure(
+    "missing-description",
+    members_for(missing_description),
+    "description is required",
+    missing_description,
+)
+
+for plain_name in ("true", "null", "123", "2026-01-01", "on"):
+    plain_source = single_skill_source(
+        f"name-plain-{plain_name}",
+        skill_slug,
+        plain_name,
+    )
+    expect_success(
+        f"name-plain-{plain_name}",
+        plain_source,
+        members_for(plain_source),
+    )
+
+for label, tagged_name in (
+    ("explicit-str-tag", "!!str example"),
+    ("explicit-bool-tag", "!!bool true"),
+    ("explicit-timestamp-tag", "!!timestamp 2026-01-01"),
+    ("unsupported-yaml-tag", "!unsupported example"),
+):
+    tagged_source = clone_source(label)
+    write_frontmatter(
+        tagged_source,
+        skill_slug,
+        [
+            f"name: {tagged_name}",
+            "description: 日本語のtagged constructor fixtureです。",
+            "license: Apache-2.0",
+        ],
+    )
+    expect_failure(
+        label,
+        members_for(tagged_source),
+        "malformed YAML frontmatter",
+        tagged_source,
+    )
+
+description_one = clone_source("description-one")
+write_minimal_frontmatter(description_one, skill_slug, description="あ")
+expect_success(
+    "description-one",
+    description_one,
+    members_for(description_one),
+)
+description_1024 = clone_source("description-1024")
+write_minimal_frontmatter(
+    description_1024,
+    skill_slug,
+    description="あ" * limits.description_limit,
+)
+expect_success(
+    "description-1024",
+    description_1024,
+    members_for(description_1024),
+)
+description_1025 = clone_source("description-1025")
+write_minimal_frontmatter(
+    description_1025,
+    skill_slug,
+    description="あ" * (limits.description_limit + 1),
+)
+expect_failure(
+    "description-1025",
+    members_for(description_1025),
+    "description has 1025 characters; expected 1-1024",
+    description_1025,
+)
+
+neutral_subscription = clone_source("neutral-subscription")
+write_minimal_frontmatter(
+    neutral_subscription,
+    skill_slug,
+    description="reviews SaaS subscription terms",
+)
+expect_success(
+    "neutral-subscription",
+    neutral_subscription,
+    members_for(neutral_subscription),
+)
+purchase_cta = clone_source("purchase-cta")
+write_minimal_frontmatter(
+    purchase_cta,
+    skill_slug,
+    description=(
+        "Purchase a subscription at https://example.com/marketplace"
+    ),
+)
+expect_failure(
+    "purchase-cta",
+    members_for(purchase_cta),
+    "external-marketplace purchase or subscription call to action",
+    purchase_cta,
+)
+
+depth_three = clone_source("depth-three")
+depth_three_path = (
+    depth_three
+    / "skills"
+    / skill_slug
+    / "references"
+    / "common"
+    / "ja-jp"
+    / "data.txt"
+)
+depth_three_path.parent.mkdir(parents=True, exist_ok=True)
+depth_three_path.write_bytes(b"depth three")
+expect_success("depth-three", depth_three, members_for(depth_three))
+
+depth_four = clone_source("depth-four")
+depth_four_path = (
+    depth_four
+    / "skills"
+    / skill_slug
+    / "references"
+    / "common"
+    / "jurisdictions"
+    / "ja-jp"
+    / "data.txt"
+)
+depth_four_path.parent.mkdir(parents=True, exist_ok=True)
+depth_four_path.write_bytes(b"depth four")
+expect_failure(
+    "depth-four",
+    members_for(depth_four),
+    "file nesting depth 4 exceeds maximum 3",
+    depth_four,
+)
 
 color_name = "color.png"
 manifest_name = "manifest.json"
@@ -638,10 +969,11 @@ folder_source_at_limit = single_skill_source(
     skill_slug,
     slug_at_limit,
 )
-expect_success(
+expect_failure(
     "folder-at-limit",
-    folder_source_at_limit,
     members_for(folder_source_at_limit),
+    "name has 247 characters; expected 1-64",
+    folder_source_at_limit,
 )
 folder_source_over_limit = single_skill_source(
     "folder-over-limit",
