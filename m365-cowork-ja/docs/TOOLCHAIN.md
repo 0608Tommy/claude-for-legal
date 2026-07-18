@@ -2,7 +2,7 @@
 
 # 固定ツールチェーン
 
-基準日は2026-07-17です。機械可読な正本は
+基準日は2026-07-18です。機械可読な正本は
 `../shared/toolchain-lock.json` です。
 
 | 用途 | 固定値 |
@@ -12,6 +12,33 @@
 | Agent Skills reference validator | `skills-ref==0.1.1` |
 | Power Platform CLI | `Microsoft.PowerApps.CLI.Tool@2.9.3` |
 | Power Platform runtime | .NET 10 |
+
+## Cowork companion validationの根拠
+
+| 項目 | 固定値 |
+|---|---|
+| Microsoft Learn page | `Build plugins for Copilot Cowork` |
+| URL | `https://learn.microsoft.com/en-us/microsoft-365/copilot/cowork/cowork-plugin-development` |
+| Docs git commit | `ccf9e7d4473352536ff966995ed7cf305ff40292` |
+| `ms.date` | 2026-06-29 |
+| Page updated | 2026-07-07 |
+| Checked | 2026-07-18 |
+| Companion count | 20 / skill（`SKILL.md`以外） |
+| Companion file | 5,242,880 uncompressed bytes |
+| Companion total | 10,485,760 uncompressed bytes / skill |
+| Raw `agentSkills[].folder` | 256 characters（`./`込み） |
+| Runtime download timeout | 15 seconds（static-unenforced） |
+
+Microsoftのpageはsizeを`MB`と表記します。このrepositoryは曖昧さをなくすため
+5 MiB / 10 MiBのbinary byte値として固定します。15秒timeoutはCowork runtimeの
+全companion downloadに対する情報であり、local source/ZIP validatorは
+network時間を強制しません。`toolchain-lock.json`の`sourceRevision`は
+repository source snapshotを示す別のprovenanceなので変更しません。
+
+公式のsafe-path ruleに加え、repositoryはcross-platform ZIP展開のため
+explicit ASCII、末尾dot/space、case-insensitive reserved basename/collisionを
+保守的に拒否します。ZIP全体の20 MiB/memberと100 MiB expanded security limitは
+companionの5 MiB/10 MiB limitとは別に維持します。
 
 ## ローカルのみで行う検証
 

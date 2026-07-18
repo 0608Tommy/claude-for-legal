@@ -1,12 +1,20 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-07-17",
+  "checkedAt": "2026-07-18",
   "sourceRevision": "5ceb305b30b4c82653c9b6642499c12e946ec319",
   "cowork": {
     "availability": "GA",
     "manifestVersion": "1.28",
     "manifestSchema": "https://developer.microsoft.com/json-schemas/teams/v1.28/MicrosoftTeams.schema.json",
     "initialPackageScope": "skills-only",
+    "officialValidationSource": {
+      "title": "Build plugins for Copilot Cowork",
+      "url": "https://learn.microsoft.com/en-us/microsoft-365/copilot/cowork/cowork-plugin-development",
+      "gitCommit": "ccf9e7d4473352536ff966995ed7cf305ff40292",
+      "msDate": "2026-06-29",
+      "pageUpdated": "2026-07-07",
+      "checkedAt": "2026-07-18"
+    },
     "fleetConverterCompatibility": {
       "fileExtensions": [
         ".md",
@@ -63,6 +71,7 @@
     "maximumFileNestingDepth": 3,
     "companionFileBytes": 5242880,
     "companionTotalBytes": 10485760,
+    "companionDownloadTimeoutSeconds": 15,
     "toolkitPackageBytes": 10485760,
     "skillDescriptionCharacters": 1024,
     "skillFolderPathCharacters": 256

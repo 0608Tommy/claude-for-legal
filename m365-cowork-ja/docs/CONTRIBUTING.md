@@ -27,6 +27,14 @@
   `compatibility`だけを使う。
 - skill ID、path、enum、URL、citationを翻訳しない。
 - shared referenceをskill rootの外へ参照しない。
+- manifestのraw `agentSkills[].folder`は`./`込み256文字以下とし、宣言skillと
+  source directoryを完全一致させる。
+- `SKILL.md`以外（`LICENSE.txt`と`NOTICE.txt`を含む）はすべてcompanionとして
+  数え、1 skillあたり20 files、各5,242,880 bytes、合計10,485,760 bytesを
+  超えない。
+- companion pathの各segmentはASCII `[A-Za-z0-9._! -]+`だけを使う。
+  hidden segment、backslash/control、末尾dot/space、Windows reserved
+  basename、case-insensitive collisionを含めない。`COM10`はreservedではない。
 - source-derived MarkdownへApache変更通知を付ける。
 - package rootの英語`LICENSE`と`NOTICE`を正式な正本として必須にし、
   skills-only ZIPのroot memberには含めない。
@@ -53,3 +61,9 @@ bash scripts/build-m365-cowork-packages.sh
 
 Python変更はsuppressionsなしでstrict gateを通します。JSONは2-space indent、
 全text fileはfinal newline、trailing whitespaceなしとします。
+
+Microsoft Learnのsize表記は、このrepositoryではbinary MiBのexact byte境界
+（5 MiB / 10 MiB）として検証します。15秒companion download timeoutは
+runtime-only情報であり、local static testがnetwork timeoutを模擬するものでは
+ありません。公式ruleと追加のWindows hardeningの区別は
+[`SOURCE-MAINTENANCE.md`](SOURCE-MAINTENANCE.md)を参照してください。

@@ -2,6 +2,14 @@
   "schemaVersion": 1,
   "target": "Microsoft 365 Copilot Cowork",
   "distribution": "tenant",
+  "officialValidationSource": {
+    "title": "Build plugins for Copilot Cowork",
+    "url": "https://learn.microsoft.com/en-us/microsoft-365/copilot/cowork/cowork-plugin-development",
+    "gitCommit": "ccf9e7d4473352536ff966995ed7cf305ff40292",
+    "msDate": "2026-06-29",
+    "pageUpdated": "2026-07-07",
+    "checkedAt": "2026-07-18"
+  },
   "frontmatter": {
     "allowedFields": [
       "name",
@@ -16,7 +24,12 @@
   "skill": {
     "maximumPerPackage": 20,
     "maximumCompanionFiles": 20,
+    "maximumCompanionFileBytes": 5242880,
+    "maximumCompanionTotalBytes": 10485760,
     "maximumFileNestingDepth": 3,
+    "maximumManifestSkillFolderCharacters": 256,
+    "companionDownloadTimeoutSeconds": 15,
+    "companionDownloadTimeoutStaticEnforcement": false,
     "recommendedMaximumLines": 500,
     "recommendedMaximumActivatedTokens": 5000,
     "fleetConverterCompatibility": {

@@ -10,7 +10,7 @@ import re
 import sys
 import unicodedata
 from pathlib import Path
-from typing import Final, NamedTuple, cast
+from typing import Final
 
 from m365_cowork_frontmatter import (
     extract_frontmatter,
@@ -18,17 +18,22 @@ from m365_cowork_frontmatter import (
     frontmatter_scalar,
     frontmatter_text,
 )
+from m365_cowork_path_policy import (
+    CompanionItem,
+    CoworkPathError,
+    Limits,
+    companion_limit_errors,
+    companion_policy,
+    cowork_path_collision_key,
+    load_json_object,
+    load_limits,
+    manifest_skill_slugs,
+    validate_cowork_relative_path,
+)
 
 ROOT: Final = Path(__file__).resolve().parent.parent
 TARGET_ROOT: Final = ROOT / "m365-cowork-ja" / "cowork-packages"
-CONTRACT_PATH: Final = (
-    ROOT / "m365-cowork-ja" / "shared" / "target-contract.json"
-)
-TOOLCHAIN_LOCK_PATH: Final = (
-    ROOT / "m365-cowork-ja" / "shared" / "toolchain-lock.json"
-)
 TARGET_ID_RE: Final = re.compile(r"^[a-z0-9][a-z0-9-]{1,63}$")
-FILE_EXTENSION_RE: Final = re.compile(r"^\.[a-z0-9]+$")
 MARKDOWN_LINK_RE: Final = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 BACKTICK_PATH_RE: Final = re.compile(
     r"`((?:(?:/|\./|\.\./)[^`\n]+|references/[A-Za-z0-9_./-]+))`",
@@ -42,6 +47,7 @@ JAPANESE_CHARACTER_RE: Final = re.compile(
 CHANGE_NOTICE_MARKER: Final = "> **変更通知:**"
 FORBIDDEN_RUNTIME_MARKERS: Final = ("~/.claude/", "$ARGUMENTS")
 SKILL_ENTRYPOINT_NAME: Final = "SKILL.md"
+MANIFEST_NAME: Final = "manifest.json"
 PACKAGE_LEGAL_FILE_NAMES: Final = ("LICENSE", "NOTICE")
 SKILL_LEGAL_FILE_PAIRS: Final = (
     ("LICENSE.txt", "LICENSE"),
@@ -51,169 +57,6 @@ SKILL_LEGAL_NAMES_BY_STEM: Final = {
     "license": "LICENSE.txt",
     "notice": "NOTICE.txt",
 }
-
-
-class Limits(NamedTuple):
-    """Validated target package limits."""
-
-    allowed_fields: frozenset[str]
-    character_limit: int
-    description_limit: int
-    maximum_skills: int
-    maximum_companion_files: int
-    maximum_file_nesting_depth: int
-    recommended_lines: int
-    fleet_converter_extensions: frozenset[str]
-
-
-def _require_object(value: object, context: str) -> dict[str, object]:
-    """Require a JSON object."""
-    if not isinstance(value, dict):
-        message = f"{context} must be an object"
-        raise TypeError(message)
-    return cast("dict[str, object]", value)
-
-
-def _require_int(value: object, context: str) -> int:
-    """Require a JSON integer."""
-    if not isinstance(value, int) or isinstance(value, bool):
-        message = f"{context} must be an integer"
-        raise TypeError(message)
-    return value
-
-
-def _require_strings(value: object, context: str) -> frozenset[str]:
-    """Require a JSON array of strings."""
-    if not isinstance(value, list):
-        message = f"{context} must be an array of strings"
-        raise TypeError(message)
-    items = cast("list[object]", value)
-    if not all(isinstance(item, str) for item in items):
-        message = f"{context} must be an array of strings"
-        raise TypeError(message)
-    return frozenset(cast("list[str]", items))
-
-
-def _require_extension_set(
-    value: object,
-    context: str,
-) -> frozenset[str]:
-    """Require a non-empty set of normalized file extensions."""
-    extensions = _require_strings(value, context)
-    raw_items = cast("list[object]", value)
-    if not extensions:
-        message = f"{context} must not be empty"
-        raise ValueError(message)
-    if len(raw_items) != len(extensions):
-        message = f"{context} must not contain duplicates"
-        raise ValueError(message)
-    invalid = _invalid_extensions(extensions)
-    if invalid:
-        message = f"{context} has invalid extensions {invalid}"
-        raise ValueError(message)
-    return extensions
-
-
-def _invalid_extensions(extensions: frozenset[str]) -> list[str]:
-    """Return extensions that are not normalized lowercase suffixes."""
-    return sorted(
-        extension
-        for extension in extensions
-        if FILE_EXTENSION_RE.fullmatch(extension) is None
-    )
-
-
-def _load_json_object(path: Path, context: str) -> dict[str, object]:
-    """Load one JSON document and require an object root."""
-    raw_document: object = json.loads(path.read_text(encoding="utf-8"))
-    return _require_object(raw_document, context)
-
-
-def _compatibility_extensions(
-    document: dict[str, object],
-    section_name: str,
-    context: str,
-) -> frozenset[str]:
-    """Load the scoped fleet/converter compatibility extension set."""
-    section = _require_object(
-        document.get(section_name),
-        f"{context}.{section_name}",
-    )
-    compatibility = _require_object(
-        section.get("fleetConverterCompatibility"),
-        f"{context}.{section_name}.fleetConverterCompatibility",
-    )
-    return _require_extension_set(
-        compatibility.get("fileExtensions"),
-        (
-            f"{context}.{section_name}.fleetConverterCompatibility."
-            "fileExtensions"
-        ),
-    )
-
-
-def load_limits(
-    contract_path: Path = CONTRACT_PATH,
-    toolchain_lock_path: Path = TOOLCHAIN_LOCK_PATH,
-) -> Limits:
-    """Load strict and recommended target and toolchain contracts."""
-    contract = _load_json_object(contract_path, "target contract")
-    toolchain_lock = _load_json_object(
-        toolchain_lock_path,
-        "toolchain lock",
-    )
-    frontmatter = _require_object(
-        contract.get("frontmatter"),
-        "frontmatter",
-    )
-    skill = _require_object(contract.get("skill"), "skill")
-    target_extensions = _compatibility_extensions(
-        contract,
-        "skill",
-        "target contract",
-    )
-    toolchain_extensions = _compatibility_extensions(
-        toolchain_lock,
-        "cowork",
-        "toolchain lock",
-    )
-    if target_extensions != toolchain_extensions:
-        message = (
-            "target contract and toolchain lock fleet/converter "
-            "compatibility extension sets must match exactly"
-        )
-        raise ValueError(message)
-    return Limits(
-        allowed_fields=_require_strings(
-            frontmatter.get("allowedFields"),
-            "frontmatter.allowedFields",
-        ),
-        character_limit=_require_int(
-            frontmatter.get("strictCharacterLimit"),
-            "frontmatter.strictCharacterLimit",
-        ),
-        description_limit=_require_int(
-            frontmatter.get("descriptionCharacterLimit"),
-            "frontmatter.descriptionCharacterLimit",
-        ),
-        maximum_skills=_require_int(
-            skill.get("maximumPerPackage"),
-            "skill.maximumPerPackage",
-        ),
-        maximum_companion_files=_require_int(
-            skill.get("maximumCompanionFiles"),
-            "skill.maximumCompanionFiles",
-        ),
-        maximum_file_nesting_depth=_require_int(
-            skill.get("maximumFileNestingDepth"),
-            "skill.maximumFileNestingDepth",
-        ),
-        recommended_lines=_require_int(
-            skill.get("recommendedMaximumLines"),
-            "skill.recommendedMaximumLines",
-        ),
-        fleet_converter_extensions=target_extensions,
-    )
 
 
 def _relative(path: Path, target_root: Path) -> str:
@@ -226,23 +69,61 @@ def _contains_format_controls(text: str) -> bool:
     return any(unicodedata.category(character) == "Cf" for character in text)
 
 
-def _companion_files(skill_path: Path) -> tuple[Path, ...]:
-    """Return all companion files shipped beside a skill."""
-    return tuple(
-        path
-        for path in skill_path.parent.rglob("*")
-        if path.is_file() and path != skill_path
-    )
-
-
-def _declared_skill_paths(skills_root: Path) -> tuple[Path, ...]:
+def _declared_skill_paths(
+    skills_root: Path,
+    declared: tuple[str, ...],
+) -> tuple[Path, ...]:
     """Return exact ``skills/<skill>/SKILL.md`` entrypoints."""
     return tuple(
-        child / SKILL_ENTRYPOINT_NAME
-        for child in sorted(skills_root.iterdir())
-        if child.is_dir()
-        and (child / SKILL_ENTRYPOINT_NAME).is_file()
+        skill_path
+        for slug in declared
+        if (skill_path := skills_root / slug / SKILL_ENTRYPOINT_NAME).is_file()
     )
+
+
+def _manifest_declared_skills(
+    package_path: Path,
+    limits: Limits,
+    target_root: Path,
+) -> tuple[tuple[str, ...], list[str]]:
+    """Load the exact skill folder set declared by one package manifest."""
+    manifest_path = package_path / MANIFEST_NAME
+    relative = _relative(manifest_path, target_root)
+    try:
+        manifest = load_json_object(manifest_path, relative)
+    except (OSError, UnicodeError, json.JSONDecodeError, TypeError) as error:
+        return (), [f"{relative}: invalid manifest: {error}"]
+    try:
+        declared = manifest_skill_slugs(
+            manifest.get("agentSkills"),
+            limits.maximum_manifest_skill_folder_characters,
+        )
+    except CoworkPathError as error:
+        return (), [f"{relative}: {error}"]
+    return declared, []
+
+
+def _source_skill_slugs(skills_root: Path) -> tuple[str, ...]:
+    """Return every direct source skill directory name."""
+    return tuple(
+        child.name for child in sorted(skills_root.iterdir()) if child.is_dir()
+    )
+
+
+def _declared_source_set_errors(
+    skills_root: Path,
+    declared: tuple[str, ...],
+    target_root: Path,
+) -> list[str]:
+    """Require exact equality between manifest and source skill folders."""
+    source = _source_skill_slugs(skills_root)
+    if source == declared:
+        return []
+    relative = _relative(skills_root, target_root)
+    return [
+        f"{relative}: declared skills {declared!r} differ from "
+        f"source skills {source!r}",
+    ]
 
 
 def _top_level_skill_shape_errors(
@@ -291,10 +172,7 @@ def _case_collision_errors(
     observed: dict[str, Path] = {}
     for path in sorted(skills_root.rglob("*")):
         skill_relative = path.relative_to(skills_root).as_posix()
-        collision_key = unicodedata.normalize(
-            "NFC",
-            skill_relative,
-        ).casefold()
+        collision_key = cowork_path_collision_key(skill_relative)
         previous = observed.get(collision_key)
         if previous is not None:
             relative = _relative(path, target_root)
@@ -305,6 +183,23 @@ def _case_collision_errors(
             )
         else:
             observed[collision_key] = path
+    return errors
+
+
+def _path_policy_errors(
+    package_path: Path,
+    skills_root: Path,
+    target_root: Path,
+) -> list[str]:
+    """Validate every directory and file path in the skills tree."""
+    errors: list[str] = []
+    for path in sorted(skills_root.rglob("*")):
+        package_relative = path.relative_to(package_path).as_posix()
+        try:
+            validate_cowork_relative_path(package_relative)
+        except CoworkPathError as error:
+            relative = _relative(path, target_root)
+            errors.append(f"{relative}: unsafe Cowork path: {error}")
     return errors
 
 
@@ -361,6 +256,7 @@ def _file_extension_errors(
 
 def _scan_skill_tree(
     package_path: Path,
+    declared: tuple[str, ...],
     limits: Limits,
     target_root: Path,
 ) -> tuple[tuple[Path, ...], list[str]]:
@@ -370,7 +266,11 @@ def _scan_skill_tree(
         relative = _relative(package_path, target_root)
         return (), [f"{relative}: missing skills directory"]
     errors = _top_level_skill_shape_errors(skills_root, target_root)
+    errors.extend(
+        _declared_source_set_errors(skills_root, declared, target_root),
+    )
     errors.extend(_misplaced_entrypoint_errors(skills_root, target_root))
+    errors.extend(_path_policy_errors(package_path, skills_root, target_root))
     errors.extend(_case_collision_errors(skills_root, target_root))
     errors.extend(
         _file_extension_errors(
@@ -379,7 +279,7 @@ def _scan_skill_tree(
             target_root,
         ),
     )
-    return _declared_skill_paths(skills_root), errors
+    return _declared_skill_paths(skills_root, declared), errors
 
 
 def _validate_local_references(
@@ -605,45 +505,37 @@ def _character_limit_errors(
     ]
 
 
-def _companion_count_errors(
+def _companion_items(
+    skill_path: Path,
+    target_root: Path,
+) -> tuple[CompanionItem, ...]:
+    """Return shared-policy records for one declared skill."""
+    skill_root = skill_path.parent
+    return tuple(
+        CompanionItem(
+            name=_relative(file_path, target_root),
+            size=file_path.stat().st_size,
+            depth=len(file_path.relative_to(skill_root).parts) - 1,
+        )
+        for file_path in sorted(skill_root.rglob("*"))
+        if file_path.is_file() and file_path != skill_path
+    )
+
+
+def _companion_errors(
     skill_path: Path,
     limits: Limits,
     relative: str,
-) -> list[str]:
-    """Return strict companion file count errors."""
-    companion_count = len(_companion_files(skill_path))
-    if companion_count <= limits.maximum_companion_files:
-        return []
-    return [
-        f"{relative}: {companion_count} companion files exceeds "
-        f"{limits.maximum_companion_files}",
-    ]
-
-
-def _file_nesting_errors(
-    skill_path: Path,
-    limits: Limits,
     target_root: Path,
 ) -> list[str]:
-    """Return errors for files nested too deeply below a skill root.
-
-    Depth is the count of parent directories relative to the skill root,
-    excluding the filename itself.
-
-    """
-    errors: list[str] = []
-    skill_root = skill_path.parent
-    for file_path in sorted(skill_root.rglob("*")):
-        if not file_path.is_file():
-            continue
-        depth = len(file_path.relative_to(skill_root).parts) - 1
-        if depth > limits.maximum_file_nesting_depth:
-            relative = _relative(file_path, target_root)
-            errors.append(
-                f"{relative}: file nesting depth {depth} exceeds maximum "
-                f"{limits.maximum_file_nesting_depth}",
-            )
-    return errors
+    """Return all shared static companion policy errors."""
+    return list(
+        companion_limit_errors(
+            _companion_items(skill_path, target_root),
+            companion_policy(limits),
+            relative,
+        ),
+    )
 
 
 def _text_format_errors(text: str, relative: str) -> list[str]:
@@ -689,10 +581,6 @@ def _content_errors(
         _storage_contract_errors(skill_path, text, relative),
     )
     errors.extend(_character_limit_errors(text, limits, relative))
-    errors.extend(
-        _companion_count_errors(skill_path, limits, relative),
-    )
-    errors.extend(_file_nesting_errors(skill_path, limits, target_root))
     errors.extend(_text_format_errors(text, relative))
     errors.extend(_validate_local_references(skill_path, target_root))
     return errors
@@ -792,17 +680,40 @@ def _content_warnings(
 
 def _skill_count_errors(
     package_path: Path,
-    skill_paths: tuple[Path, ...],
+    declared: tuple[str, ...],
     limits: Limits,
 ) -> list[str]:
     """Return package skill count errors."""
-    skill_count = len(skill_paths)
+    skill_count = len(declared)
     if skill_count <= limits.maximum_skills:
         return []
     return [
         f"{package_path.name}: {skill_count} skills exceeds "
         f"{limits.maximum_skills}",
     ]
+
+
+def _declared_companion_errors(
+    package_path: Path,
+    declared: tuple[str, ...],
+    limits: Limits,
+    target_root: Path,
+) -> list[str]:
+    """Validate companions for every declared source skill directory."""
+    errors: list[str] = []
+    for slug in declared:
+        skill_path = package_path / "skills" / slug / SKILL_ENTRYPOINT_NAME
+        if skill_path.parent.is_dir():
+            relative = _relative(skill_path, target_root)
+            errors.extend(
+                _companion_errors(
+                    skill_path,
+                    limits,
+                    relative,
+                    target_root,
+                ),
+            )
+    return errors
 
 
 def _required_skill_file_errors(
@@ -892,13 +803,28 @@ def _validate_package(
     """Validate one Cowork package."""
     errors = _package_errors(package_path, target_root)
     warnings: list[str] = []
-    skill_paths, skill_tree_errors = _scan_skill_tree(
+    declared, manifest_errors = _manifest_declared_skills(
         package_path,
         limits,
         target_root,
     )
+    errors.extend(manifest_errors)
+    skill_paths, skill_tree_errors = _scan_skill_tree(
+        package_path,
+        declared,
+        limits,
+        target_root,
+    )
     errors.extend(skill_tree_errors)
-    errors.extend(_skill_count_errors(package_path, skill_paths, limits))
+    errors.extend(_skill_count_errors(package_path, declared, limits))
+    errors.extend(
+        _declared_companion_errors(
+            package_path,
+            declared,
+            limits,
+            target_root,
+        ),
+    )
     for skill_path in skill_paths:
         errors.extend(_skill_legal_name_errors(skill_path, target_root))
         errors.extend(

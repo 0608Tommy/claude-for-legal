@@ -57,7 +57,12 @@ READMEのsecurity表、YAML comments、実際のtool scopeを一致させます�
 - manifestは1.28 skills-onlyを既定とする。
 - internal helperはcallerへflattenし、登録skillとして露出しない。
 - mandatory safety gateをoptional referenceだけへ移さない。
-- referenceはskill root内に閉じ、20 companions以下にする。
+- referenceはskill root内に閉じる。
+- manifestの`agentSkills[].folder`はraw値を`./`込みで256文字以下にし、
+  manifest宣言とsourceの`skills/<skill>/`集合を完全一致させる。
+- `SKILL.md`以外の全fileをcompanionとして数える。`LICENSE.txt`と
+  `NOTICE.txt`も含め、1 skillあたり20 files以下、各5,242,880
+  uncompressed bytes以下、合計10,485,760 uncompressed bytes以下にする。
 - skill配下の全fileは、filenameを除くskill root相対の親directory数を最大3に
   する。root直下は0、`references/file`は1、
   `references/common/ja-jp/file`は3で有効、
@@ -72,3 +77,26 @@ READMEのsecurity表、YAML comments、実際のtool scopeを一致させます�
 - connector、Power Platform solution、Cowork app ZIPを分離する。
 - CoCounselは書面承認までblockする。
 - 日本法moduleはqualified reviewer承認までproductionへ含めない。
+
+### 公式ruleとrepository hardening
+
+公式根拠はMicrosoft Learnの
+[`Build plugins for Copilot Cowork`](https://learn.microsoft.com/en-us/microsoft-365/copilot/cowork/cowork-plugin-development)
+（git commit
+`ccf9e7d4473352536ff966995ed7cf305ff40292`、`ms.date`
+2026-06-29、page updated 2026-07-07、確認日2026-07-18）です。
+companion count、file/total size、relative path、traversal・backslash・NUL・
+hidden segment・Windows reserved nameの禁止、安全な文字、folder長、
+15秒download timeoutを公式ruleとして記録します。
+
+Microsoft Learnの`5 MB`と`10 MB`は、このrepositoryでは再現可能な境界値として
+それぞれ5 MiB（5,242,880 bytes）と10 MiB（10,485,760 bytes）に固定します。
+15秒はCowork runtimeが全companionをdownloadするtimeoutであり、source/ZIPの
+static validatorはnetwork時間を計測・強制しません。
+
+明示ASCII segment `[A-Za-z0-9._! -]+`、Unicodeと`@`の拒否、末尾dot/spaceの
+拒否、extension付きでもcase-insensitiveにWindows reserved basenameを拒否
+（`CON.txt`、`com1.md`は無効、`COM10`は有効）、case-insensitive collision
+拒否はcross-platform展開を安定させるconservative Windows hardeningです。
+最大depth 3、lowercase extension allowlist、skill-level legal filename規約も
+Microsoft universal allowlistではなくrepository/fleet互換ruleです。

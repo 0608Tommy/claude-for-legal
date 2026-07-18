@@ -9,11 +9,21 @@ import hashlib
 import json
 import stat
 import sys
-import unicodedata
 import zipfile
 from pathlib import Path, PurePosixPath
 from typing import Final, NamedTuple, cast
 
+from m365_cowork_path_policy import (
+    CompanionItem,
+    CoworkPathError,
+    Limits,
+    companion_limit_errors,
+    companion_policy,
+    cowork_path_collision_key,
+    load_limits,
+    manifest_skill_slugs,
+    validate_cowork_relative_path,
+)
 from validate_m365_cowork_icons import (
     EXPECTED_DIMENSIONS,
     IconValidationError,
@@ -24,7 +34,6 @@ DOS_EPOCH: Final = (1980, 1, 1, 0, 0, 0)
 FIXED_MODE: Final = stat.S_IFREG | 0o644
 FIXED_EXTERNAL_ATTR: Final = FIXED_MODE << 16
 UNIX_CREATE_SYSTEM: Final = 3
-CONTROL_CODE_LIMIT: Final = 0x20
 SKILL_PATH_PART_COUNT: Final = 2
 CLI_ARGUMENT_COUNT: Final = 4
 MAX_UNCOMPRESSED_BYTES: Final = 100 * 1024 * 1024
@@ -86,36 +95,15 @@ def _load_json_path(path: Path) -> dict[str, object]:
         raise _error(path.as_posix(), f"cannot read file: {error}") from error
 
 
-def _unsafe_member_path(name: str, path: PurePosixPath) -> bool:
-    """Return whether a ZIP member path is noncanonical or escaping."""
-    checks = (
-        not name,
-        "\\" in name,
-        ":" in name,
-        path.is_absolute(),
-        "." in path.parts,
-        ".." in path.parts,
-        path.as_posix() != name,
-        _has_windows_ambiguous_part(path),
-    )
-    return any(checks)
-
-
-def _has_windows_ambiguous_part(path: PurePosixPath) -> bool:
-    """Return whether Windows would trim a member path segment."""
-    return any(part.endswith((" ", ".")) for part in path.parts)
-
-
 def _member_path(name: str, context: str) -> PurePosixPath:
     """Validate and return one canonical ZIP member path."""
-    path = PurePosixPath(name)
-    if _unsafe_member_path(name, path):
-        raise _error(context, f"unsafe ZIP member path {name!r}")
-    if any(ord(character) < CONTROL_CODE_LIMIT for character in name):
-        raise _error(context, f"control character in ZIP member {name!r}")
-    if unicodedata.normalize("NFC", name) != name:
-        raise _error(context, f"non-NFC ZIP member path {name!r}")
-    return path
+    try:
+        return validate_cowork_relative_path(name)
+    except CoworkPathError as error:
+        raise _error(
+            context,
+            f"unsafe ZIP member path {name!r}: {error}",
+        ) from error
 
 
 def _member_mode(info: zipfile.ZipInfo) -> int:
@@ -149,11 +137,6 @@ def _validate_member_type(
         )
 
 
-def _collision_key(name: str) -> str:
-    """Return a Unicode-normalized case-insensitive member key."""
-    return unicodedata.normalize("NFC", name).casefold()
-
-
 def _validate_unique_name(
     name: str,
     names: set[str],
@@ -163,7 +146,7 @@ def _validate_unique_name(
     """Reject duplicate and case-colliding archive member names."""
     if name in names:
         raise _error(context, f"duplicate ZIP member {name!r}")
-    key = _collision_key(name)
+    key = cowork_path_collision_key(name)
     if key in collision_keys:
         raise _error(context, f"case-colliding ZIP member {name!r}")
     names.add(name)
@@ -190,6 +173,18 @@ def _validated_member_data(
     return data
 
 
+def _raw_member_name(info: zipfile.ZipInfo, context: str) -> str:
+    """Validate a raw central-directory name before ZIP sanitization."""
+    raw_name = info.orig_filename
+    _member_path(raw_name, context)
+    if raw_name != info.filename:
+        raise _error(
+            context,
+            f"ZIP member name was sanitized: {raw_name!r}",
+        )
+    return raw_name
+
+
 def _read_archive_entries(archive_path: Path) -> list[ArchiveEntry]:
     """Read and safety-check every raw ATK archive member."""
     context = archive_path.as_posix()
@@ -201,10 +196,10 @@ def _read_archive_entries(archive_path: Path) -> list[ArchiveEntry]:
     try:
         with zipfile.ZipFile(archive_path) as archive:
             for info in archive.infolist():
-                _member_path(info.filename, context)
+                raw_name = _raw_member_name(info, context)
                 _validate_member_type(info, context)
                 _validate_unique_name(
-                    info.filename,
+                    raw_name,
                     names,
                     collision_keys,
                     context,
@@ -213,7 +208,7 @@ def _read_archive_entries(archive_path: Path) -> list[ArchiveEntry]:
                 total_size += len(data)
                 if total_size > MAX_UNCOMPRESSED_BYTES:
                     raise _error(context, "ZIP expands beyond the size limit")
-                entries.append(ArchiveEntry(info.filename, data))
+                entries.append(ArchiveEntry(raw_name, data))
     except zipfile.BadZipFile as error:
         raise _error(context, f"invalid ZIP archive: {error}") from error
     if not entries:
@@ -229,7 +224,11 @@ def _manifest_relative_path(
     if not isinstance(value, str) or not value:
         raise _error(context, "manifest path must be a nonempty string")
     normalized = value.removeprefix("./")
-    return _member_path(normalized, context)
+    try:
+        return validate_cowork_relative_path(normalized)
+    except CoworkPathError as error:
+        detail = f"unsafe manifest path {value!r}: {error}"
+        raise _error(context, detail) from error
 
 
 def _manifest_icons(
@@ -249,44 +248,19 @@ def _manifest_icons(
     }
 
 
-def _skill_folder(value: object, context: str) -> str:
-    """Return one canonical direct child of the skills directory."""
-    path = _manifest_relative_path(value, context)
-    if (
-        len(path.parts) != SKILL_PATH_PART_COUNT
-        or path.parts[0] != "skills"
-    ):
-        raise _error(context, "skill folder must match ./skills/<slug>")
-    return path.parts[1]
-
-
-def _validate_unique_skills(slugs: list[str], context: str) -> None:
-    """Reject duplicate and case-colliding manifest skill folders."""
-    if len(slugs) != len(set(slugs)):
-        raise _error(context, "agentSkills contains duplicate folders")
-    collision_keys = {_collision_key(slug) for slug in slugs}
-    if len(slugs) != len(collision_keys):
-        raise _error(context, "agentSkills contains case-colliding folders")
-
-
 def _declared_skills(
     manifest: dict[str, object],
+    limits: Limits,
     context: str,
 ) -> tuple[str, ...]:
     """Return sorted, unique skill slugs declared by the manifest."""
-    raw_skills = manifest.get("agentSkills")
-    if not isinstance(raw_skills, list) or not raw_skills:
-        raise _error(context, "agentSkills must be a nonempty array")
-    skill_values = cast("list[object]", raw_skills)
-    slugs = [
-        _skill_folder(
-            _require_object(item, f"{context} agentSkills[]").get("folder"),
-            f"{context} agentSkills[].folder",
+    try:
+        return manifest_skill_slugs(
+            manifest.get("agentSkills"),
+            limits.maximum_manifest_skill_folder_characters,
         )
-        for item in skill_values
-    ]
-    _validate_unique_skills(slugs, context)
-    return tuple(sorted(slugs))
+    except CoworkPathError as error:
+        raise _error(context, str(error)) from error
 
 
 def _require_regular_directory(path: Path, context: str) -> None:
@@ -295,12 +269,27 @@ def _require_regular_directory(path: Path, context: str) -> None:
         raise _error(context, f"must be a regular directory: {path}")
 
 
+def _validate_source_path(name: str, context: str) -> None:
+    """Apply the shared Cowork path policy to one source-tree path."""
+    try:
+        validate_cowork_relative_path(name)
+    except CoworkPathError as error:
+        raise _error(
+            context,
+            f"unsafe source path {name!r}: {error}",
+        ) from error
+
+
 def _source_skill_slugs(source_dir: Path, context: str) -> tuple[str, ...]:
     """Return the exact regular directory set under source ``skills``."""
     skills_dir = source_dir / "skills"
     _require_regular_directory(skills_dir, context)
     slugs: list[str] = []
     for path in sorted(skills_dir.iterdir()):
+        _validate_source_path(
+            path.relative_to(source_dir).as_posix(),
+            context,
+        )
         _require_regular_directory(path, context)
         slugs.append(path.name)
     return tuple(slugs)
@@ -323,10 +312,18 @@ def _validate_source_skill_set(
         )
 
 
-def _regular_tree_files(root: Path, context: str) -> list[Path]:
+def _regular_tree_files(
+    root: Path,
+    source_dir: Path,
+    context: str,
+) -> list[Path]:
     """Return all regular files below a symlink-free source tree."""
     files: list[Path] = []
     for path in sorted(root.rglob("*")):
+        _validate_source_path(
+            path.relative_to(source_dir).as_posix(),
+            context,
+        )
         if path.is_symlink():
             raise _error(context, f"source symlink is forbidden: {path}")
         if path.is_file():
@@ -346,14 +343,53 @@ def _source_skill_entries(
     collision_keys: set[str] = set()
     for slug in declared:
         skill_dir = source_dir / "skills" / slug
-        for path in _regular_tree_files(skill_dir, context):
+        for path in _regular_tree_files(skill_dir, source_dir, context):
             name = path.relative_to(source_dir).as_posix()
-            key = _collision_key(name)
+            key = cowork_path_collision_key(name)
             if key in collision_keys:
                 raise _error(context, f"source path case collision: {name}")
             collision_keys.add(key)
             entries[name] = path.read_bytes()
     return entries
+
+
+def _skill_companion_items(
+    entries: dict[str, bytes],
+    slug: str,
+    origin: str,
+) -> tuple[CompanionItem, ...]:
+    """Return shared-policy records for one package view of a skill."""
+    prefix = f"skills/{slug}/"
+    entrypoint = f"{prefix}SKILL.md"
+    prefix_parts = len(PurePosixPath("skills", slug).parts)
+    return tuple(
+        CompanionItem(
+            name=f"{origin} companion file {name}",
+            size=len(data),
+            depth=len(PurePosixPath(name).parts) - prefix_parts - 1,
+        )
+        for name, data in sorted(entries.items())
+        if name.startswith(prefix) and name != entrypoint
+    )
+
+
+def _validate_companion_limits(
+    entries: dict[str, bytes],
+    declared: tuple[str, ...],
+    limits: Limits,
+    context: str,
+    origin: str,
+) -> None:
+    """Validate every declared skill with the shared companion policy."""
+    policy = companion_policy(limits)
+    for slug in declared:
+        errors = companion_limit_errors(
+            _skill_companion_items(entries, slug, origin),
+            policy,
+            f"{origin} skill {slug!r}",
+        )
+        if errors:
+            raise _error(context, errors[0])
 
 
 def _validate_required_skill_files(
@@ -580,16 +616,24 @@ def _validate_skill_bytes(
 def _validate_archive_contents(
     entries: list[ArchiveEntry],
     source_dir: Path,
+    limits: Limits,
 ) -> None:
     """Validate package semantics and source-to-archive byte preservation."""
     context = source_dir.name
     entry_map = {entry.name: entry.data for entry in entries}
     source_manifest = _validated_manifest(entry_map, source_dir, context)
     icons = _manifest_icons(source_manifest, context)
-    declared = _declared_skills(source_manifest, context)
+    declared = _declared_skills(source_manifest, limits, context)
     _validate_source_skill_set(source_dir, declared, context)
     canonical_legal = _canonical_legal_data(source_dir, context)
     source_entries = _source_skill_entries(source_dir, declared, context)
+    _validate_companion_limits(
+        source_entries,
+        declared,
+        limits,
+        context,
+        "source",
+    )
     _validate_skill_legal_names(
         set(source_entries),
         declared,
@@ -603,6 +647,13 @@ def _validate_archive_contents(
         "source",
     )
     entry_names = set(entry_map)
+    _validate_companion_limits(
+        entry_map,
+        declared,
+        limits,
+        context,
+        "archive",
+    )
     _validate_skill_legal_names(
         entry_names,
         declared,
@@ -766,11 +817,11 @@ def normalize_package(
 
     Parameters
     ----------
-    archive_path
-        Raw package ZIP emitted by ATK.
-    output_path
+    archive_path:
+        Raw package ZIP emitted by Microsoft 365 Agents Toolkit.
+    output_path:
         Destination for the normalized ZIP.
-    source_dir
+    source_dir:
         Canonical source package directory.
 
     Returns
@@ -783,28 +834,41 @@ def normalize_package(
     PackageBuildError
         If archive safety or package semantics fail validation.
 
+    Notes
+    -----
+    Validation keeps general archive security limits separate from Cowork
+    companion limits. Every ZIP member remains bounded by 20 MiB and the
+    complete expanded archive remains bounded by 100 MiB. Companion files
+    additionally use the official 5 MiB per-file and 10 MiB per-skill caps.
+
+    Raw central-directory names are checked before ``zipfile`` can expose a
+    NUL-truncated ``filename``. The same explicit ASCII segment policy is
+    then applied to source paths and archive members. Manifest folder length
+    is measured on the raw value, including the leading ``./``.
+
+    The manifest skill set must exactly equal the source directory set.
+    Source and archive companion counts, sizes, totals, and nesting depths
+    are evaluated independently. Required legal copies must retain canonical
+    names and package-root bytes. Icons, the manifest, every skill byte, and
+    the complete member set must match source before deterministic metadata
+    is written and verified by reopening the normalized archive.
+
     """
     if not source_dir.is_dir() or source_dir.is_symlink():
         raise _error(
             source_dir.as_posix(),
             "source must be a regular directory",
         )
+    limits = load_limits()
     entries = _read_archive_entries(archive_path)
-    _validate_archive_contents(entries, source_dir)
+    _validate_archive_contents(entries, source_dir, limits)
     _write_normalized_archive(entries, output_path)
     _verify_normalized_archive(output_path, entries)
     return hashlib.sha256(output_path.read_bytes()).hexdigest()
 
 
 def main() -> int:
-    """Normalize paths supplied as ``RAW_ZIP OUTPUT_ZIP SOURCE_DIR``.
-
-    Returns
-    -------
-    int
-        Zero when normalization and all package validations succeed.
-
-    """
+    """Normalize paths supplied as ``RAW_ZIP OUTPUT_ZIP SOURCE_DIR``."""
     if len(sys.argv) != CLI_ARGUMENT_COUNT:
         sys.stderr.write(
             "usage: normalize_m365_cowork_package.py "

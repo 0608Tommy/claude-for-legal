@@ -32,8 +32,35 @@ MISSING_LEGAL_PAIR="$SCRATCH/missing-legal-pair"
 LEGAL_CONTENT_MISMATCH="$SCRATCH/legal-content-mismatch"
 CASE_COLLISION="$SCRATCH/case-collision"
 ORPHAN_SHAPE="$SCRATCH/orphan-shape"
+MANIFEST_MISMATCH="$SCRATCH/manifest-mismatch"
+COMPANION_COUNT_EXACT="$SCRATCH/companion-count-exact"
+COMPANION_COUNT_TOO_MANY="$SCRATCH/companion-count-too-many"
+FILE_SIZE_EXACT="$SCRATCH/file-size-exact"
+FILE_SIZE_TOO_LARGE="$SCRATCH/file-size-too-large"
+TOTAL_SIZE_EXACT="$SCRATCH/total-size-exact"
+TOTAL_SIZE_TOO_LARGE="$SCRATCH/total-size-too-large"
+SAFE_PATHS="$SCRATCH/safe-paths"
+HIDDEN_FILE="$SCRATCH/hidden-file"
+HIDDEN_DIRECTORY="$SCRATCH/hidden-directory"
+RESERVED_CON="$SCRATCH/reserved-con"
+RESERVED_COM1="$SCRATCH/reserved-com1"
+BACKSLASH_PATH="$SCRATCH/backslash-path"
+AT_PATH="$SCRATCH/at-path"
+UNICODE_PATH="$SCRATCH/unicode-path"
+TRAILING_DOT="$SCRATCH/trailing-dot"
+TRAILING_SPACE="$SCRATCH/trailing-space"
 
 mkdir -p "$VALID/example/skills/example/references"
+
+cat >"$VALID/example/manifest.json" <<'EOF'
+{
+  "agentSkills": [
+    {
+      "folder": "./skills/example"
+    }
+  ]
+}
+EOF
 
 cat >"$VALID/example/skills/example/SKILL.md" <<'EOF'
 ---
@@ -154,6 +181,20 @@ EOF
     "$TOO_MANY/example/NOTICE" \
     "$TOO_MANY/example/skills/$skill/NOTICE.txt"
 done
+python3 - "$TOO_MANY/example/manifest.json" <<'PY'
+import json
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+skills = [
+    {"folder": f"./skills/skill-{number:02d}"} for number in range(1, 22)
+]
+path.write_text(
+    json.dumps({"agentSkills": skills}, indent=2) + "\n",
+    encoding="utf-8",
+)
+PY
 
 clone_valid "$BACKTICK_ONLY"
 cat >"$BACKTICK_ONLY/example/skills/example/SKILL.md" <<'EOF'
@@ -250,6 +291,147 @@ mkdir -p "$ORPHAN_SHAPE/example/skills/undeclared"
 printf 'orphan directory\n' > \
   "$ORPHAN_SHAPE/example/skills/undeclared/note.txt"
 
+clone_valid "$MANIFEST_MISMATCH"
+python3 - "$MANIFEST_MISMATCH/example/manifest.json" <<'PY'
+import json
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+manifest = json.loads(path.read_text(encoding="utf-8"))
+manifest["agentSkills"][0]["folder"] = "./skills/missing"
+path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+PY
+
+clone_valid "$COMPANION_COUNT_EXACT"
+clone_valid "$COMPANION_COUNT_TOO_MANY"
+for number in $(seq -w 1 14); do
+  printf 'count fixture\n' > \
+    "$COMPANION_COUNT_EXACT/example/skills/example/references/count-$number.txt"
+  printf 'count fixture\n' > \
+    "$COMPANION_COUNT_TOO_MANY/example/skills/example/references/count-$number.txt"
+done
+printf 'count fixture\n' > \
+  "$COMPANION_COUNT_TOO_MANY/example/skills/example/references/count-15.txt"
+
+clone_valid "$FILE_SIZE_EXACT"
+clone_valid "$FILE_SIZE_TOO_LARGE"
+clone_valid "$TOTAL_SIZE_EXACT"
+clone_valid "$TOTAL_SIZE_TOO_LARGE"
+
+python3 - \
+  "$TARGET_CONTRACT" \
+  "$FILE_SIZE_EXACT/example/skills/example/references/file-limit.txt" \
+  "$FILE_SIZE_TOO_LARGE/example/skills/example/references/file-limit.txt" \
+  "$TOTAL_SIZE_EXACT/example/skills/example" \
+  "$TOTAL_SIZE_TOO_LARGE/example/skills/example" <<'PY'
+from __future__ import annotations
+
+import json
+import pathlib
+import sys
+
+contract_path = pathlib.Path(sys.argv[1])
+file_exact = pathlib.Path(sys.argv[2])
+file_too_large = pathlib.Path(sys.argv[3])
+total_exact_root = pathlib.Path(sys.argv[4])
+total_too_large_root = pathlib.Path(sys.argv[5])
+contract = json.loads(contract_path.read_text(encoding="utf-8"))
+maximum_file = contract["skill"]["maximumCompanionFileBytes"]
+maximum_total = contract["skill"]["maximumCompanionTotalBytes"]
+chunk = b"x" * 65_536
+
+
+def write_compressible(path: pathlib.Path, size: int) -> None:
+    remaining = size
+    with path.open("wb") as stream:
+        while remaining:
+            piece = chunk[: min(remaining, len(chunk))]
+            stream.write(piece)
+            remaining -= len(piece)
+
+
+def companion_total(skill_root: pathlib.Path) -> int:
+    entrypoint = skill_root / "SKILL.md"
+    return sum(
+        path.stat().st_size
+        for path in skill_root.rglob("*")
+        if path.is_file() and path != entrypoint
+    )
+
+
+def fill_total(skill_root: pathlib.Path, target: int) -> None:
+    remaining = target - companion_total(skill_root)
+    first_size = min(maximum_file, remaining)
+    second_size = remaining - first_size
+    write_compressible(skill_root / "references" / "total-a.txt", first_size)
+    write_compressible(skill_root / "references" / "total-b.txt", second_size)
+    if companion_total(skill_root) != target:
+        raise SystemExit("companion total fixture calculation failed")
+
+
+write_compressible(file_exact, maximum_file)
+write_compressible(file_too_large, maximum_file + 1)
+fill_total(total_exact_root, maximum_total)
+fill_total(total_too_large_root, maximum_total + 1)
+PY
+
+clone_valid "$SAFE_PATHS"
+mkdir -p \
+  "$SAFE_PATHS/example/skills/example/references/allowed dir!"
+printf 'allowed path\n' > \
+  "$SAFE_PATHS/example/skills/example/references/allowed dir!/note !.txt"
+cat >"$SAFE_PATHS/example/skills/example/references/COM10.md" <<'EOF'
+> **変更通知:** 検証用の派生ファイルです。
+
+# COM10
+
+COM10は予約名ではありません。
+EOF
+
+clone_valid "$HIDDEN_FILE"
+printf 'hidden file\n' > \
+  "$HIDDEN_FILE/example/skills/example/references/.hidden.txt"
+
+clone_valid "$HIDDEN_DIRECTORY"
+mkdir -p \
+  "$HIDDEN_DIRECTORY/example/skills/example/references/.hidden"
+printf 'hidden directory\n' > \
+  "$HIDDEN_DIRECTORY/example/skills/example/references/.hidden/note.txt"
+
+clone_valid "$RESERVED_CON"
+printf 'reserved name\n' > \
+  "$RESERVED_CON/example/skills/example/references/CON.txt"
+
+clone_valid "$RESERVED_COM1"
+cat >"$RESERVED_COM1/example/skills/example/references/com1.md" <<'EOF'
+> **変更通知:** 検証用の派生ファイルです。
+
+# COM1
+
+予約名を拒否する検証です。
+EOF
+
+clone_valid "$BACKSLASH_PATH"
+printf 'backslash\n' > \
+  "$BACKSLASH_PATH/example/skills/example/references/bad\\name.txt"
+
+clone_valid "$AT_PATH"
+printf 'at sign\n' > \
+  "$AT_PATH/example/skills/example/references/bad@name.txt"
+
+clone_valid "$UNICODE_PATH"
+printf 'unicode\n' > \
+  "$UNICODE_PATH/example/skills/example/references/日本語.txt"
+
+clone_valid "$TRAILING_DOT"
+printf 'trailing dot\n' > \
+  "$TRAILING_DOT/example/skills/example/references/trailing."
+
+clone_valid "$TRAILING_SPACE"
+printf 'trailing space\n' > \
+  "$TRAILING_SPACE/example/skills/example/references/trailing.txt "
+
 PYTHONPATH="$ROOT/scripts" python3 - \
   "$SCRATCH" "$TARGET_CONTRACT" "$TOOLCHAIN_LOCK" <<'PY'
 from __future__ import annotations
@@ -259,6 +441,10 @@ import json
 import pathlib
 import sys
 
+from m365_cowork_path_policy import (
+    CoworkPathError,
+    validate_manifest_skill_folder,
+)
 from validate_m365_cowork_target import load_limits, validate_target
 
 scratch = pathlib.Path(sys.argv[1])
@@ -269,6 +455,16 @@ limits = load_limits(target_contract_path, toolchain_lock_path)
 
 if limits.maximum_file_nesting_depth != 3:
     raise SystemExit("maximumFileNestingDepth contract was not loaded")
+if limits.maximum_companion_files != 20:
+    raise SystemExit("maximumCompanionFiles contract was not loaded")
+if limits.maximum_companion_file_bytes != 5_242_880:
+    raise SystemExit("maximumCompanionFileBytes contract was not loaded")
+if limits.maximum_companion_total_bytes != 10_485_760:
+    raise SystemExit("maximumCompanionTotalBytes contract was not loaded")
+if limits.maximum_manifest_skill_folder_characters != 256:
+    raise SystemExit("manifest skill folder limit was not loaded")
+if limits.companion_download_timeout_seconds != 15:
+    raise SystemExit("companion download timeout was not loaded")
 if limits.fleet_converter_extensions != expected_extensions:
     raise SystemExit(
         "unexpected fleet/converter compatibility extension set: "
@@ -281,6 +477,31 @@ target_contract = json.loads(
 toolchain_lock = json.loads(
     toolchain_lock_path.read_text(encoding="utf-8"),
 )
+expected_source = {
+    "title": "Build plugins for Copilot Cowork",
+    "url": (
+        "https://learn.microsoft.com/en-us/microsoft-365/copilot/cowork/"
+        "cowork-plugin-development"
+    ),
+    "gitCommit": "ccf9e7d4473352536ff966995ed7cf305ff40292",
+    "msDate": "2026-06-29",
+    "pageUpdated": "2026-07-07",
+    "checkedAt": "2026-07-18",
+}
+if target_contract.get("officialValidationSource") != expected_source:
+    raise SystemExit("target contract official provenance is incomplete")
+if (
+    toolchain_lock["cowork"].get("officialValidationSource")
+    != expected_source
+):
+    raise SystemExit("toolchain official provenance is incomplete")
+if toolchain_lock.get("checkedAt") != "2026-07-18":
+    raise SystemExit("toolchain checkedAt was not updated")
+if (
+    toolchain_lock.get("sourceRevision")
+    != "5ceb305b30b4c82653c9b6642499c12e946ec319"
+):
+    raise SystemExit("repository sourceRevision changed unexpectedly")
 target_compatibility = target_contract["skill"][
     "fleetConverterCompatibility"
 ]
@@ -296,6 +517,28 @@ if frozenset(target_extensions) != expected_extensions:
 for compatibility in (target_compatibility, toolchain_compatibility):
     if "not a universal Microsoft allowlist" not in compatibility["scope"]:
         raise SystemExit("compatibility extension scope is overbroad")
+
+folder_prefix = "./skills/"
+folder_at_limit = folder_prefix + (
+    "a" * (limits.maximum_manifest_skill_folder_characters - len(folder_prefix))
+)
+folder_over_limit = f"{folder_at_limit}a"
+if len(folder_at_limit) != 256 or len(folder_over_limit) != 257:
+    raise SystemExit("manifest folder boundary helper is incorrect")
+validate_manifest_skill_folder(
+    folder_at_limit,
+    limits.maximum_manifest_skill_folder_characters,
+)
+try:
+    validate_manifest_skill_folder(
+        folder_over_limit,
+        limits.maximum_manifest_skill_folder_characters,
+    )
+except CoworkPathError as error:
+    if "raw folder has 257 characters" not in str(error):
+        raise SystemExit(f"wrong folder length error: {error}") from error
+else:
+    raise SystemExit("257-character manifest folder was accepted")
 
 observation = toolchain_lock["tools"]["claudeToCoworkPlugin"]
 expected_observation = {
@@ -353,6 +596,10 @@ def require_fragments(name: str, fragments: tuple[str, ...]) -> None:
 
 require_clean("valid")
 require_clean("depth-three")
+require_clean("companion-count-exact")
+require_clean("file-size-exact")
+require_clean("total-size-exact")
+require_clean("safe-paths")
 
 require_fragments(
     "invalid",
@@ -366,6 +613,18 @@ require_fragments(
 )
 require_fragments("too-long", ("characters exceeds",))
 require_fragments("too-many", ("skills exceeds",))
+require_fragments(
+    "companion-count-too-many",
+    ("21 companion files exceeds 20",),
+)
+require_fragments(
+    "file-size-too-large",
+    ("companion file size 5242881 bytes exceeds 5242880",),
+)
+require_fragments(
+    "total-size-too-large",
+    ("companion total size 10485761 bytes exceeds 10485760",),
+)
 require_fragments(
     "backtick-only",
     (
@@ -443,11 +702,56 @@ require_fragments(
 require_fragments(
     "orphan-shape",
     (
+        "declared skills ('example',) differ from source skills "
+        "('example', 'undeclared')",
         "skills/orphan.yaml: orphan file outside skills/<skill>/",
         "skills/orphan.yaml: unsupported fleet/converter compatibility "
         "extension .yaml",
         "skills/undeclared: orphan skill directory missing SKILL.md",
     ),
+)
+require_fragments(
+    "manifest-mismatch",
+    (
+        "declared skills ('missing',) differ from source skills "
+        "('example',)",
+    ),
+)
+require_fragments(
+    "hidden-file",
+    ("hidden path segment is forbidden: '.hidden.txt'",),
+)
+require_fragments(
+    "hidden-directory",
+    ("hidden path segment is forbidden: '.hidden'",),
+)
+require_fragments(
+    "reserved-con",
+    ("Windows reserved basename is forbidden: 'CON.txt'",),
+)
+require_fragments(
+    "reserved-com1",
+    ("Windows reserved basename is forbidden: 'com1.md'",),
+)
+require_fragments(
+    "backslash-path",
+    ("backslash in path is forbidden",),
+)
+require_fragments(
+    "at-path",
+    ("path segment contains unsafe characters: 'bad@name.txt'",),
+)
+require_fragments(
+    "unicode-path",
+    ("path segment contains unsafe characters: '日本語.txt'",),
+)
+require_fragments(
+    "trailing-dot",
+    ("path segment has a trailing dot or space: 'trailing.'",),
+)
+require_fragments(
+    "trailing-space",
+    ("path segment has a trailing dot or space: 'trailing.txt '",),
 )
 
 print("m365 Cowork target validator: OK")
