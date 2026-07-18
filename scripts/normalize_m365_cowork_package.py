@@ -495,6 +495,7 @@ def _validate_icons(
                 archived,
                 EXPECTED_DIMENSIONS[icon_name],
                 f"{context} {path.as_posix()}",
+                icon_kind=icon_name,
             )
         except IconValidationError as error:
             raise _error(context, str(error)) from error

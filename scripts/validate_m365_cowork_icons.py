@@ -10,12 +10,18 @@ import struct
 import sys
 import zlib
 from pathlib import Path, PurePosixPath
-from typing import Final, NamedTuple, cast
+from typing import TYPE_CHECKING, Final, NamedTuple, cast
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 PNG_SIGNATURE: Final = b"\x89PNG\r\n\x1a\n"
 IHDR_FORMAT: Final = ">IIBBBBB"
 IHDR_LENGTH: Final = 13
 RGBA_BYTES_PER_PIXEL: Final = 4
+TRANSPARENT_ALPHA: Final = 0
+OPAQUE_ALPHA: Final = 255
+WHITE_RGB: Final = (255, 255, 255)
 PNG_CHUNK_TYPE_LENGTH: Final = 4
 PNG_RESERVED_BYTE_INDEX: Final = 2
 ASCII_UPPERCASE_START: Final = ord("A")
@@ -70,6 +76,15 @@ class PngChunk(NamedTuple):
     chunk_type: bytes
     payload: bytes
     next_offset: int
+
+
+class PngPixelProfile(NamedTuple):
+    """Summarize reconstructed RGBA pixels for icon policy checks."""
+
+    has_transparent: bool
+    has_visible: bool
+    all_opaque: bool
+    visible_pixels_white: bool
 
 
 def _error(context: str, detail: str) -> IconValidationError:
@@ -270,16 +285,15 @@ def _filter_predictor(
     return _paeth(left, above, upper_left)
 
 
-def _has_visible_pixel(
+def _reconstructed_rows(
     decoded: bytes,
     header: PngHeader,
     context: str,
-) -> bool:
-    """Reconstruct all scanlines and report whether any pixel is visible."""
+) -> Iterator[bytearray]:
+    """Yield each reconstructed RGBA scanline."""
     row_length = header.width * RGBA_BYTES_PER_PIXEL
     stride = row_length + 1
     previous = bytearray(row_length)
-    visible = False
     for row_index in range(header.height):
         offset = row_index * stride
         filter_type = decoded[offset]
@@ -290,22 +304,120 @@ def _has_visible_pixel(
             previous,
             context,
         )
-        visible = visible or any(
-            current[index] != 0
-            for index in range(
-                RGBA_BYTES_PER_PIXEL - 1,
-                row_length,
-                RGBA_BYTES_PER_PIXEL,
-            )
-        )
+        yield current
         previous = current
-    return visible
+
+
+def _pixel_profile(
+    decoded: bytes,
+    header: PngHeader,
+    context: str,
+) -> PngPixelProfile:
+    """Reconstruct all scanlines and summarize their icon-policy properties."""
+    profile = PngPixelProfile(
+        has_transparent=False,
+        has_visible=False,
+        all_opaque=True,
+        visible_pixels_white=True,
+    )
+    for current in _reconstructed_rows(decoded, header, context):
+        row_length = len(current)
+        for index in range(0, row_length, RGBA_BYTES_PER_PIXEL):
+            pixel = current[index:index + RGBA_BYTES_PER_PIXEL]
+            profile = _merge_pixel_profiles(
+                profile,
+                _profile_pixel(pixel),
+            )
+    return profile
+
+
+def _profile_pixel(pixel: bytearray) -> PngPixelProfile:
+    """Summarize one reconstructed RGBA pixel."""
+    red, green, blue, alpha = pixel
+    transparent = alpha == TRANSPARENT_ALPHA
+    return PngPixelProfile(
+        has_transparent=transparent,
+        has_visible=not transparent,
+        all_opaque=alpha == OPAQUE_ALPHA,
+        visible_pixels_white=(
+            transparent or (red, green, blue) == WHITE_RGB
+        ),
+    )
+
+
+def _merge_pixel_profiles(
+    first: PngPixelProfile,
+    second: PngPixelProfile,
+) -> PngPixelProfile:
+    """Combine two pixel-policy summaries."""
+    return PngPixelProfile(
+        has_transparent=(
+            first.has_transparent or second.has_transparent
+        ),
+        has_visible=first.has_visible or second.has_visible,
+        all_opaque=first.all_opaque and second.all_opaque,
+        visible_pixels_white=(
+            first.visible_pixels_white and second.visible_pixels_white
+        ),
+    )
+
+
+def _validate_color_profile(
+    profile: PngPixelProfile,
+    context: str,
+) -> None:
+    """Require a fully opaque Microsoft color icon."""
+    if not profile.all_opaque:
+        raise _error(
+            context,
+            "color icon must use alpha 255 for every pixel",
+        )
+
+
+def _validate_outline_profile(
+    profile: PngPixelProfile,
+    context: str,
+) -> None:
+    """Require transparent background and white visible outline pixels."""
+    if not profile.has_transparent:
+        raise _error(
+            context,
+            "outline icon must contain at least one transparent pixel",
+        )
+    if not profile.visible_pixels_white:
+        raise _error(
+            context,
+            (
+                "every visible outline pixel must be pure white "
+                "RGB (255, 255, 255)"
+            ),
+        )
+
+
+def _validate_pixel_profile(
+    profile: PngPixelProfile,
+    icon_kind: str | None,
+    context: str,
+) -> None:
+    """Require generic visibility and Microsoft color/outline pixel policy."""
+    if not profile.has_visible:
+        raise _error(context, "PNG must contain at least one visible pixel")
+    if icon_kind is None:
+        return
+    if icon_kind not in EXPECTED_DIMENSIONS:
+        raise _error(context, "icon kind must be color or outline")
+    if icon_kind == "color":
+        _validate_color_profile(profile, context)
+        return
+    _validate_outline_profile(profile, context)
 
 
 def validate_png_bytes(
     data: bytes,
     expected_dimensions: tuple[int, int],
     context: str,
+    *,
+    icon_kind: str | None = None,
 ) -> None:
     """Validate one complete non-interlaced, 8-bit RGBA PNG image.
 
@@ -317,6 +429,8 @@ def validate_png_bytes(
         Required ``(width, height)`` pair.
     context
         Human-readable source name for errors.
+    icon_kind
+        Optional ``color`` or ``outline`` Microsoft icon pixel policy.
 
     Raises
     ------
@@ -337,8 +451,8 @@ def validate_png_bytes(
         expected_length,
         context,
     )
-    if not _has_visible_pixel(decoded, header, context):
-        raise _error(context, "PNG must contain at least one visible pixel")
+    profile = _pixel_profile(decoded, header, context)
+    _validate_pixel_profile(profile, icon_kind, context)
 
 
 def _read_chunks(data: bytes, context: str) -> list[PngChunk]:
@@ -498,6 +612,8 @@ def _validate_chunk_structure(
 def validate_png(
     path: Path,
     expected_dimensions: tuple[int, int],
+    *,
+    icon_kind: str | None = None,
 ) -> None:
     """Validate one PNG file from disk.
 
@@ -507,6 +623,8 @@ def validate_png(
         PNG path.
     expected_dimensions
         Required ``(width, height)`` pair.
+    icon_kind
+        Optional ``color`` or ``outline`` Microsoft icon pixel policy.
 
     Raises
     ------
@@ -516,7 +634,12 @@ def validate_png(
     """
     if not path.is_file() or path.is_symlink():
         raise _error(path.as_posix(), "icon must be a regular file")
-    validate_png_bytes(path.read_bytes(), expected_dimensions, path.as_posix())
+    validate_png_bytes(
+        path.read_bytes(),
+        expected_dimensions,
+        path.as_posix(),
+        icon_kind=icon_kind,
+    )
 
 
 def _require_object(value: object, context: str) -> dict[str, object]:
@@ -636,7 +759,7 @@ def validate_manifest_icons(package_dir: Path) -> int:
                 manifest_path.as_posix(),
                 "color and outline must reference different files",
             )
-        validate_png(path, dimensions)
+        validate_png(path, dimensions, icon_kind=icon_name)
         paths.add(path)
     return len(paths)
 

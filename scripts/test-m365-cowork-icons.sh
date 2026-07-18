@@ -86,6 +86,38 @@ def image_rows(*, visible: bool = True) -> list[bytes]:
     return rows
 
 
+def color_rows(first_alpha: int) -> list[bytes]:
+    rows = []
+    for row_index in range(HEIGHT):
+        row = bytearray()
+        for column in range(WIDTH):
+            alpha = first_alpha if not (row_index or column) else 255
+            row.extend((20 + row_index, 40 + column, 60, alpha))
+        rows.append(bytes(row))
+    return rows
+
+
+def outline_rows(
+    *,
+    transparent_background: bool,
+    colored_pixel: bool = False,
+) -> list[bytes]:
+    rows = []
+    for row_index in range(HEIGHT):
+        row = bytearray()
+        for column in range(WIDTH):
+            is_origin = not (row_index or column)
+            alpha = 0 if transparent_background and is_origin else 255
+            rgb = (
+                (20, 40, 60)
+                if colored_pixel and (row_index, column) == (0, 1)
+                else (255, 255, 255)
+            )
+            row.extend((*rgb, alpha))
+        rows.append(bytes(row))
+    return rows
+
+
 def scanlines(
     rows: list[bytes],
     filters: tuple[int, ...] = (0, 1, 2, 3, 4),
@@ -130,9 +162,20 @@ def png_with_idat(header: bytes, compressed: bytes) -> bytes:
     )
 
 
-def expect_failure(label: str, data: bytes, fragment: str) -> None:
+def expect_failure(
+    label: str,
+    data: bytes,
+    fragment: str,
+    *,
+    icon_kind: str | None = None,
+) -> None:
     try:
-        validate_png_bytes(data, (WIDTH, HEIGHT), label)
+        validate_png_bytes(
+            data,
+            (WIDTH, HEIGHT),
+            label,
+            icon_kind=icon_kind,
+        )
     except IconValidationError as error:
         if fragment not in str(error):
             raise AssertionError(
@@ -145,6 +188,18 @@ def expect_failure(label: str, data: bytes, fragment: str) -> None:
 valid_raw = scanlines(image_rows())
 valid = png(valid_raw)
 validate_png_bytes(valid, (WIDTH, HEIGHT), "all-filter-types")
+validate_png_bytes(
+    png(scanlines(color_rows(255))),
+    (WIDTH, HEIGHT),
+    "valid-color",
+    icon_kind="color",
+)
+validate_png_bytes(
+    png(scanlines(outline_rows(transparent_background=True))),
+    (WIDTH, HEIGHT),
+    "valid-outline",
+    icon_kind="outline",
+)
 
 bad_crc = bytearray(valid)
 idat_offset = valid.index(b"IDAT")
@@ -167,6 +222,37 @@ expect_failure(
     "transparent",
     png(scanlines(image_rows(visible=False))),
     "visible pixel",
+)
+expect_failure(
+    "transparent-color-pixel",
+    png(scanlines(color_rows(0))),
+    "alpha 255",
+    icon_kind="color",
+)
+expect_failure(
+    "partial-color-pixel",
+    png(scanlines(color_rows(128))),
+    "alpha 255",
+    icon_kind="color",
+)
+expect_failure(
+    "opaque-outline-background",
+    png(scanlines(outline_rows(transparent_background=False))),
+    "transparent pixel",
+    icon_kind="outline",
+)
+expect_failure(
+    "colored-outline-pixel",
+    png(
+        scanlines(
+            outline_rows(
+                transparent_background=True,
+                colored_pixel=True,
+            ),
+        ),
+    ),
+    "pure white",
+    icon_kind="outline",
 )
 expect_failure("trailing", valid + b"x", "trailing data")
 expect_failure("missing-iend", valid[:-12], "missing IEND")
